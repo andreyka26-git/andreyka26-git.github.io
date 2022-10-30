@@ -20,9 +20,7 @@ urls:
 author_logo: profile.png
 author: Andrii Bui
 author_bio: Hi, my name is Andrii. I'm Software Engineer at Microsoft with 5 years of experience. 
-# author_email: "mail@sujaykundu.com"
 author_location: Ukraine
-# author_website_url: "https://sujaykundu.com"
 typewrite-text: Explore Architecture, Domain-Driven Design, Authorization, CI-CD.
 hero_cover_img: sample_cover.jpg # replace this for changing homepage cover (eg. try cover.jpeg). Image should be in /assets/img
 
@@ -54,16 +52,11 @@ author_work_experiences:
               visibility: true
 
 # social links
-#twitter_username: johndoe
 github_username:  andreyka26-git
 facebook_username: profile.php?id=100017215509428
 linkedin_username: andrii-bui-a55b39166
-#behance_username: johndoe
 instagram_username: andreyka26_programmer
-#medium_username: johndoe
 telegram_username: programming_space
-#dribbble_username: johndoe
-#flickr_username: johndoe
 
 #for comments ( we got Disqus and Hyvor Commenting, uncomment the one you want to use )
 
@@ -134,17 +127,6 @@ plugins:
   - jekyll-gist
   - jekyll-seo-tag
   - jekyll-sitemap
-  - jekyll-admin
-
-# Jekyll Admin Config
-jekyll_admin:
-  # hidden_links:
-  #   - posts
-  #   - pages
-  #   - staticfiles
-  #   - datafiles
-  #   - configuration
-  homepage: "posts"
 
 
 # Exclude from processing.
