@@ -2,6 +2,7 @@
 layout: post
 title: "JWT authentication and authroization using .NET and React"
 date: 2022-09-06 10:05:35 -0000
+category: ["Authorization"]
 tags: [guides, authorization, dotnet, tutorials]
 description: "In this article we will do the basic authentication and authorization using Backend (.NET + C#) and Frontend (React client). We will use JWT for this."
 ---
@@ -34,8 +35,6 @@ Conversion notes:
 
 ----->
 
-
-
 ## Introduction
 
 Who might want to read this article?
@@ -45,7 +44,6 @@ This article is a simple guide about how to create JWT authorization using Backe
 I saw this flow 2 times in commercial projects I was working on, it is simple, it is workable to some extent. It has drawbacks, but it is cheap to implement nonetheless.
 
 In **Identity** docs, you can see Razor pages (custom UI) for auth. But almost always it is not what you want to do, usually, you have a separated backend and frontend. So in this guide, we will do auth using the pure backend.
-
 
 If you are looking for good client implementations it is not a guide for you, I mostly will discuss the backend part.
 
@@ -57,26 +55,22 @@ This article will touch on authentication and authorization concepts, so you cou
 
 In this particular sample, our server acts similarly to the authorization server in **OAuth** protocol, and the flow looks like **Password Grant** of **OAuth**.
 
-The resource server (or just endpoints) will be protected by authorization middleware that will check specific tokens called **JWT** (**JSON Web Token**). 
+The resource server (or just endpoints) will be protected by authorization middleware that will check specific tokens called **JWT** (**JSON Web Token**).
 
-JWT works in the following way (I simplify a lot): 
+JWT works in the following way (I simplify a lot):
 
-
-
-* JWT consists of the user’s data called Claims (email, username, id, role, id). And this information is base64 encoded.
-* Whenever we create JWT we create a signature based on this user data and add this signature to the payload.
-* Whenever some server gets the JWT it extracts this payload and creates the same signature using the secret it has. If the signatures are equal - you can trust this token and this user is valid.
+- JWT consists of the user’s data called Claims (email, username, id, role, id). And this information is base64 encoded.
+- Whenever we create JWT we create a signature based on this user data and add this signature to the payload.
+- Whenever some server gets the JWT it extracts this payload and creates the same signature using the secret it has. If the signatures are equal - you can trust this token and this user is valid.
 
 The flow:
 
-
-
-* The client tries to access some protected endpoint - it gets 401 UnAuthorized.
-* The client redirects the user to the login page, the user fills in his username and password
-* The client sends those credentials to the backend.
-* The backend verifies the password using Identity.
-* The backend creates JWT if the user exists and has the correct password.
-* The client receives a response from the backend and tries to access protected endpoints with this token (in the header).
+- The client tries to access some protected endpoint - it gets 401 UnAuthorized.
+- The client redirects the user to the login page, the user fills in his username and password
+- The client sends those credentials to the backend.
+- The backend verifies the password using Identity.
+- The backend creates JWT if the user exists and has the correct password.
+- The client receives a response from the backend and tries to access protected endpoints with this token (in the header).
 
 <br>
 
@@ -90,7 +84,6 @@ For the backend, we need to create a project, identity, and database for it.
 
 Create a Postgres database (I prefer through docker).
 
-
 ```
 docker volume create pgdata
 
@@ -100,9 +93,7 @@ docker run -p 5432:5432 --name postgres -v pgdata:/var/lib/postgresql/data -e PO
 
 In the end, you should have postgres running on a particular port, for simplicity, it is 5432 in my case.
 
-
 ![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image6.png "image_tooltip")
-
 
 <br>
 
@@ -120,7 +111,7 @@ For our purpose, I’ll name it “Server”.
 
 Install a bunch of nuggets:
 
-Install  **Microsoft.AspNetCore.Identity.EntityFrameworkCore** NuGet.
+Install **Microsoft.AspNetCore.Identity.EntityFrameworkCore** NuGet.
 
 Install **Npgsql.EntityFrameworkCore.PostgreSQL** NuGet.
 
@@ -146,7 +137,6 @@ You can do that in **Properties** -> **launchSettings.json**
 
 [https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/AuthContext.cs](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/AuthContext.cs)
 
-
 ```cs
 public class AuthContext : IdentityDbContext<IdentityUser>
 {
@@ -171,7 +161,6 @@ Then patch settings
 [https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/appsettings.json](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/appsettings.json)
 
 ```json
-
 {
   "Secret": "secret*secret123secret444",
 
@@ -179,7 +168,6 @@ Then patch settings
     "AuthContextConnection": "Host=127.0.0.1;Port=5432;Database=AuthSampleDb5;Username=root;Password=root"
   }
 }
-
 ```
 
 Lets create another file for our default username and login
@@ -216,7 +204,7 @@ builder.Services.AddSwaggerGen(c =>
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n 
+        Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n
                       Enter 'Bearer' [space] and then your token in the text input below.
                       \r\n\r\nExample: 'Bearer 12345abcdef'",
         Name = "Authorization",
@@ -278,10 +266,10 @@ builder.Services.AddAuthentication(options =>
         ClockSkew = TimeSpan.Zero
     };
 });
- 
+
 ```
 
-Then after 
+Then after
 
 ```cs
 var app = builder.Build();
@@ -462,7 +450,7 @@ public AuthorizationController(UserManager<IdentityUser> userManager,
 public async Task<IActionResult> GetTokenAsync([FromBody] GetTokenRequest request)
 {
     var user = await _userManager.FindByNameAsync(request.UserName);
-    
+
     if (user == null)
     {
         //401 or 404
@@ -506,24 +494,17 @@ Add-Migration Initial
 
 Run the application locally. By following “[https://localhost:7000/swagger/index.html](https://localhost:7000/swagger/index.html)” you should be able to see swagger UI.
 
-Try authorization endpoint with creds “andreyka26_” and “Mypass1*”
-
-
+Try authorization endpoint with creds “andreyka26\_” and “Mypass1\*”
 
 ![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image7.png "image_tooltip")
 
-
 Now you could add this authorization token to header with “Bearer <token>” and run ResourceController.
-
 
 ![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image1.png "image_tooltip")
 
-
 And as response you could see that in controller our auth middleware successfully parsed username claim:
 
-
 ![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image8.png "image_tooltip")
-
 
 <br>
 
@@ -557,29 +538,26 @@ npm install react-router-dom --save
 **index.js**
 
 ```js
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import App from "./App";
 
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<App />);
-
 ```
 
 **App.js**
 
 ```js
-
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import './App.css';
+import "./App.css";
 
 //pages
 
-import HomePage from "./pages/Home"
-import LoginPage from "./pages/Login"
+import HomePage from "./pages/Home";
+import LoginPage from "./pages/Login";
 
 export default function App() {
   return (
@@ -591,7 +569,6 @@ export default function App() {
     </BrowserRouter>
   );
 }
-
 ```
 
 Then create two files:
@@ -599,106 +576,100 @@ Then create two files:
 **pages/Home.js**
 
 ```js
-
-import axios from 'axios';
-import React, { useState, useEffect } from 'react';
+import axios from "axios";
+import React, { useState, useEffect } from "react";
 
 function HomePage() {
-    const [data, setData] = useState("default");
+  const [data, setData] = useState("default");
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
+  useEffect(() => {
+    const token = localStorage.getItem("token");
 
-        if (token) {
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-        }
+    if (token) {
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    }
 
-        if (data == "default") {
-            axios.get("https://localhost:7000/api/resources")
-            .then(response => {
-                const data = response.data;
-                
-                setData(data);
-            })
-            .catch(err => console.log(err));
-        }
-    });
+    if (data == "default") {
+      axios
+        .get("https://localhost:7000/api/resources")
+        .then((response) => {
+          const data = response.data;
 
-    return (
-        <div>
-            Home Page {data}
-        </div>
-    );
+          setData(data);
+        })
+        .catch((err) => console.log(err));
+    }
+  });
+
+  return <div>Home Page {data}</div>;
 }
 
 export default HomePage;
-
 ```
 
 **pages/Login.js**
 
 ```js
-
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
-    const navigate = useNavigate();
-    const [userName, setUserName] = useState("andreyka26_");
-    const [password, setPassword] = useState("Mypass1*");
+  const navigate = useNavigate();
+  const [userName, setUserName] = useState("andreyka26_");
+  const [password, setPassword] = useState("Mypass1*");
 
-    function handleSubmit(event) {
-        event.preventDefault();
+  function handleSubmit(event) {
+    event.preventDefault();
 
-        const loginPayload = {
-            userName: userName,
-            password: password
-        };
-        
-        axios.post("https://localhost:7000/authorization/token", loginPayload)
-        .then(response => {
-            const token = response.data.authorizationToken;
+    const loginPayload = {
+      userName: userName,
+      password: password,
+    };
 
-            localStorage.setItem("token", token);
+    axios
+      .post("https://localhost:7000/authorization/token", loginPayload)
+      .then((response) => {
+        const token = response.data.authorizationToken;
 
-            if (token) {
-                axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-            }
-        
-            navigate('/');
-        })
-        .catch(err => console.log(err));
-    }
+        localStorage.setItem("token", token);
 
-    function handleUserNameChange(event) {
-        setUserName({value: event.target.value});
-    }
+        if (token) {
+          axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        }
 
-    function handlePasswordhange(event) {
-        setPassword({value: event.target.value});
-    }
+        navigate("/");
+      })
+      .catch((err) => console.log(err));
+  }
 
-    return (
-        <div>
-            Login Page
-            <form onSubmit={handleSubmit}>
-                <label>
-                    User Name:
-                    <input type="text" value={userName} onChange={handleUserNameChange} />
-                </label>
-                <label>
-                    Password:
-                    <input type="text" value={password} onChange={handlePasswordhange} />
-                </label>
-                <input type="submit" value="Submit" />
-            </form>
-        </div>
-    );
+  function handleUserNameChange(event) {
+    setUserName({ value: event.target.value });
+  }
+
+  function handlePasswordhange(event) {
+    setPassword({ value: event.target.value });
+  }
+
+  return (
+    <div>
+      Login Page
+      <form onSubmit={handleSubmit}>
+        <label>
+          User Name:
+          <input type="text" value={userName} onChange={handleUserNameChange} />
+        </label>
+        <label>
+          Password:
+          <input type="text" value={password} onChange={handlePasswordhange} />
+        </label>
+        <input type="submit" value="Submit" />
+      </form>
+    </div>
+  );
 }
 
 export default LoginPage;
-
 ```
 
 <br>
@@ -713,29 +684,19 @@ Go to “[http://localhost:3000/login](http://localhost:3000/login)”, and pres
 
 In network tab you should be able to see token request:
 
-
 ![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image3.png "image_tooltip")
-
-
 
 ![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image5.png "image_tooltip")
 
-
 And then the redirection to home page which queries our backend with this token:
-
 
 ![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image2.png "image_tooltip")
 
-
-
 ![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image9.png "image_tooltip")
-
 
 In our case we can even see what is stored in our token because we don’t encrypt it. Go to **[https://jwt.io](https://jwt.io) **and paste there your token.
 
-
 ![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image4.png "image_tooltip")
-
 
 You can see our name and id claims we’ve created on token generation step in the backend. The same way you could add role and validate by role.
 

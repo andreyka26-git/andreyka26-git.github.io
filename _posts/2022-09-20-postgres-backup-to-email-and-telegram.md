@@ -2,6 +2,7 @@
 layout: post
 title: "Regular postgres backup to email and telegram channel"
 date: 2022-09-20 10:05:35 -0000
+category: ["Insfrastructure"]
 tags: [guides, infrastructure, tutorials]
 description: "In this article we will do regular and recurring backup process to telegram and email for ubuntu on premise server using curl + cron."
 ---
