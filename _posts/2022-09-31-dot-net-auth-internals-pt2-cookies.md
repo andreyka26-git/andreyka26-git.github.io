@@ -38,7 +38,7 @@ Conversion notes:
 ### Why you may want to read this article
 
 The prerequisite for this article is the entry article about common services for Auth in .NET:
-[https://andreyka26.com/authinternalsindotnet/2022/10/01/dot-net-internals-pt1-basics](https://andreyka26.com/authinternalsindotnet/2022/10/01/dot-net-internals-pt1-basics)
+[https://andreyka26.com/authorization/.net%20auth%20internals/2022/10/01/dot-net-auth-internals-pt1-basics](https://andreyka26.com/authorization/.net%20auth%20internals/2022/10/01/dot-net-auth-internals-pt1-basics)
 
 This is the second article about authentication internals in .NET 5. Here I’m going to go through the **source code** of the Authentication Core of .NET, by implementing authentication using **Cookies**.
 
