@@ -7,6 +7,11 @@ tags: [guides, infrastructure, tutorials]
 description: "This article is more about convenience, so whever I had project with Postgres I ended up with searching with commands to up it locally with docker, all the commands to create, update, drop database, make backups. So I put all those commands in this article to have in one place"
 ---
 
+* TOC
+{:toc}
+
+<br>
+
 <!-- Copy and paste the converted output. -->
 
 <!-----

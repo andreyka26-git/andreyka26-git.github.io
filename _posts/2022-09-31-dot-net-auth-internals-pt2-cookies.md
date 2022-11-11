@@ -7,6 +7,11 @@ tags: [guides, authorization, dotnet, tutorials]
 description: "This article will show you cookie authentication handler internal for .NET Core. We will cover everything that going on under hood by looking into the source code."
 ---
 
+* TOC
+{:toc}
+
+<br>
+
 <!-- Output copied to clipboard! -->
 
 <!-----

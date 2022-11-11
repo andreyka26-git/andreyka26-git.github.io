@@ -1,5 +1,4 @@
-title: andreyka26_ tech
-subtitle: andreyka26_ technical blog
+title: andreyka26 tech
 google_analytics: G-71R0HBMGS3
 description: >- # this means to ignore newlines until "baseurl:"
   I am Software Engineer at Microsoft. This is my tech blog where I would like to share my findings, guides and docs. Feel free to contact me.
@@ -59,6 +58,7 @@ facebook_username: profile.php?id=100017215509428
 linkedin_username: andrii-bui-a55b39166
 instagram_username: andreyka26_programmer
 telegram_username: programming_space
+youtube_username: channel/UCl-trrNbK2tVCTFTn3QbFkw
 
 #for comments ( we got Disqus and Hyvor Commenting, uncomment the one you want to use )
 

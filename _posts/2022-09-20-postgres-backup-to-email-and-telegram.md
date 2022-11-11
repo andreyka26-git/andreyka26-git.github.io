@@ -7,6 +7,11 @@ tags: [guides, infrastructure, tutorials]
 description: "In this article we will do regular and recurring backup process to telegram and email for ubuntu on premise server using curl + cron."
 ---
 
+* TOC
+{:toc}
+
+<br>
+
 <!-- Output copied to clipboard! -->
 
 <!-----

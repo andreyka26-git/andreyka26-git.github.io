@@ -7,6 +7,11 @@ tags: [guides, authorization, dotnet, tutorials]
 description: "In this article we will implement basic auth schemes: Basic Authorization and Digest Authorization using .NET and C#. On top of that I'll explain how and why they work, and I will cover pros and cons of them"
 ---
 
+* TOC
+{:toc}
+
+<br>
+
 <!-- Output copied to clipboard! -->
 
 <!-----

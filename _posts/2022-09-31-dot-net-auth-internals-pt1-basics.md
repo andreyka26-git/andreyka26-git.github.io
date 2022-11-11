@@ -7,6 +7,11 @@ tags: [guides, authorization, dotnet, tutorials]
 description: "This article is entry one about authentication and authorization internals in .NET. We will overview all source code, common services, architecture and design to understand how it works"
 ---
 
+* TOC
+{:toc}
+
+<br>
+
 <!-- Output copied to clipboard! -->
 
 <!-----

@@ -7,6 +7,11 @@ tags: [guides, authorization, dotnet, tutorials]
 description: "In this article we will do the basic authentication and authorization using Backend (.NET + C#) and Frontend (React client). We will use JWT for this."
 ---
 
+* TOC
+{:toc}
+
+<br>
+
 <!-- Output copied to clipboard! -->
 
 <!-----
@@ -47,7 +52,7 @@ In **Identity** docs, you can see Razor pages (custom UI) for auth. But almost a
 
 If you are looking for good client implementations it is not a guide for you, I mostly will discuss the backend part.
 
-This article will touch on authentication and authorization concepts, so you could check my previous articles that show the internals of auth process in .net and in general in computer science: [https://andreyka26-git.github.io/authorization/2022/09/02/auth-from-backend-perspective-pt1.htm](https://andreyka26-git.github.io/authorization/2022/09/02/auth-from-backend-perspective-pt1.htm)
+This article will touch on authentication and authorization concepts, so you could check my previous articles that show the internals of auth process in .net and in general in computer science: [computer science](https://andreyka26.com/authorization/2022/09/02/auth-from-backend-perspective-pt1/#/), [.net basics](https://andreyka26.com/authorization/.net%20auth%20internals/2022/10/01/dot-net-auth-internals-pt1-basics/#/), [.net cookies internals](https://andreyka26.com/authorization/.net%20auth%20internals/2022/10/01/dot-net-auth-internals-pt2-cookies/#/)
 
 <br>
 
