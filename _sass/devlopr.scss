@@ -646,7 +646,13 @@ header {
     grid-template-columns: 17fr 2fr;
 }
 
-#article-img, #article-link, #article-alert {
+#article-alert {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+#article-img, #article-link {
     padding-left: 5px;
     padding-top: 2px;
     margin: 5px;
