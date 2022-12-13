@@ -114,7 +114,7 @@ Then let’s create and run a postgres container with the name “postgres”, o
 
 ```
 
-docker run -p 5432:5432 --name postgres -v pgdata:/var/lib/postgresql/data -e POSTGRES_PASSWORD=root -e POSTGRES_USER=root -d postgres
+docker run -p 5432:5432 --name postgres -v pgdata:/var/lib/postgresql/data -e POSTGRES_PASSWORD=root -e POSTGRES_USER=root -d postgres:14
 
 ```
 
