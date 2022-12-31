@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Infrastructure
-permalink: /categories/infrastructure/
+permalink: /categories/Infrastructure/
 ---
 
 <h5> Posts by Category : {{ page.title }} </h5>
