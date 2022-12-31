@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Infrastructure
+title: "Infrastructure"
 permalink: /categories/Infrastructure/
 ---
 
