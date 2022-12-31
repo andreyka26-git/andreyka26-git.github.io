@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Authorization & Authentication from backend perspective pt1"
+title: "Auth from backend perspective pt2: Basic and Digest Schemes"
 date: 2022-09-02 11:02:35 -0000
 category: ["Authorization"]
 tags: [guides, authorization, dotnet, tutorials]
@@ -36,106 +36,19 @@ Conversion notes:
 * Docs to Markdown version 1.0β33
 * Fri Sep 02 2022 05:34:03 GMT-0700 (PDT)
 * Source doc: Authorization & Authentication from backend perspective pt1
-* This document has /assets/2022-09-02-auth-from-backend-perspective-pt1: check for >>>>>  gd2md-html alert:  inline image link in generated source and store /assets/2022-09-02-auth-from-backend-perspective-pt1 to your server. NOTE: /assets/2022-09-02-auth-from-backend-perspective-pt1 in exported zip file from Google Docs may not appear in  the same order as they do in your doc. Please check the /assets/2022-09-02-auth-from-backend-perspective-pt1!
+* This document has /assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest: check for >>>>>  gd2md-html alert:  inline image link in generated source and store /assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest to your server. NOTE: /assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest in exported zip file from Google Docs may not appear in  the same order as they do in your doc. Please check the /assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest!
 
 ----->
 
 ### **Introduction**
 
-To be honest I planned to write this article about a year ago, because for a long time the **authentication & authorization** process was for me kind of not so clear. I didn’t find any book or article which in simple words can show the whole picture of that process, especially digging into details.
+In the previous article about basics, we considered some auth terminology, and explored all diversity of existing authentication and authorization protocols and schemes.
 
-\
-So in that article, we are covering:
-
-- What is auth
-- What types of auth could be
-- As one of the types, we will consider **Basic** and **Digest** (with our samples in .NET).
-- In the next part of this article, we will take a look at **OAuth** and **OpenId Connect**.
-
-This article should be useful for people who managed to get the RFC but didn’t get the completely **OAuth** flow. I am here to help you because I was in the same situation.
-
-Note: I am using official info like RFC or the documentation provided by specific tools, so you can check everything by yourself if you want to.
-
-Git repository with samples: [https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample)
+In this part, I’ll explain and implement Basic and Digest Auth schemes.
 
 <br>
 
-### **Definitions**
-
-Prior to starting to talk about different approaches to **authentication** and **authorization**, we should consider the definitions.
-
-<br>
-
-#### **Authorization & Authentication**
-
-- From Wikipedia: “**_Authorization is the function of specifying access rights/privileges to resources, which is related to general information security and computer security, and to access control in particular_**”.
-
-- From MSDN: “**_Authorization is the process of determining whether a user has access to a resource. Authentication is the process of determining a user's identity_**”.
-
-- From Martin Fowler’s blog: “**_Authorization defines whether a user is allowed to do something. Authentication confirms that the users are who they claim to be_**”.
-
-You could pick up whatever definition you like, they are basically the same.
-
-I unite **Authorization & Authentication** to “**auth**” because most usually (and in examples, we’ll see that) - the **authorization** is impossible without **authentication**. If you don’t know who the **User** is- you cannot say what the **User** is allowed to do via **Client**.
-
-<br>
-
-#### **API or Resource Server**
-
-In terms of **OAuth** it is named “**Resource Server**”, but for simplicity let me put it in the following way: it is the **Server** (just a piece of software running on some machine) that handles requests from the **Client** and sometimes needs the **Client** to be authorized to get the correct response.
-
-Why sometimes? Because** API** may contain a public endpoint that doesn’t need auth at all. If all endpoints in the** API** are public (can be accessed without authorization) - there is no need to use auth. That’s why we will consider all endpoints on the **API** as protected ones.
-
-<br>
-
-#### **Client**
-
-The **Client** is basically a piece of software that talks to the** API** and needs to authorize requests (when the endpoints are not public). Most usually this software runs on some device (mobile, desktop, and browser) and the **User** is interacting with the API using the **Client**.
-
-<br>
-
-#### **User**
-
-In terms of **OAuth** the **resource owner** - is most usually a person who would like to use the **Client** and the application itself.
-
-<br>
-
-#### **Authorization Server**
-
-This **Server** is fully responsible for the identity of the user, authentication, and creation of tokens. This enables you just to use some verification based on signatures (on **Resource Server**) and not worry about implementation details of authentication.
-
-We will use this term in the next part for **OAuth** and **OpenId Connect**. For this part, it is not possible to decouple the **Authorization Server** from **Resource Server**. So I will refer to **API**, **Resource Server**, **Authorization Server,** or just **Server** as to the same thing in this part.
-
-<br>
-
-### **Flow**
-
-The basic flow looks like that:
-
-1. The **User** wants to interact with the application somehow, this makes the **Client** send and receive data from **API** back and forth. Since the **API** has protected endpoints - it requires the **Client** to authorize its requests and responds with 401 Not Authorized.
-
-2. The **Client** then should firstly authenticate the user - make the request to the **Server** so that it confirms the **User** is who he claims to be. It may be the same **Server** where the **API** is serving or a standalone **Server**.
-
-Most usually authentication is performed by sending the login and password (some identity) of the **User** to the **Server** that responds with a ticket (sequence of characters, typically signed or encrypted so the **API** can validate). This ticket can be used to access the **API**. Most usually this ticket is either a token or cookies (see the section about **OAuth** and **OpenId Connect**). Meanwhile, for sure, the **Server** should have information about this user (to be able to say this login + password does exist and what he has access to).
-
-3. The **Client** performs a request to the **API** including the authorization ticket (either token or cookies) - and then it can get the response from it.
-
-The most common approach for implementing **auth** is to use **auth** tokens in headers. For sure there are other ways like sessions. But the main advantage of tokens is that they are stateless: you are not required to make other requests prior to the current one to be authorized. You only need to use the appropriate token.
-
-The token is kept via request headers in the following format: “Authorization: &lt;auth scheme> &lt;token value>”.
-
-Basically, the scheme means the way you can create or get your token and validate it, so let’s consider the most popular **auth** schemes.
-
-<br>
-
-### **Auth schemes**
-
-There are many schemes that can be used to make the auth. There may be custom ones, but we will consider the most popular ones. \
-There are resources where you can find all commonly used schemes and RFC documentation for each of them: [https://www.iana.org/assignments/http-authschemes/http-authschemes.xhtml](https://www.iana.org/assignments/http-authschemes/http-authschemes.xhtml).
-
-<br>
-
-#### **Basic Scheme**
+### **Basic Scheme**
 
 RFC: [https://www.rfc-editor.org/rfc/rfc7617.html](https://www.rfc-editor.org/rfc/rfc7617.html)
 
@@ -160,7 +73,7 @@ Basic Auth Client:
 
 [https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/SimpleAuth/Basic.WebClient](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/SimpleAuth/Basic.WebClient)
 
-![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt1/image1.png "image_tooltip")
+![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image1.png "image_tooltip")
 
 **BasicAuthenticationHandler** first does the authentication: it extracts username and password from the header (decoding base64) and ensures this user does exist (in our case it is a simple if statement, but in the real case, it should hash the pass and check it along with username). It does it for every request because we used **_.UseAuthorization() .UseAuthentication()_** middleware registration methods.
 
@@ -168,7 +81,7 @@ But this is the **Authentication** part of it, we only checked that the user is 
 
 After **BasicAuthenticationHandler** did the authentication part we will have **User.Identity** in each endpoint, and based on this identity we can do **Authorization** - to verify whether this particular user is allowed to access this endpoint or not.
 
-![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt1/image3.png "image_tooltip")
+![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image3.png "image_tooltip")
 
 However, **Basic Auth** is so simple it brings a few problems:
 
@@ -179,7 +92,7 @@ However, **Basic Auth** is so simple it brings a few problems:
 
 <br>
 
-#### **Digest Scheme**
+### **Digest Scheme**
 
 RFC: [https://datatracker.ietf.org/doc/html/rfc7616](https://datatracker.ietf.org/doc/html/rfc7616)
 
@@ -219,7 +132,7 @@ The flow is the following:
 
 2. **The Client** collects **realm**, **qop**, **nonce**, and **opaque** from the response header.
 
-![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt1/image5.png "image_tooltip")
+![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image5.png "image_tooltip")
 
 3. The **Client** generates a request auth token:
 
@@ -235,7 +148,7 @@ _Second Hash (A2) = MD5 (httpMethod:requestUrl)_
 
 _Response = MD5 ({First Hash}:**nonce**:**nonceCount**:**cnonce**:**qop**:{Second Hash})_
 
-![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt1/image6.png "image_tooltip")
+![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image6.png "image_tooltip")
 
 4. The **Client** sends the same request including the Authorization header in the following format: Digest **username**=”{username}”,
 
@@ -255,11 +168,11 @@ _Response = MD5 ({First Hash}:**nonce**:**nonceCount**:**cnonce**:**qop**:{Secon
 
 **opaque**=”{opaque}”
 
-![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt1/image4.png "image_tooltip")
+![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image4.png "image_tooltip")
 
 5. The **Server** verifies the hash by using values provided by the **Client** (authenticate and authorize). Then it either rejects with a 4XX error or serves the response.
 
-![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt1/image2.png "image_tooltip")
+![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image2.png "image_tooltip")
 
 There is one interesting question: How is the **Server** supposed to generate the first hash without knowing the password since the **Client** doesn’t pass it on request?
 

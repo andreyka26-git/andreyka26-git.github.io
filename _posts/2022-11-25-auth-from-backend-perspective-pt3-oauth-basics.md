@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Authorization & Authentication from backend perspective pt2: OAuth basics"
+title: "Auth from backend perspective pt3: OAuth basics"
 date: 2022-11-25 11:02:35 -0000
 category: ["Authorization"]
 tags: [guides, authorization, dotnet, tutorials]
@@ -42,7 +42,7 @@ Conversion notes:
 
 <br>
 
-## Introduction
+## **Introduction**
 
 **Attention**! This article is about definitions abstract understanding and flow of OAuth. The concrete flows with implementation (Authorization Code, Client Credentials, etc) will be discussed in subsequent articles.
 
@@ -55,7 +55,7 @@ This article is addressed to me in the past. I’ll show the easy and simple way
 
 <br>
 
-## Definitions and Terms
+## **Definitions and Terms**
 
 Server - the piece of software running on some hardware. In the scope of this article, this software should be able to receive requests and respond to them via HTTP protocol.
 
@@ -108,7 +108,7 @@ _specific credentials (access token)_”
 
 <br>
 
-## Purpose
+## **Purpose**
 
 Historically the main use case for OAuth was solving auth problems that come up with third-party applications.
 
@@ -132,7 +132,7 @@ OAuth was introduced to address those problems. It uses separate credentials for
 
 <br>
 
-## Flow
+## **Flow**
 
 The first thing that brings you close to understanding OAuth is that it is not a protocol for authentication. So it does not explain how you can authenticate users with login & password or any other way. 
 
@@ -154,7 +154,7 @@ The **general flow**:
 
 <br>
 
-## Authorization Grants & Flow
+## **Authorization Grants & Flow**
 
 There are 4 main flows and consequently 4 Authorization Grants for OAuth protocol: **Authorization Code**, **Implicit**,  **Resource Owner Password Credentials**, and **Client Credentials**.
 
@@ -170,7 +170,7 @@ I personally differentiate the flows by
 
 <br>
 
-### Authorization Code
+### **Authorization Code**
 
 One of the safest grant types. Canonically required browser (user agent according to specification).
 
@@ -179,7 +179,7 @@ To make a better separation of concepts, let’s say, that the Client in our cas
 Basically, the flow is the following: 
 
 
-![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt2-oauth-basics/image15.png "image_tooltip")
+![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt3-oauth-basics/image15.png "image_tooltip")
 
 
 
@@ -194,12 +194,12 @@ Basically, the flow is the following:
 
 <br>
 
-### Implicit
+### **Implicit**
 
 Implicit flow is basically the same as Authorization Code, except it does not authenticate the Client, it only authenticates Resource Owner. This implies some Security drawbacks against Authorization Code flow. 
 
 
-![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt2-oauth-basics/image11.png "image_tooltip")
+![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt3-oauth-basics/image11.png "image_tooltip")
 
 
 
@@ -213,7 +213,7 @@ Implicit flow is basically the same as Authorization Code, except it does not au
 
 <br>
 
-### Resource Owner Password Credentials
+### **Resource Owner Password Credentials**
 
 The simplest and weakest from a security standpoint flow.
 
@@ -226,7 +226,7 @@ The client has access to Resource Owner’s credentials. But this flow allows th
 On top of that, this is a good flow if you are migrating Clients from Basic or Digest authentication to OAuth.
 
 
-![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt2-oauth-basics/image1.png "image_tooltip")
+![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt3-oauth-basics/image1.png "image_tooltip")
 
 
 
@@ -238,7 +238,7 @@ On top of that, this is a good flow if you are migrating Clients from Basic or D
 
 <br>
 
-### Client Credentials
+### **Client Credentials**
 
 This flow is used usually without Resource Owner, or where the Client is Resource Owner.
 
@@ -247,7 +247,7 @@ The Client authenticates itself with the Client’s credentials with the Authori
 This flow should ONLY be used for Confidential Clients (not web-based applications and not mobile-based applications). Mostly it means the usage of Server2Server communication with HTTP-only interaction.
 
 
-![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt2-oauth-basics/image3.png "image_tooltip")
+![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt3-oauth-basics/image3.png "image_tooltip")
 
 
 
@@ -258,12 +258,12 @@ This flow should ONLY be used for Confidential Clients (not web-based applicatio
 
 <br>
 
-## Endpoints
+## **Endpoints**
 
 
 <br>
 
-### Authorize Endpoint
+### **Authorize Endpoint**
 
 The endpoint is implemented in Authorization Server.
 
@@ -287,7 +287,7 @@ This endpoint is only used by the Authorization Code and Implicit grant types. F
 
 <br>
 
-### Redirect Endpoint
+### **Redirect Endpoint**
 
 The endpoint is implemented in Client.
 
@@ -298,7 +298,7 @@ This endpoint MUST be registered in OAuth provider, to be validated when redirec
 
 <br>
 
-### Token Endpoint
+### **Token Endpoint**
 
 The endpoint is implemented in Authorization Server.
 
@@ -307,7 +307,7 @@ This endpoint is used by Client to get an Access Token.
 
 <br>
 
-## Access & Refresh Tokens
+## **Access & Refresh Tokens**
 
 The **Authorization Token** could be some identifier for authorization information that will be retrieved, or it could be a self-containing verifiable pack of data (data + signature). Most usually we mean Bearer tokens.
 
@@ -316,7 +316,7 @@ The **Refresh Token** is a token that the Client could exchange to renew an expi
 
 <br>
 
-## DEMO
+## **DEMO**
 
 For this demo: 
 
@@ -335,13 +335,13 @@ Steps of registering Client in Github are omitted - you easily can find them by 
 Let’s launch the application.
 
 
-![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt2-oauth-basics/image5.png "image_tooltip")
+![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt3-oauth-basics/image5.png "image_tooltip")
 
 
 
 <br>
 
-### Not Authenticated Resource Owner
+### **Not Authenticated Resource Owner**
 
 Open the browser in incognito mode.
 
@@ -352,7 +352,7 @@ You should see now Github login page.
 The first request here is Authorize Endpoint (**[https://github.com/login/oauth/authorize](https://github.com/login/oauth/authorize)**) request
 
 
-![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt2-oauth-basics/image9.png "image_tooltip")
+![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt3-oauth-basics/image9.png "image_tooltip")
 
 
 We have sent “client_id”, “redirect_uri”, “scope” and “state”. The Authorization Server recognizes that we are not signed to GitHub now, so it returns a 302 Found status code with “location” header that points to the Authentication endpoint (**[https://github.com/login](https://github.com/login)**) in Github to authenticate the Resource Owner (me).
@@ -360,17 +360,17 @@ We have sent “client_id”, “redirect_uri”, “scope” and “state”. T
 Login request returns us HTML of login page
 
 
-![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt2-oauth-basics/image8.png "image_tooltip")
+![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt3-oauth-basics/image8.png "image_tooltip")
 
 
 We should authenticate (submit login & pass) then you will see **[https://github.com/session](https://github.com/session)** request that sends your credentials to GitHub’s Authorization Server.
 
 
-![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt2-oauth-basics/image7.png "image_tooltip")
+![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt3-oauth-basics/image7.png "image_tooltip")
 
 
 
-![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt2-oauth-basics/image10.png "image_tooltip")
+![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt3-oauth-basics/image10.png "image_tooltip")
 
 
 After that “session” request, from “location” header it will redirect us to our Authorize Endpoint (**[https://github.com/login/oauth/authorize](https://github.com/login/oauth/authorize)**) again, but with authentication cookies this time.
@@ -378,13 +378,13 @@ After that “session” request, from “location” header it will redirect us
 Then it will send callback to our “redirect_uri” (**[https://localhost:7000/signin-github](https://localhost:7000/signin-github)**) with Authorize Code.
 
 
-![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt2-oauth-basics/image14.png "image_tooltip")
+![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt3-oauth-basics/image14.png "image_tooltip")
 
 
 
 <br>
 
-### Already Authenticated Resource Owner
+### **Already Authenticated Resource Owner**
 
 Let’s launch our application inside the browser that already authenticated in GitHub account.
 
@@ -393,25 +393,25 @@ Click “Authorize via Github”
 We will send the first request to Authorize Endpoint (**[https://github.com/login/oauth/authorize](https://github.com/login/oauth/authorize)**).
 
 
-![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt2-oauth-basics/image2.png "image_tooltip")
+![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt3-oauth-basics/image2.png "image_tooltip")
  \
  \
 We got 302 Found status code with “location” that points to our “redirect_uri” (**[https://localhost:7000/signin-github](https://localhost:7000/signin-github)**) already. This is because we already have authentication cookies for GitHub in browser.
 
 
-![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt2-oauth-basics/image4.png "image_tooltip")
+![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt3-oauth-basics/image4.png "image_tooltip")
 
 
 
 <br>
 
-### Use Access Token
+### **Use Access Token**
 
 Then we handled callback (redirect_uri) (**[https://localhost:7000/signin-github](https://localhost:7000/signin-github)**) in our server: \
 
 
 
-![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt2-oauth-basics/image13.png "image_tooltip")
+![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt3-oauth-basics/image13.png "image_tooltip")
 
 
 We got Authorization Code and State from the query parameters. 
@@ -419,7 +419,7 @@ We got Authorization Code and State from the query parameters.
 Line 27: we sent a request to the Token endpoint to exchange Authorization Code for Access Token:
 
 
-![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt2-oauth-basics/image6.png "image_tooltip")
+![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt3-oauth-basics/image6.png "image_tooltip")
 
 
 Line 36: we sent a request to GitHub API with Access Token to get user data
@@ -427,5 +427,5 @@ Line 36: we sent a request to GitHub API with Access Token to get user data
 Then we just put the response from Github Api as a response to our callback (to show it in the browser).
 
 
-![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt2-oauth-basics/image12.png "image_tooltip")
+![alt_text](/assets/2022-11-25-auth-from-backend-perspective-pt3-oauth-basics/image12.png "image_tooltip")
 

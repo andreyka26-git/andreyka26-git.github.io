@@ -38,7 +38,7 @@ Conversion notes:
 
 
 
-## Introduction
+## **Introduction**
 
 To be honest, I planned to write this set of articles about a year ago, because for a long time the **authentication & authorization** process was for me not so clear. I didn’t find any book or article which in simple words can show the whole picture of that process, especially digging into details.
 
@@ -60,14 +60,14 @@ Git repository with samples: [https://github.com/andreyka26-git/dot-net-samples/
 
 <br>
 
-## Definitions
+## **Definitions**
 
 Prior to starting to talk about different approaches to **authentication** and **authorization**, we should consider the definitions.
 
 
 <br>
 
-### Authorization & Authentication
+### **Authorization & Authentication**
 
 From Wikipedia: “**_Authorization is the function of specifying access rights/privileges to resources, which is related to general information security and computer security, and to access control in particular_**”.
 
@@ -84,28 +84,28 @@ I unite **Authorization & Authentication** to “**auth**” because most usuall
 
 <br>
 
-### API or Resource Server
+### **API or Resource Server**
 
 In terms of **OAuth** it is named “**Resource Server**”, but for simplicity let me put it in the following way: it is the **Server** (just a piece of software running on some machine) that handles requests from the **Client**.
 
 
 <br>
 
-### Client
+### **Client**
 
 The **Client** is basically a piece of software that talks to the** API** and needs to authorize requests (when the endpoints are not public). Most usually this software runs on some device (mobile, desktop, and browser). The **User** is interacting with the API using the **Client**.
 
 
 <br>
 
-### User
+### **User**
 
 In terms of **OAuth** the **resource owner** - is most usually a person who would like to use the **Client** and the application itself.
 
 
 <br>
 
-### Authorization Server
+### **Authorization Server**
 
 This **Server** is fully responsible for the identity of the user, authentication, and creation of tokens. This enables you just to use some verification based on signatures (on **Resource Server**) and not worry about implementation details of authentication.
 
@@ -114,7 +114,7 @@ We will use this term in the next part for **OAuth** and **OpenId Connect**. For
 
 <br>
 
-## Flow
+## **Flow**
 
 The basic flow looks like that:
 
@@ -135,14 +135,14 @@ Basically, the scheme means the way you can create or get your token and validat
 
 <br>
 
-## Auth schemes
+## **Auth schemes**
 
 Although we merged Authentication and Authorization terms together because most usually Auth schemes do not have a clear separation. Let me provide examples.
 
 
 <br>
 
-### Basic Authentication
+### **Basic Authentication**
 
 The **Basic Authentication** Scheme should be considered mostly like an authentication scheme (not authorization). Whenever the Client sends a request to a protected resource it should include the user login and password in the header. Otherwise, it will receive 401.
 
@@ -153,7 +153,7 @@ Basic Authentication has a resource-splitting mechanism called a realm, it is so
 
 <br>
 
-### Digest Authentication
+### **Digest Authentication**
 
 The **Digest Authentication** Scheme acts both as an authentication scheme and some kind of authorization protocol as well. The idea here is to use hash of user credentials + server secret for authenticating.
 
@@ -164,7 +164,7 @@ Digest Authentication has a realm as well that is in fact similar to scope in te
 
 <br>
 
-### OAuth
+### **OAuth**
 
 OAuth is an Authorization protocol only, so it does not cover user authentication (how login and password are sent to the server and checked on its side). 
 
@@ -179,7 +179,7 @@ OAuth operates on cookies for authentication (usually) and access tokens for cal
 
 <br>
 
-### OpenId Connect
+### **OpenId Connect**
 
 OpenId Connect is an Authentication protocol only. It does not cover authorization.
 
@@ -190,7 +190,7 @@ Since it is built on top of OAuth (that does not cover the flow of authenticatio
 
 <br>
 
-### Custom Schemes based on JWT
+### **Custom Schemes based on JWT**
 
 The flow is typically the following: the Client authenticates the User with login + password and the Authorization Server returns Access Token as the response of Authentication. With that token, the Client can go and make subsequent requests to Resource Server.
 
@@ -203,7 +203,7 @@ Those act with JWT (access tokens) and maybe refresh tokens as OAuth does as wel
 
 <br>
 
-## Follow up
+## **Follow up**
 
 
 There are resources where you can find all commonly used schemes and RFC documentation for each of them: [https://www.iana.org/assignments/http-authschemes/http-authschemes.xhtml](https://www.iana.org/assignments/http-authschemes/http-authschemes.xhtml).
