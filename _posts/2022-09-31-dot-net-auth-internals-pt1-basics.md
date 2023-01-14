@@ -10,8 +10,6 @@ description: "This article is entry one about authentication and authorization i
 * TOC
 {:toc}
 
-<br>
-
 <!-- Output copied to clipboard! -->
 
 <!-----

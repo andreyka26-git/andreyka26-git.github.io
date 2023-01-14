@@ -10,7 +10,6 @@ description: "This article will show you cookie authentication handler internal 
 * TOC
 {:toc}
 
-<br>
 
 <!-- Output copied to clipboard! -->
 

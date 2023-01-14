@@ -40,8 +40,6 @@ Conversion notes:
 ----->
 
 
-<br>
-
 ## **Introduction**
 
 **Attention**! This article is about definitions abstract understanding and flow of OAuth. The concrete flows with implementation (Authorization Code, Client Credentials, etc) will be discussed in subsequent articles.

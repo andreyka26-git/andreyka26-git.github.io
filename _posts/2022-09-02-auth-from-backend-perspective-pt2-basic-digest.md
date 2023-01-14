@@ -10,8 +10,6 @@ description: "In this article we will implement basic auth schemes: Basic Author
 * TOC
 {:toc}
 
-<br>
-
 <!-- Output copied to clipboard! -->
 
 <!-----

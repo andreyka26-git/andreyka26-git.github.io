@@ -10,7 +10,6 @@ description: "In this article we will do the basic authentication and authorizat
 * TOC
 {:toc}
 
-<br>
 
 <!-- Output copied to clipboard! -->
 

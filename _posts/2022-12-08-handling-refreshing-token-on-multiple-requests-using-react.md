@@ -10,8 +10,6 @@ description: "In this article we will discuss handling refreshing tokens for SPA
 * TOC
 {:toc}
 
-
-<br>
 <!-- Output copied to clipboard! -->
 
 <!-----

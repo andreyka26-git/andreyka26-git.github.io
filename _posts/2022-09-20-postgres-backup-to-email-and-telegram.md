@@ -10,8 +10,6 @@ description: "In this article we will do regular and recurring backup process to
 * TOC
 {:toc}
 
-<br>
-
 <!-- Output copied to clipboard! -->
 
 <!-----

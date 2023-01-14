@@ -11,8 +11,6 @@ description: "In this article we are going to overview the most popular Authenti
 {:toc}
 
 
-<br>
-
 <!-- Output copied to clipboard! -->
 
 <!-----
