@@ -2,7 +2,7 @@
 layout: post
 title: "JWT authentication and authroization using .NET and React"
 date: 2022-09-06 10:05:35 -0000
-category: ["Authorization"]
+category: ["Auth from backend perspective"]
 tags: [guides, authorization, dotnet, tutorials]
 description: "In this article we will do the basic authentication and authorization using Backend (.NET + C#) and Frontend (React client). We will use JWT for this."
 ---

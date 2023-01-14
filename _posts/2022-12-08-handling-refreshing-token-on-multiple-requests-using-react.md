@@ -2,7 +2,7 @@
 layout: post
 title: "Handling refresh token for multiple requests using React"
 date: 2022-12-08 11:02:35 -0000
-category: ["Authorization"]
+category: ["Auth from backend perspective"]
 tags: [guides, authorization, tutorials]
 description: "In this article we will discuss handling refreshing tokens for SPA (single page applicaitons). Typically we have pair Access/Refresh token. We keep using Access Token. When Access Token is expired we need to refresh it. But we should do it only once, because in most implementations Refresh token is for single use. Thep roblem we will solve here is how we can stop all expired (with 401 status) requests and retry them only after the token is refreshed by one of the requests."
 ---

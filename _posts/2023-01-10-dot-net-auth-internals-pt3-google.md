@@ -2,7 +2,7 @@
 layout: post
 title: ".NET Auth internals pt3: Google"
 date: 2023-01-10 11:02:35 -0000
-category: ["Authorization"]
+category: [".NET Auth Internals"]
 tags: [authorization]
 description: "In this article we are going to consider Google authentication and Google authorization in .NET. We will check all things that happen under hood. So we will go through the source code and check what is going on when we put .AddGoogle(). On top of that we will consider question about why AddGoogle() cannot be without AddCookies()"
 ---
@@ -150,7 +150,7 @@ This is needed especially when we use different schemes at the same time like **
 
 `AuthenticationHandler` contains some common and initialization behavior. I would like to mention a couple of method here.
 
-There are few virtual methods: `HandleChallengeAsync`, `HandleForbiddenAsync`, `HandleAuthenticateAsync that will be overridden in the derivatives of this handler.
+There are few virtual methods: `HandleChallengeAsync`, `HandleForbiddenAsync`, `HandleAuthenticateAsync` that will be overridden in the derivatives of this handler.
 
 Basically all methods here are trying to resolve target and use one of those derivatives to execute challenge, forbid or authenticate action.
 
@@ -213,7 +213,7 @@ These options contains validate method that ensures that SignInSheme is not the 
 ![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image18.png "image_tooltip")
 
 
-41nd line: this validation is happening. If our `SignInScheme` is the same as `sheme` (that is GoogleScheme) then we are throwing `RemoteSignInSchemeCannotBeSelf. Why .NET team did like that we will answer in separate article.
+41nd line: this validation is happening. If our `SignInScheme` is the same as `sheme` (that is GoogleScheme) then we are throwing `RemoteSignInSchemeCannotBeSelf`. Why .NET team did like that we will answer in separate article.
 
 
 <br>

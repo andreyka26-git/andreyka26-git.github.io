@@ -2,7 +2,7 @@
 layout: post
 title: "Auth from backend perspective pt3: OAuth basics"
 date: 2022-11-25 11:02:35 -0000
-category: ["Authorization"]
+category: ["Auth from backend perspective"]
 tags: [guides, authorization, dotnet, tutorials]
 description: "In this article we will discuss OAuth protocol basics, all 4 Authorization grant types, how they work, explain how to use it. In the end we will do dema with integrating with GitHub by using GitHub's OAuth protocol and getting github profile."
 ---
