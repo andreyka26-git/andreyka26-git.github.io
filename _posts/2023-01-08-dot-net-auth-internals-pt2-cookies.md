@@ -1,7 +1,7 @@
 ---
 layout: post
 title: ".NET Auth internals pt2: cookies"
-date: 2022-09-31 11:02:35 -0000
+date: 2023-01-08 11:02:35 -0000
 category: [".NET Auth Internals"]
 tags: [guides, authorization, dotnet, tutorials]
 description: "This article will show you cookie authentication handler internal for .NET Core. We will cover everything that going on under hood by looking into the source code."

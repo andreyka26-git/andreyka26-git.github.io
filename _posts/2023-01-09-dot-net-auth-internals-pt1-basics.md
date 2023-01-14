@@ -1,7 +1,7 @@
 ---
 layout: post
 title: ".NET Auth internals pt1: basics"
-date: 2022-09-31 11:02:35 -0000
+date: 2023-01-09 11:02:35 -0000
 category: [".NET Auth Internals"]
 tags: [guides, authorization, dotnet, tutorials]
 description: "This article is entry one about authentication and authorization internals in .NET. We will overview all source code, common services, architecture and design to understand how it works"
