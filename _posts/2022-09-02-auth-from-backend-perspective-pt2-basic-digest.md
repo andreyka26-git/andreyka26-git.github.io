@@ -71,7 +71,7 @@ Basic Auth Client:
 
 [https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/SimpleAuth/Basic.WebClient](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/SimpleAuth/Basic.WebClient)
 
-![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image1.png "image_tooltip")
+[![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image1.png "image_tooltip")](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image1.png "image_tooltip")
 
 **BasicAuthenticationHandler** first does the authentication: it extracts username and password from the header (decoding base64) and ensures this user does exist (in our case it is a simple if statement, but in the real case, it should hash the pass and check it along with username). It does it for every request because we used **_.UseAuthorization() .UseAuthentication()_** middleware registration methods.
 
@@ -79,7 +79,7 @@ But this is the **Authentication** part of it, we only checked that the user is 
 
 After **BasicAuthenticationHandler** did the authentication part we will have **User.Identity** in each endpoint, and based on this identity we can do **Authorization** - to verify whether this particular user is allowed to access this endpoint or not.
 
-![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image3.png "image_tooltip")
+[![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image3.png "image_tooltip")](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image3.png "image_tooltip")
 
 However, **Basic Auth** is so simple it brings a few problems:
 
@@ -130,7 +130,7 @@ The flow is the following:
 
 2. **The Client** collects **realm**, **qop**, **nonce**, and **opaque** from the response header.
 
-![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image5.png "image_tooltip")
+[![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image5.png "image_tooltip")](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image5.png "image_tooltip")
 
 3. The **Client** generates a request auth token:
 
@@ -146,7 +146,7 @@ _Second Hash (A2) = MD5 (httpMethod:requestUrl)_
 
 _Response = MD5 ({First Hash}:**nonce**:**nonceCount**:**cnonce**:**qop**:{Second Hash})_
 
-![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image6.png "image_tooltip")
+[![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image6.png "image_tooltip")](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image6.png "image_tooltip")
 
 4. The **Client** sends the same request including the Authorization header in the following format: Digest **username**=”{username}”,
 
@@ -166,11 +166,11 @@ _Response = MD5 ({First Hash}:**nonce**:**nonceCount**:**cnonce**:**qop**:{Secon
 
 **opaque**=”{opaque}”
 
-![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image4.png "image_tooltip")
+[![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image4.png "image_tooltip")](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image4.png "image_tooltip")
 
 5. The **Server** verifies the hash by using values provided by the **Client** (authenticate and authorize). Then it either rejects with a 4XX error or serves the response.
 
-![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image2.png "image_tooltip")
+[![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image2.png "image_tooltip")](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image2.png "image_tooltip")
 
 There is one interesting question: How is the **Server** supposed to generate the first hash without knowing the password since the **Client** doesn’t pass it on request?
 

@@ -85,7 +85,7 @@ The steps that should be taken in this case are:
 
 In the network tab it should look like that:
 
-![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image2.png "image_tooltip")
+[![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image2.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image2.png "image_tooltip")
 
 
 <br>
@@ -105,7 +105,7 @@ I got some suggestions that we can use `expired` field in JWT token to safely re
 One example of this behavior is inside the OAuth protocol, RFC: [https://www.rfc-editor.org/rfc/rfc6749](https://www.rfc-editor.org/rfc/rfc6749)
 
 
-![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image4.png "image_tooltip")
+[![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image4.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image4.png "image_tooltip")
 
 
 Going forward - we will have the ability to intercept each request and handle errors for each request.
@@ -607,7 +607,7 @@ Launch Backend and Frontend.
 The first page has empty local storage:
 
 
-![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image6.png "image_tooltip")
+[![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image6.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image6.png "image_tooltip")
 
 
 After submitting default credentials we have access and refresh token inside the localstorage.
@@ -615,13 +615,13 @@ After submitting default credentials we have access and refresh token inside the
 <br>
 
 
-![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image3.png "image_tooltip")
+[![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image3.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image3.png "image_tooltip")
 
 <br>
 
 Now, let’s break access token by submitting`localStorage.setItem("token", "sdf")` inside Browser Console. 
 
-![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image1.png "image_tooltip")
+[![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image1.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image1.png "image_tooltip")
 
 <br>
 
@@ -632,7 +632,7 @@ Ensure that the token is not valid, and then click `Send 3 requests`.
 <br>
 
 
-![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image5.png "image_tooltip")
+[![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image5.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image5.png "image_tooltip")
 
 <br>
 

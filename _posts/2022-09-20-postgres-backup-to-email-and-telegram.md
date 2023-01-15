@@ -70,17 +70,17 @@ Then we need to turn on App Passwords to use them through curl: [https://support
 
 1. Go to Google Account -> Security -> Signing in to Google -> 2-Step Verification, enable it.
 
-![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image4.png "image_tooltip")
+[![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image4.png "image_tooltip")](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image4.png "image_tooltip")
 
 2. Go to Google Account -> Security -> Signing in to Google -> App Passwords
 
-![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image2.png "image_tooltip")
+[![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image2.png "image_tooltip")](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image2.png "image_tooltip")
 
 Copy generated password (we will name it **&lt;gmail-password>**):
 
 “aaaaaaaaaaaa”
 
-![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image1.png "image_tooltip")
+[![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image1.png "image_tooltip")](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image1.png "image_tooltip")
 
 <br>
 
@@ -142,15 +142,15 @@ chmod u+x test.sh
 
 We will see the logs:
 
-![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image5.png "image_tooltip")
+[![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image5.png "image_tooltip")](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image5.png "image_tooltip")
 
 Telegram result:
 
-![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image6.png "image_tooltip")
+[![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image6.png "image_tooltip")](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image6.png "image_tooltip")
 
 Gmail result:
 
-![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image3.png "image_tooltip")
+[![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image3.png "image_tooltip")](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image3.png "image_tooltip")
 
 <br>
 

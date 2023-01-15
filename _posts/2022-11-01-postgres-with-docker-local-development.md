@@ -154,7 +154,7 @@ docker-compose up -d
 ```
 
 
-![alt_text](/assets/2022-11-01-postgres-with-docker-local-development/image2.png "image_tooltip")
+[![alt_text](/assets/2022-11-01-postgres-with-docker-local-development/image2.png "image_tooltip")](/assets/2022-11-01-postgres-with-docker-local-development/image2.png "image_tooltip")
 
 
 With this command, we did pretty much the same as using just run command: mapped volume to Postgres’ data, created a container with root login and root password, and default port.
@@ -181,7 +181,7 @@ psql -h 127.0.0.1 -p 5432 -U root
 ```
 
 
-![alt_text](/assets/2022-11-01-postgres-with-docker-local-development/image3.png "image_tooltip")
+[![alt_text](/assets/2022-11-01-postgres-with-docker-local-development/image3.png "image_tooltip")](/assets/2022-11-01-postgres-with-docker-local-development/image3.png "image_tooltip")
 
 
 **To list all databases:**
@@ -241,7 +241,7 @@ psql -h 127.0.0.1 -p 5432 -U root -c 'DROP  DATABASE "Test2"'
 ```
 
 
-![alt_text](/assets/2022-11-01-postgres-with-docker-local-development/image1.png "image_tooltip")
+[![alt_text](/assets/2022-11-01-postgres-with-docker-local-development/image1.png "image_tooltip")](/assets/2022-11-01-postgres-with-docker-local-development/image1.png "image_tooltip")
 
 
 **To make a backup (the file will be created on host machine):**
