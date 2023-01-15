@@ -47,6 +47,12 @@
   <meta content="{{ tag }}" property="article:tag" />
   {% endfor %} {% endif %}
 
+  <!-- Custom meta data -->
+
+  {% if page.description %} 
+  <meta name="description" content="{{ page.description }}">
+  {% endif %}
+
   <!-- Twitter Cards -->
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:site" content="@{{ site.share.twitter_username }}" />
