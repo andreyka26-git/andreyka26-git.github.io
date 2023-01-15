@@ -406,7 +406,7 @@ As we can see, .NET team did a lot of things common for remote authentication. A
 
 Everything else is just behavior that implement OAuth protocol.
 
-For basics of Authentication and Authorization framework that is used in .NET - check previous “.NET AUth internals” articles. \
+For basics of Authentication and Authorization framework that is used in .NET - check previous “.NET AUth internals” articles.
  
 Why we cannot use Google Auth scheme without Cookies Auth scheme will be in the next article. 
 Please subscribe in my social media - there are news and voting.
