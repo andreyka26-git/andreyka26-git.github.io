@@ -132,7 +132,7 @@ The flow is the following:
 
 _**First Hash (A1)** = MD5 (`username`:`realm`:`password`)_
 
-Note: we can use the MD5-sess algorithm, which essentially means to use the same algorithm, but in this format: \
+Note: we can use the MD5-sess algorithm, which essentially means to use the same algorithm, but in this format:
 
 _**First Hash (A1)** = MD5 (MD5 (`username`:`realm`:`password`):`nonce`:`cnonce`)_
 
