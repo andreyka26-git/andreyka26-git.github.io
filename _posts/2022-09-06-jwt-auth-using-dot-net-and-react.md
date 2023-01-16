@@ -39,33 +39,34 @@ Conversion notes:
 
 ----->
 
-## Introduction
+## **Introduction**
 
-Who might want to read this article?
 
-This article is a simple guide about how to create JWT authorization using Backend pure (**.NET** + **Identity**) + Web Client (in our case **React**). \
- \
-I saw this flow 2 times in commercial projects I was working on, it is simple, it is workable to some extent. It has drawbacks, but it is cheap to implement nonetheless.
-
-In **Identity** docs, you can see Razor pages (custom UI) for auth. But almost always it is not what you want to do, usually, you have a separated backend and frontend. So in this guide, we will do auth using the pure backend.
-
-If you are looking for good client implementations it is not a guide for you, I mostly will discuss the backend part.
-
-This article will touch on authentication and authorization concepts, so you could check my previous articles that show the internals of auth process in .net and in general in computer science: [computer science](https://andreyka26.com/authorization/2022/09/02/auth-from-backend-perspective-pt1/#/), [.net basics](https://andreyka26.com/authorization/.net%20auth%20internals/2022/10/01/dot-net-auth-internals-pt1-basics/#/), [.net cookies internals](https://andreyka26.com/authorization/.net%20auth%20internals/2022/10/01/dot-net-auth-internals-pt2-cookies/#/)
+This article is a simple guide about how to create JWT authorization using Backend pure (`.NET` + `Identity`) + Web Client (in our case `React`). \
 
 <br>
 
-## Flow
+I saw this flow 2 times in commercial projects I was working on, it is simple, it is workable to some extent. It has drawbacks, but it is cheap to implement nonetheless.
 
-In this particular sample, our server acts similarly to the authorization server in **OAuth** protocol, and the flow looks like **Password Grant** of **OAuth**.
+In [Identity docs](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity?view=aspnetcore-7.0&tabs=visual-studio), you can see Razor pages (custom UI) for auth. But usually it is not what you want to do, usually, you have a separated backend and frontend (Client Server architecture). So in this guide, we will do auth using the pure backend.
 
-The resource server (or just endpoints) will be protected by authorization middleware that will check specific tokens called **JWT** (**JSON Web Token**).
+If you are looking for good client implementations it is not a guide for you, I mostly will discuss the backend part.
+
+This article will touch on authentication and authorization concepts, so you could check articles about [auth basics](https://andreyka26.com/auth-from-backend-percpective-pt1-basics), [cookies auth in .NET](https://andreyka26.com/dot-net-auth-internals-pt2-cookies), [OAuth internals](https://andreyka26.com/auth-from-backend-perspective-pt3-oauth-basics)
+
+<br>
+
+## **Flow**
+
+In this particular sample, our server acts similarly to the authorization server in `OAuth` protocol, and the flow looks like `Resource Owner Password Credentials` of `OAuth` ([rfc reference](https://www.rfc-editor.org/rfc/rfc6749#section-1.3.3)).
+
+The resource server (or just endpoints) will be protected by authorization middleware that will check specific tokens called `JWT` (`JSON Web Token`).
 
 JWT works in the following way (I simplify a lot):
 
-- JWT consists of the user’s data called Claims (email, username, id, role, id). And this information is base64 encoded.
+- JWT consists of the user’s data called Claims (email, username, id, role, id). And this information is base64 encoded, it could be even encrypted in some authorization server implementations.
 - Whenever we create JWT we create a signature based on this user data and add this signature to the payload.
-- Whenever some server gets the JWT it extracts this payload and creates the same signature using the secret it has. If the signatures are equal - you can trust this token and this user is valid.
+- Whenever server gets the JWT it extracts this payload and creates the same signature using the secret it has. If the signatures are equal - you can trust this token and this user is valid.
 
 The flow:
 
@@ -78,15 +79,17 @@ The flow:
 
 <br>
 
-## Backend
+## **Backend**
 
 For the backend, we need to create a project, identity, and database for it.
 
 <br>
 
-### Database
+### **Database**
 
 Create a Postgres database (I prefer through docker).
+
+Here is [guide](https://andreyka26.com/postgres-with-docker-local-development) that covers all commands, so you can do it in few clicks.
 
 ```
 docker volume create pgdata
@@ -101,45 +104,44 @@ In the end, you should have postgres running on a particular port, for simplicit
 
 <br>
 
-### API
+### **API**
 
-For the reference, you could check my git: [https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/Custom/JwtAuth.Server](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/Custom/JwtAuth.Server)
+[Source code](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/Custom/JwtAuth.Server)
 
-<br>
 
-#### 1. Create pure Web API project.
+#### **1. Create pure Web API project**
 
 For our purpose, I’ll name it “Server”.
 
-**VS** -> **Create a new project** -> **ASP.NET Core Web API** -> (fill in name and location) -> configure HTTPS checked -> **Create**
+`VS` -> `Create a new project` -> `ASP.NET Core Web API` -> (fill in name and location) -> configure HTTPS checked -> `Create`
 
 Install a bunch of nuggets:
 
-Install **Microsoft.AspNetCore.Identity.EntityFrameworkCore** NuGet.
+Install `Microsoft.AspNetCore.Identity.EntityFrameworkCore` NuGet.
 
-Install **Npgsql.EntityFrameworkCore.PostgreSQL** NuGet.
+Install `Npgsql.EntityFrameworkCore.PostgreSQL` NuGet.
 
-Install **Microsoft.AspNetCore.Authentication.JwtBearer** NuGet.
+Install `Microsoft.AspNetCore.Authentication.JwtBearer` NuGet.
 
-Install **Microsoft.AspNetCore.Identity.UI** NuGet.
+Install `Microsoft.AspNetCore.Identity.UI` NuGet.
 
-Install **Microsoft.AspNetCore.Authentication.JwtBearer** NuGet.
+Install `Microsoft.AspNetCore.Authentication.JwtBearer` NuGet.
 
-Install **Microsoft.EntityFrameworkCore.Design** NuGet (for running the DB migrations).
+Install `Microsoft.EntityFrameworkCore.Design` NuGet (for running the DB migrations).
 
-Install **Microsoft.EntityFrameworkCore.Tools** NuGet (for running the DB migrations).
+Install `Microsoft.EntityFrameworkCore.Tools` NuGet (for running the DB migrations).
 
-Also set the **application URL** (local application URL) to "applicationUrl": "[https://localhost:7000](https://localhost:7000)".
+Also set the `application URL` (local application URL) to "applicationUrl": "[https://localhost:7000](https://localhost:7000)".
 
-You can do that in **Properties** -> **launchSettings.json**
+You can do that in `Properties` -> `launchSettings.json`
 
 <br>
 
-#### 2. Add EF context
+#### **2. Add EF context**
 
-**AuthContex.cs**
+`AuthContex.cs`
 
-[https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/AuthContext.cs](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/AuthContext.cs)
+[Source code](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/AuthContext.cs)
 
 ```cs
 public class AuthContext : IdentityDbContext<IdentityUser>
@@ -160,9 +162,9 @@ public class AuthContext : IdentityDbContext<IdentityUser>
 
 Then patch settings
 
-**appsettings.json**
+`appsettings.json`
 
-[https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/appsettings.json](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/appsettings.json)
+[Source code](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/appsettings.json)
 
 ```json
 {
@@ -176,9 +178,9 @@ Then patch settings
 
 Lets create another file for our default username and login
 
-**Consts.cs**
+`Consts.cs`
 
-[https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/Consts.cs](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/Consts.cs)
+[Source code](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/Consts.cs)
 
 ```cs
 
@@ -192,11 +194,11 @@ public class Consts
 
 <br>
 
-#### 3. Patch Program class
+#### **3. Patch Program class**
 
-**Progam.cs**
+`Progam.cs`
 
-[https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/Program.cs](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/Program.cs)
+[Source code](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/Program.cs)
 
 Add swagger (with authentication for jwt)
 
@@ -323,11 +325,11 @@ On top of that we created seeding the database ot make it autocreate and created
 
 <br>
 
-#### 4. Create Resource Controller
+#### **4. Create Resource Controller**
+
+[Source code](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/Controllers/ResourcesController.cs)
 
 This endpoint is our protected by authorization endpoint. It will user JWT to authorize the request.
-
-[https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/Controllers/ResourcesController.cs](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/Controllers/ResourcesController.cs)
 
 ```cs
 
@@ -346,11 +348,11 @@ public class ResourcesController : ControllerBase
 
 <br>
 
-#### 5. Create Authorization Endpoint with password creds
+#### **5. Create Authorization Endpoint with password creds**
 
 Prior to that let’s create some request and response DTOs.
 
-**GetTokenRequest**
+`GetTokenRequest`
 
 ```cs
 
@@ -362,7 +364,7 @@ public class GetTokenRequest
 
 ```
 
-**AuthorizationResponse**
+`AuthorizationResponse`
 
 ```cs
 
@@ -375,11 +377,11 @@ public class AuthorizationResponse
 
 ```
 
-**AuthorizationController**
+`AuthorizationController`
 
-[https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/Controllers/AuthorizationController.cs](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/Controllers/AuthorizationController.cs)
+[Source code](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/Controllers/AuthorizationController.cs)
 
-**AuthorizationController.GenerateAuthorizationToken**
+`AuthorizationController.GenerateAuthorizationToken`
 
 ```cs
 
@@ -428,7 +430,7 @@ It creates the claims, puts them into JWT object, and signs it with our secret d
 
 Next step is to create endpoint for standard credential based auth
 
-**AuthorizationController.GetTokenAsync**
+`AuthorizationController.GetTokenAsync`
 
 ```cs
 
@@ -480,7 +482,7 @@ As you can see the behavior is simple: we check whether user with those credenti
 
 <br>
 
-#### 6. Add Migrations
+#### **6. Add Migrations**
 
 Go to Package Manager Console in Visual Studio.
 
@@ -494,7 +496,7 @@ Add-Migration Initial
 
 <br>
 
-### Run and test
+### **Run and test**
 
 Run the application locally. By following “[https://localhost:7000/swagger/index.html](https://localhost:7000/swagger/index.html)” you should be able to see swagger UI.
 
@@ -502,7 +504,7 @@ Try authorization endpoint with creds “andreyka26\_” and “Mypass1\*”
 
 [![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image7.png "image_tooltip")](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image7.png "image_tooltip")
 
-Now you could add this authorization token to header with “Bearer <token>” and run ResourceController.
+Now you could add this authorization token to header with “Bearer {token}” and run ResourceController.
 
 [![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image1.png "image_tooltip")](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image1.png "image_tooltip")
 
@@ -512,17 +514,17 @@ And as response you could see that in controller our auth middleware successfull
 
 <br>
 
-## Frontend
+## **Frontend**
 
-For reference you could take a look at my repo:
+[Source code](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/Custom/JwtAuth.Client)
 
-[https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/Custom/JwtAuth.Client](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/Custom/JwtAuth.Client)
+This application does not cover referesh token behavior - it is explained in [this tutorial](https://andreyka26.com/handling-refreshing-token-on-multiple-requests-using-react).
 
-First let’s create simple react application following the official documentation. Run the following commands like described here: [https://reactjs.org/docs/create-a-new-react-app.html](https://reactjs.org/docs/create-a-new-react-app.html)
+First let’s create simple react application following the official documentation. Run the following commands like described [here](https://reactjs.org/docs/create-a-new-react-app.html)
 
 <br>
 
-### Create app and install dependencies
+### **Create app and install dependencies**
 
 ```js
 
@@ -537,9 +539,9 @@ npm install react-router-dom --save
 
 <br>
 
-### Add code
+### **Add code**
 
-**index.js**
+`index.js`
 
 ```js
 import React from "react";
@@ -551,7 +553,7 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<App />);
 ```
 
-**App.js**
+`App.js`
 
 ```js
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -577,7 +579,7 @@ export default function App() {
 
 Then create two files:
 
-**pages/Home.js**
+`pages/Home.js`
 
 ```js
 import axios from "axios";
@@ -611,7 +613,7 @@ function HomePage() {
 export default HomePage;
 ```
 
-**pages/Login.js**
+`pages/Login.js`
 
 ```js
 import React, { useState } from "react";
@@ -678,7 +680,7 @@ export default LoginPage;
 
 <br>
 
-## Run together
+## **Run together**
 
 Run backend, pressing F5.
 
@@ -698,7 +700,7 @@ And then the redirection to home page which queries our backend with this token:
 
 [![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image9.png "image_tooltip")](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image9.png "image_tooltip")
 
-In our case we can even see what is stored in our token because we don’t encrypt it. Go to **[https://jwt.io](https://jwt.io) **and paste there your token.
+In our case we can even see what is stored in our token because we don’t encrypt it. Go to `[https://jwt.io](https://jwt.io) `and paste there your token.
 
 [![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image4.png "image_tooltip")](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image4.png "image_tooltip")
 
