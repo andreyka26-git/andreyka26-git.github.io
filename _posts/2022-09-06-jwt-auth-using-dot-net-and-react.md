@@ -4,7 +4,7 @@ title: "JWT authentication and authroization using .NET and React"
 date: 2022-09-06 10:05:35 -0000
 category: ["Authorization guides"]
 tags: [guides, authorization, dotnet, tutorials]
-description: "In this article we will do the basic authentication and authorization using Backend (.NET + C#) and Frontend (React client). We will use JWT for this."
+description: "In this article we will do the basic authentication and authorization using Backend (.NET + C#) and Frontend (React client). We will use JWT for this. This authorization and authentication will be similar to Resource Owner Password Credentials in OAuth, but custom one"
 ---
 
 * TOC
@@ -42,9 +42,8 @@ Conversion notes:
 ## **Introduction**
 
 
-This article is a simple guide about how to create JWT authorization using Backend pure (`.NET` + `Identity`) + Web Client (in our case `React`). \
+This article is a simple guide about how to create JWT authorization using Backend pure (`.NET` + `Identity`) + Web Client (in our case `React`).
 
-<br>
 
 I saw this flow 2 times in commercial projects I was working on, it is simple, it is workable to some extent. It has drawbacks, but it is cheap to implement nonetheless.
 

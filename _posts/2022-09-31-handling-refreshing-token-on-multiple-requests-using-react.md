@@ -40,13 +40,13 @@ Conversion notes:
 
 
 
-## Introduction
+## **Introduction**
 
 To be honest, I am a pure backend guy, so all feedbacks are welcome on my social media. That said, the article will be about tackling authorization problems from a Frontend perspective.
 
 Lately, I was implementing authentication on React client for one of my startups. So I had to ensure each request uses a Bearer token. If it is expired - then I need to refresh it and retry all requests. 
 
-The main issue here is to **ensure that ALL REQUESTS with expired tokens are stopped until it is refreshed and retried AFTER it refreshed**. I spent a lot of time to achieve this and couldn’t find anything useful by Googling. 
+The main issue here is to `ensure that ALL REQUESTS with expired tokens are stopped until it is refreshed and retried AFTER it refreshed`. I spent a lot of time to achieve this and couldn’t find anything useful by Googling. 
 
 I saw a lot of examples about how to do refreshing and retry for ONLY ONE request. But usually, the app sends more than 1 request to the server and refreshing all of them is not a good approach.
 
@@ -55,20 +55,16 @@ If it matches your problem - then this article will be useful for you.
 <br>
 
 
-## Problem
+## **Problem**
 
 We are given:
 
 
 
-1.  The Backend that is able to issue Access Token and Refresh Token. It also can verify Access Tokens provided by himself and exchange Refresh Token for new Access\Refresh Token pair.
+1.  The Backend that is able to issue Access Token and Refresh Token. It also can verify Access Tokens provided by himself and exchange Refresh Token for new Access/Refresh Token pair.
 2. The Frontend, is implemented using React (does not matter much). It has Api calls that should be authorized, so we should include Access Token to get data instead of 401. The Frontend is storing tokens somewhere (local storage in our case), which does not matter much as well.
 
-Initially, if local storage is empty - then it loads the login page and authenticates the user (sends a request to the Server to get Access\Refresh tokens).
-
-
-<br>
-
+Initially, if local storage is empty - then it loads the login page and authenticates the user (sends a request to the Server to get Access/Refresh tokens).
 
 
 Once tokens are stored - we just include them alongside all requests that require Authorization. But once the token became expired the server will return us a 401 status code meaning that the token is invalid or expired.
@@ -80,15 +76,13 @@ The steps that should be taken in this case are:
 
 
 1. Stop all requests that failed with Expired Token error
-2. Get new Access\Refresh token pair by exchanging our current Refresh Token.
+2. Get new Access/Refresh token pair by exchanging our current Refresh Token.
 3. Retry all requests that we stored.
 
 In the network tab it should look like that:
 
 [![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image2.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image2.png "image_tooltip")
 
-
-<br>
 
 
 
@@ -98,12 +92,13 @@ We have sent 3 requests with an invalid token and got 401 for all of them, only 
 <br>
 
 
-## Solution
+## **Solution**
 
 I got some suggestions that we can use `expired` field in JWT token to safely refresh the token before it is expired. But unfortunately, it might break if Authorization Server supports Revoking tokens feature.
 
-One example of this behavior is inside the OAuth protocol, RFC: [https://www.rfc-editor.org/rfc/rfc6749](https://www.rfc-editor.org/rfc/rfc6749)
+One example of this behavior is inside the OAuth protocol
 
+[RFC reference](https://www.rfc-editor.org/rfc/rfc6749)
 
 [![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image4.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image4.png "image_tooltip")
 
@@ -122,9 +117,9 @@ The expected behavior that we will try to achieve is the following:
 
 <br>
 
-### Frontend
+### **Frontend**
 
-You could find example below in my github: [https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/Custom/JwtAuth.Client](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/Custom/JwtAuth.Client)
+[Source code](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/Custom/JwtAuth.Client)
 
 First, create simple React app by using
 
@@ -134,7 +129,7 @@ npx create-react-app my-app
 
 ```
 
-**index.js:**
+`index.js:`
 
 ```javascript
 
@@ -148,7 +143,7 @@ root.render(<App />);
 
 ```
 
-**App.js:**
+`App.js:`
 
 ```javascript
 
@@ -173,7 +168,7 @@ export default function App() {
 
 ```
 
-**/pages/Login.js:**
+`/pages/Login.js:`
 
 ```javascript
 
@@ -227,7 +222,7 @@ In home page we will retrieve protected resource information in the page. On top
 
 By doing that we are simulating SPA behavior that loads a lot of resources at the same time.
 
-**pages/Home.js**:
+`pages/Home.js`:
 
 ```javascript
 
@@ -292,7 +287,7 @@ export default HomePage;
 
 ```
 
-Before adding Api.js - add **axios** library. This library is needed for HTTP calls.
+Before adding Api.js - add `axios` library. This library is needed for HTTP calls.
 
 ```
 
@@ -300,7 +295,7 @@ npm install axios
 
 ```
 
-**/services/Api.js**:
+`/services/Api.js`:
 
 ```javascript
 
@@ -381,16 +376,14 @@ function withAuth(headers) {
 
 In our case I think functions `authenticate`, `renewToken` are not that important. The implementation could vary a lot. In our case for authenticate - we are exchanging user credentials for Access/Refresh tokens, and for renewToken - we are exchanging current RefreshToken for new Access/Refresh tokens.
 
-<br>
-
-Note, that in my backend implementation Refresh is single per user. That’s why we cannot refresh for each request because because Refresh token is valid only once.
+Note, that in my backend implementation Refresh is single per user. That’s why we cannot refresh for each request because Refresh token is valid only once.
 
 <br>
 
 
-#### Interceptor Solution
+#### **Interceptor Solution**
 
-Let's add the following piece of code on top of **Api.js**:
+Let's add the following piece of code on top of `Api.js`:
 
 ```javascript
 
@@ -443,135 +436,127 @@ axios.interceptors.response.use(
 
 ```
 
-Interceptor is a kind of cross-cutting feature in **axios** library. It intercepts each request. For us, it is important to intercept the error.
+Interceptor is a kind of cross-cutting feature in `axios` library. It intercepts each request. For us, it is important to intercept the error.
 
-`error.config` is our initial request object for **axios** library. We can retry this request by using `await axios.request(error.config);`
+`error.config` is our initial request object for `axios` library. We can retry this request by using `await axios.request(error.config);`
 
 As explained above on the first request we try to refresh the token. To make other requests wait for refresh token - we will start `renewToken` function, and assign Promise to `refreshingFunc` variable that is out of interceptor.
 
 Any other request with expired token that will enter interceptor sees that `refreshingFunc` is already set so it awaits result as well, and then use new tokens from the awaited result.
-
-<br>
-
-
 
 After setting new token we just retry original request with it. If the response is still 401 - then something wrong with both tokens - just logout the user.
 
 
 <br>
 
-### Backend
+### **Backend**
 
-You could find full version of backend here: [https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/Custom/JwtAuth.Server](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/Custom/JwtAuth.Server)
+[Source code](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/Custom/JwtAuth.Server)
 
 I will show `getToken` and `refreshToken` methods.
 
-<br>
+`AuthorizationController`:
 
-
-
-**AuthorizationController**:
-
-<br>
 
 ```cs
+[HttpPost("authorization/token")]
+public async Task<IActionResult> GetTokenAsync([FromBody] GetTokenRequest request)
+{
+    var user = await _userManager.FindByNameAsync(request.UserName);
+    
+    if (user == null)
+    {
+        //401 or 404
+        return Unauthorized();
+    }
 
-  [HttpPost("authorization/token")]
-        public async Task<IActionResult> GetTokenAsync([FromBody] GetTokenRequest request)
-        {
-            var user = await _userManager.FindByNameAsync(request.UserName);
-           
-            if (user == null)
-            {
-                //401 or 404
-                return Unauthorized();
-            }
+    var passwordValid = await _userManager.CheckPasswordAsync(user, request.Password);
 
-            var passwordValid = await _userManager.CheckPasswordAsync(user, request.Password);
+    if (!passwordValid)
+    {
+        //401 or 400
+        return Unauthorized();
+    }
 
-            if (!passwordValid)
-            {
-                //401 or 400
-                return Unauthorized();
-            }
+    var resp = await GenerateAuthorizationTokenAsync(user.Id, user.UserName);
 
-            var resp = await GenerateAuthorizationTokenAsync(user.Id, user.UserName);
+    return Ok(resp);
+}
 
-            return Ok(resp);
-        }
+[HttpPost("authorization/refresh")]
+public async Task<ActionResult<AuthorizationResponse>> GetAuthorizationTokenFromRefreshAsync([FromBody] RefreshTokenRequest request,
+    CancellationToken cancellationToken)
+{
+    var now = DateTime.UtcNow;
 
-        [HttpPost("authorization/refresh")]
-        public async Task<ActionResult<AuthorizationResponse>> GetAuthorizationTokenFromRefreshAsync([FromBody] RefreshTokenRequest request,
-            CancellationToken cancellationToken)
-        {
-            var now = DateTime.UtcNow;
+    var refreshToken = await _authContext.RefreshTokens
+            .Include(r => r.User)
+            .SingleOrDefaultAsync(r => r.Value == request.RefreshToken, cancellationToken);
 
-            var refreshToken = await _authContext.RefreshTokens
-                    .Include(r => r.User)
-                    .SingleOrDefaultAsync(r => r.Value == request.RefreshToken, cancellationToken);
+    if (refreshToken == null)
+        throw new Exception("refresh token is not found");
 
-            if (refreshToken == null)
-                throw new Exception("refresh token is not found");
+    var response = await GenerateAuthorizationTokenAsync(refreshToken.User.Id, refreshToken.User.UserName);
 
-            var response = await GenerateAuthorizationTokenAsync(refreshToken.User.Id, refreshToken.User.UserName);
+    return Ok(response);
+}
 
-            return Ok(response);
-        }
+private async Task<AuthorizationResponse> GenerateAuthorizationTokenAsync(string userId, string userName)
+{
+    var now = DateTime.UtcNow;
 
-        private async Task<AuthorizationResponse> GenerateAuthorizationTokenAsync(string userId, string userName)
-        {
-            var now = DateTime.UtcNow;
+    var secret = _configuration.GetValue<string>("Secret");
+    var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret));
 
-            var secret = _configuration.GetValue<string>("Secret");
-            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret));
+    var userClaims = new List<Claim>
+    {
+        new Claim(ClaimsIdentity.DefaultNameClaimType, userName),
+        new Claim(ClaimTypes.NameIdentifier, userId),
+    };
 
-            var userClaims = new List<Claim>
-            {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, userName),
-                new Claim(ClaimTypes.NameIdentifier, userId),
-            };
+    //userClaims.AddRange(roles.Select(r => new Claim(ClaimsIdentity.DefaultRoleClaimType, r)));
+    var expires = now.Add(TimeSpan.FromMinutes(60));
 
-            //userClaims.AddRange(roles.Select(r => new Claim(ClaimsIdentity.DefaultRoleClaimType, r)));
-            var expires = now.Add(TimeSpan.FromMinutes(60));
+    var jwt = new JwtSecurityToken(
+            notBefore: now,
+            claims: userClaims,
+            expires: expires,
+            audience: "https://localhost:7000/",
+            issuer: "https://localhost:7000/",
+            signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256));
 
-            var jwt = new JwtSecurityToken(
-                    notBefore: now,
-                    claims: userClaims,
-                    expires: expires,
-                    audience: "https://localhost:7000/",
-                    issuer: "https://localhost:7000/",
-                    signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256));
+    //we don't know about thread safety of token handler
+    var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-            //we don't know about thread safety of token handler
-            var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+    var refreshToken = await _authContext.RefreshTokens.SingleOrDefaultAsync(r => r.ApplicationUserId == userId);
 
-            var refreshToken = await _authContext.RefreshTokens.SingleOrDefaultAsync(r => r.ApplicationUserId == userId);
+    if (refreshToken != null)
+    {
+        _authContext.RefreshTokens.Remove(refreshToken);
+    }
 
-            if (refreshToken != null)
-            {
-                _authContext.RefreshTokens.Remove(refreshToken);
-            }
+    var user = await _authContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
+    var newRefreshToken = new RefreshToken(Guid.NewGuid().ToString(), TimeSpan.FromDays(1000), userId);
 
-            var user = await _authContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
-            var newRefreshToken = new RefreshToken(Guid.NewGuid().ToString(), TimeSpan.FromDays(1000), userId);
+    newRefreshToken.User = user;
 
-            newRefreshToken.User = user;
+    _authContext.RefreshTokens.Add(newRefreshToken);
+    await _authContext.SaveChangesAsync();
 
-            _authContext.RefreshTokens.Add(newRefreshToken);
-            await _authContext.SaveChangesAsync();
+    var resp = new AuthorizationResponse
+    {
+        UserId = userId,
+        AuthorizationToken = encodedJwt,
+        RefreshToken = newRefreshToken.Value
+    };
 
-            var resp = new AuthorizationResponse
-            {
-                UserId = userId,
-                AuthorizationToken = encodedJwt,
-                RefreshToken = newRefreshToken.Value
-            };
-
-            return resp;
-        }
+    return resp;
+}
 ```
 
 In this example those are not that important. We are using Identity framework for user management. The default user is seeded during the startup.
+
+The authentication process is going through the Identity Nuget. You might check [my article](https://andreyka26.com/auth-from-backend-percpective-pt1-basics) about authentication and authorization.
 
 For our application, I’m keeping only 1 refresh token alive per user.
 
@@ -579,26 +564,26 @@ In `GetTokenAsync` we just checking user existence and issuing Access/Refresh to
 
 In `GetAuthorizationTokenFromRefreshAsync` we are removing the existing refresh token and creating a new one. After it, we retrieve new Refresh/Access tokens.
 
-**ResourcesController**:
+`ResourcesController`:
 
 ```cs
 
- [ApiController]
-    public class ResourcesController : ControllerBase
+[ApiController]
+public class ResourcesController : ControllerBase
+{
+    [HttpGet("api/resources")]
+    [Authorize()]
+    public IActionResult GetResources()
     {
-        [HttpGet("api/resources")]
-        [Authorize()]
-        public IActionResult GetResources()
-        {
-            return Ok($"protected resources, username: {User.Identity!.Name}");
-        }
+        return Ok($"protected resources, username: {User.Identity!.Name}");
     }
+}
 ```
 
 
 <br>
 
-## Demo
+## **Demo**
 
 And for sure the demo.
 
@@ -612,40 +597,32 @@ The first page has empty local storage:
 
 After submitting default credentials we have access and refresh token inside the localstorage.
 
-<br>
 
 
 [![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image3.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image3.png "image_tooltip")
 
-<br>
 
-Now, let’s break access token by submitting`localStorage.setItem("token", "sdf")` inside Browser Console. 
+Now, let’s break access token by submitting `localStorage.setItem("token", "sdf")` inside Browser Console. 
 
 [![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image1.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image1.png "image_tooltip")
 
-<br>
 
 
 
 Ensure that the token is not valid, and then click `Send 3 requests`.
 
-<br>
 
 
 [![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image5.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image5.png "image_tooltip")
 
-<br>
 
 You could observe, that the first 3 requests failed with 401, ONLY ONE refresh request happened and all 3 `resources` requests were retried successfully. We can observe that each response was set for each retried request.
 
 
-<br>
+## **Acknowledgments & Feedback**
 
-## Acknowledgments & Feedback
+I would like to say thank you to all my friends that are working as Frontend /Js software engineers for help in solving this problem and writing this article:
 
-I would like to say thank you to all my friends that are working as Frontend/Js software engineers for help in solving this problem and writing this article:
-
-<br>
 
 [https://www.linkedin.com/in/svirgunvolodia/](https://www.linkedin.com/in/svirgunvolodia/)
 
@@ -659,6 +636,5 @@ Inspired by [https://github.com/Flyrell/axios-auth-refresh](https://github.com/F
 
 Highly encouraged to leave your feedback regarding this solution in my social media.
 
-<br>
 
 Thank you for your attention!

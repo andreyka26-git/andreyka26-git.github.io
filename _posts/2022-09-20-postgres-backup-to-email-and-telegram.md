@@ -4,7 +4,7 @@ title: "Regular postgres backup to email and telegram channel"
 date: 2022-09-20 10:05:35 -0000
 category: ["Infrastructure"]
 tags: [guides, infrastructure, tutorials]
-description: "In this article we will do regular and recurring backup process to telegram and email for ubuntu on premise server using curl + cron."
+description: "In this article we will do regular and recurring backup of PostgreSQL to telegram and email for ubuntu server using curl + cron."
 ---
 
 * TOC
@@ -38,45 +38,47 @@ Conversion notes:
 
 ----->
 
-### Why you may want to read this article
+## **Why you may want to read this article**
 
-This article is a guide on how to send backup (essentially you can send anything) to telegram and email with the minimum effort and external tools installed (**cURL**).
+This article is a guide on how to send backup (essentially you can send anything) to telegram and email with the minimum effort and external tools installed (`cURL`).
 
-All applications that store data should care about the backup of this data. The thing is that the majority of applications require storing/maintaining/retrieving data.
+All applications that store data in some way. 
 
-\
 This implies that we don’t want to lose our data for sure, especially in production environments. To prevent data loss there are a lot of techniques, including: replication, backup, snapshots, etc.
 
-In this case, we will consider a cheap ubuntu server (in my case I’m paying 5$), where we will set up our regular backup mechanism.
+In this case, we will consider a cheap ubuntu server (in my case I’m paying 5$), where we will set up our regular backup mechanism. But you also can do it on your own machine.
 
-\
-**My specific use case**: _I had an ubuntu server running **PostgreSQL**. I needed regular backups to be sent to my **email** and to the **telegram** channel from the ubuntu server_.
+`My specific use case`: _I had an ubuntu server running `PostgreSQL`. I needed regular backups to be sent to my `email` and to the `telegram` channel from the ubuntu server_.
 
-<br>
-
-### Steps
+If you would like to see how to set up your Postgres database with command lines - check this [guide](https://andreyka26.com/postgres-with-docker-local-development).
 
 <br>
 
-The guide itself is pretty simple we will use the curl tool in ubuntu, because all basic servers have it and you do not need to install anything additional
+## **Steps**
 
 <br>
 
-#### Create Gmail account
+The guide itself is pretty simple we will use the `curl` tool in ubuntu, because all basic servers have it and you do not need to install anything additional
 
-Just follow the Gmail instructions, we will name email created **&lt;created-email>**.
+<br>
 
-Then we need to turn on App Passwords to use them through curl: [https://support.google.com/accounts/answer/185833?hl=en](https://support.google.com/accounts/answer/185833?hl=en)
+### **Create Gmail account**
 
-1. Go to Google Account -> Security -> Signing in to Google -> 2-Step Verification, enable it.
+Just follow the Gmail instructions, we will name email created `{created-email}`.
+
+Then we need to turn on App Passwords to use them through curl. 
+
+Go [here](https://support.google.com/accounts/answer/185833?hl=en)
+
+1.Go to `Google Account` -> `Security` -> `Signing in to Google` -> `2-Step Verification`, enable it.
 
 [![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image4.png "image_tooltip")](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image4.png "image_tooltip")
 
-2. Go to Google Account -> Security -> Signing in to Google -> App Passwords
+2.Go to `Google Account` -> `Security` -> `Signing in to Google` -> `App Passwords`
 
 [![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image2.png "image_tooltip")](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image2.png "image_tooltip")
 
-Copy generated password (we will name it **&lt;gmail-password>**):
+Copy generated password (we will name it `{gmail-password}`):
 
 “aaaaaaaaaaaa”
 
@@ -84,25 +86,25 @@ Copy generated password (we will name it **&lt;gmail-password>**):
 
 <br>
 
-#### Create telegram bot
+### **Create telegram bot**
 
-Follow this instruction: [https://core.telegram.org/bots#3-how-do-i-create-a-bot](https://core.telegram.org/bots#3-how-do-i-create-a-bot)
+Follow this [instruction](https://core.telegram.org/bots#3-how-do-i-create-a-bot)
 
-You should get the bot token in format (numbers + numbers with letters), we will name it **&lt;bot-token>** in the article:
+You should get the bot token in format (numbers + numbers with letters), we will name it `{bot-token}` in the article:
 
-**1111111111:AAAAAAAA1aaaAAAAaAaaAaAAa1AAAAAAaA1**
+`1111111111:AAAAAAAA1aaaAAAAaAaaAaAAa1AAAAAAaA1`
 
 After this create new group and get the id of this group.
 
 While creating the group add your bot by the name you gave him while creating.
 
-Now paste https://api.telegram.org/bot**&lt;bot-token>**/getUpdates in your browser. If it returns an empty response, try to remove and add your bot to the group again, tutorial: [https://stackoverflow.com/questions/32423837/telegram-bot-how-to-get-a-group-chat-id](https://stackoverflow.com/questions/32423837/telegram-bot-how-to-get-a-group-chat-id)
+Now paste [https://api.telegram.org/bot`{bot-token}`/getUpdates](https://api.telegram.org/bot{bot-token}/getUpdates) in your browser. If it returns an empty response, try to remove and add your bot to the group again, as explained [here](https://stackoverflow.com/questions/32423837/telegram-bot-how-to-get-a-group-chat-id)
 
-Then extract the chat id from JSON, I’ll name this **&lt;chat-id>** in the article.
+Then extract the chat id from JSON, I’ll name this `{chat-id}` in the article.
 
 <br>
 
-#### Write the script with file name **test.sh**
+### **Write the script with file name `test.sh`**
 
 ```
 
@@ -128,7 +130,7 @@ echo "sent dev backup to email"
 
 <br>
 
-#### Test Script
+### **Test Script**
 
 To test your script just we will give the file permission to execute and then execute it.
 
@@ -154,7 +156,7 @@ Gmail result:
 
 <br>
 
-### Automate backup process
+## **Automate backup process**
 
 For automation we can use well known crontab for ubuntu.
 
@@ -174,11 +176,11 @@ You can find plenty of documentation for this, my file contains the following co
 
 It means run this script once a day.
 
-“**/services/backup/prod-db-backup.sh**” is a path to my script that contains same content as our test.sh.
+“`/services/backup/prod-db-backup.sh`” is a path to my script that contains same content as our test.sh.
 
 <br>
 
-#### Restore from backup (Optional)
+### **Restore from backup (Optional)**
 
 First copy dump.sql to the postgres docker container
 
