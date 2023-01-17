@@ -39,7 +39,7 @@ Conversion notes:
 
 ----->
 
-## **Introduction**
+## **Why you may want to read this article**
 
 
 This article is a simple guide about how to create JWT authorization using Backend pure (`.NET` + `Identity`) + Web Client (in our case `React`).

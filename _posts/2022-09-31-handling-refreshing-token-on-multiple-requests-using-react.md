@@ -40,7 +40,7 @@ Conversion notes:
 
 
 
-## **Introduction**
+## **Why you may want to read this article**
 
 To be honest, I am a pure backend guy, so all feedbacks are welcome on my social media. That said, the article will be about tackling authorization problems from a Frontend perspective.
 

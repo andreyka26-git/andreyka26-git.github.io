@@ -38,7 +38,7 @@ Conversion notes:
 
 ----->
 
-## **Introduction**
+## **Why you may want to read this article**
 
 In the [previous article](https://andreyka26.com/auth-from-backend-percpective-pt1-basics) about basics, we considered some auth terminology, and explored all diversity of existing authentication and authorization protocols and schemes.
 

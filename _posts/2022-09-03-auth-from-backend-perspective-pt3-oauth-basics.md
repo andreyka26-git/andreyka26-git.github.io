@@ -40,7 +40,7 @@ Conversion notes:
 ----->
 
 
-## **Introduction**
+## **Why you may want to read this article**
 
 `Attention!` This article is about definitions and abstract understanding and flow of OAuth for those who struggle with RFC understanding. The concrete flows with implementation (Authorization Code, Client Credentials, etc) will be discussed in subsequent articles.
 

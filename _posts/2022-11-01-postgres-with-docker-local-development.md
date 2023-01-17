@@ -4,7 +4,7 @@ title: "Postgres with docker for local development"
 date: 2022-11-01 10:05:35 -0000
 category: ["Infrastructure"]
 tags: [guides, infrastructure, tutorials]
-description: "This article is more about convenience, so whever I had project with Postgres I ended up with searching with commands to up it locally with docker, all the commands to create, update, drop database, make backups. So I put all those commands in this article to have in one place"
+description: "Whever I had project with Postgres I ended up with searching with commands to up it locally with docker, all the commands to create, update, drop database, make a postgres backup restore from postgres backup. So I put all those commands in this article to have in one place"
 ---
 
 * TOC
@@ -41,11 +41,11 @@ Conversion notes:
 
 
 
-### Why you may want to read this article
+## **Why you may want to read this article**
 
-**Disclaimer**: This article DOES NOT contain any rocket science information, or anything extraordinary, it is created for convenience only and for total beginners.
+`Disclaimer`: This article DOES NOT contain any rocket science information, or anything extraordinary, it is created for convenience only to have everything on hand.
 
-During my last 5 years of experience, there were a lot of projects that used PostgreSQL as the main database.
+During my last 5 years of experience, there were a lot of projects that used `PostgreSQL` as the main database.
 
 For sure, to develop such projects - you need to set up a database locally all the time. In my opinion docker - is the most convenient and quick way to set up external services for local development.
 
@@ -55,16 +55,14 @@ So this article is about a bunch of commands that you may find useful. I decided
 
 <br>
 
-### Prerequisites
+## **Prerequisites**
 
 
-#### Docker
+### **Docker**
 
-For sure you could use direct installation by exe (Windows) or command line. There are different drawbacks. \
- \
+For sure you could use direct installation by exe (Windows) or command line. There are different drawbacks.
+
 I prefer docker because you :
-
-
 
 * keep your app isolated
 * keep your app more controllable
@@ -77,7 +75,7 @@ You should have an understanding of basic things in docker. It is better to lear
 
 <br>
 
-#### PgAdmin (optional)
+### **PgAdmin (optional)**
 
  
 
@@ -86,18 +84,18 @@ This is a pretty convenient UI application for the Postgres database. But, as a 
 
 <br>
 
-#### Terminology
+### **Terminology**
 
-**Image** - set of instructions about how to make your container
+`Image` - set of instructions about how to make your container
 
-**Container** - is running or not running an application inside the docker
+`Container` - is running or not running an application inside the docker
 
-**Volume** - is a mechanism to persist data out of the conteiner’s life. So if the container is dropped the data stays persisted by volume. The mechanism is usually syncing data from the container in the host operating system.
+`Volume` - is a mechanism to persist data out of the conteiner’s life. So if the container is dropped the data stays persisted by volume. The mechanism is usually syncing data from the container in the host operating system.
 
 
 <br>
 
-### Use case: Setting up using docker run
+## **Use case: Setting up using docker run**
 
 Simple use case if you have raw docker, you could leverage the command line.
 
@@ -120,9 +118,9 @@ docker run -p 5432:5432 --name postgres -v pgdata:/var/lib/postgresql/data -e PO
 
 <br>
 
-### Use case: Setting up using docker-compose
+## **Use case: Setting up using docker-compose**
 
-Just create **docker-compose.yml** file somewhere and put this into it:
+Just create `docker-compose.yml` file somewhere and put this into it:
 
 ```
 
@@ -145,7 +143,7 @@ volumes:
 
 ```
 
-Then go to the folder that contains **docker-compose.yml** and run from it using cmd:
+Then go to the folder that contains `docker-compose.yml` and run from it using cmd:
 
 ```
 
@@ -162,9 +160,9 @@ With this command, we did pretty much the same as using just run command: mapped
 <br>
 
 
-### Commands
+## **Commands**
 
-**Go inside the container:**
+`Go inside the container:`
 
 ```
 
@@ -172,7 +170,7 @@ docker exec -it postgres bash
 
 ```
 
-**Connect to database:**
+`Connect to database:`
 
 ```
 
@@ -184,7 +182,7 @@ psql -h 127.0.0.1 -p 5432 -U root
 [![alt_text](/assets/2022-11-01-postgres-with-docker-local-development/image3.png "image_tooltip")](/assets/2022-11-01-postgres-with-docker-local-development/image3.png "image_tooltip")
 
 
-**To list all databases:**
+`To list all databases:`
 
 ```
 
@@ -192,7 +190,7 @@ psql -h 127.0.0.1 -p 5432 -U root
 
 ```
 
-**Create database:**
+`Create database:`
 
 ```
 
@@ -208,7 +206,7 @@ psql -h 127.0.0.1 -p 5432 -U root -c 'CREATE  DATABASE "Test2"'
 
 ```
 
-**Drop database:**
+`Drop database:`
 
 ```
 
@@ -224,7 +222,7 @@ psql -h 127.0.0.1 -p 5432 -U root -c 'DROP  DATABASE "Test2"'
 
 ```
 
-**Connect to database:**
+`Connect to database:`
 
 ```
 
@@ -232,7 +230,7 @@ psql -h 127.0.0.1 -p 5432 -U root -c 'DROP  DATABASE "Test2"'
 
 ```
 
-**List tables in the connected database:**
+`List tables in the connected database:`
 
 ```
 
@@ -244,7 +242,7 @@ psql -h 127.0.0.1 -p 5432 -U root -c 'DROP  DATABASE "Test2"'
 [![alt_text](/assets/2022-11-01-postgres-with-docker-local-development/image1.png "image_tooltip")](/assets/2022-11-01-postgres-with-docker-local-development/image1.png "image_tooltip")
 
 
-**To make a backup (the file will be created on host machine):**
+`To make a backup (the file will be created on host machine):`
 
 ```
 
@@ -252,7 +250,7 @@ docker exec postgres pg_dump Test  > dump.sql
 
 ```
 
-**Restore database from backup (you first should create db using commands above):**
+`Restore database from backup (you first should create db using commands above):`
 
 ```
 
