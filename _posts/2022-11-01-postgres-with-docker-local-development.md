@@ -250,6 +250,15 @@ docker exec postgres pg_dump Test  > dump.sql
 
 ```
 
+
+`To make a backup of single table in SQL statements (instead of COPY) statements`
+
+```
+
+docker exec postgres pg_dump --column-inserts --data-only --table={table-name} PetForPet > dump.sql
+
+```
+
 `Restore database from backup (you first should create db using commands above):`
 
 ```
