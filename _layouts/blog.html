@@ -23,8 +23,6 @@ layout: default
                       {% endfor %}
                   </div>
               </ul>
-
-        <div class="row center">
           <!-- Pagination links -->
           {% if paginator.total_pages > 1 %}
             <ul class="pagination pagination-sm">
@@ -55,7 +53,6 @@ layout: default
               {% endif %}
             </ul>
           {% endif %}
-      </div>
 
     </div>
     {%- include blog_sidebar.html -%}
