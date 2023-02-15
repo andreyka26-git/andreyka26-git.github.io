@@ -65,9 +65,9 @@ Using this scheme we cannot decouple `Auth` from the `Resource server`. So for e
 Note: encoding to base64 is needed for encoding special characters, to ensure the string contains only ASCII characters it `will not` give you any security layer. \
 Since the user passes his credentials in a raw state - it is required to use one more security layer on top of the HTTP application layer - TLS.
 
-[Basic Auth Server in Github](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/SimpleAuth/Basic.Server)
+[Basic Auth Server in Github](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/SimpleAuth/Basic.Custom.Server)
 
-[Basic Auth Client in Github](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/SimpleAuth/Basic.WebClient)
+[Basic Auth Client in Github](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/SimpleAuth/Basic.Custom.WebClient)
 
 [![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image1.png "image_tooltip")](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image1.png "image_tooltip")
 
@@ -96,9 +96,9 @@ However, `Basic Auth` is so simple it brings a few problems:
 
 First of all, I should mention that this sample I rewritten from this repo, so you can see the [original version](https://github.com/flakey-bit/DotNetDigestAuth)
 
-[Digest Auth Server in Github](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/SimpleAuth/Digest.Server)
+[Digest Auth Server in Github](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/SimpleAuth/Digest.Custom.Server)
 
-[Digest Auth Client in Github](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/SimpleAuth/Digest.WebClient)
+[Digest Auth Client in Github](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/SimpleAuth/Digest.Custom.WebClient)
 
 It is a little bit complicated `auth` flow compared to `Basic Auth`. It doesn’t pass a password through the network, instead of this we are creating and storing some hashes.
 
