@@ -179,73 +179,52 @@ public class Consts
 ```cs
 
 public class AuthenticateModel : PageModel
-    {
-        public string Email { get; set; } = Consts.Email;
+{
+   public string Email { get; set; } = Consts.Email;
 
-        public string Password { get; set; } = Consts.Password;
+   public string Password { get; set; } = Consts.Password;
 
-        [BindProperty]
-        public string? ReturnUrl { get; set; }
+   [BindProperty]
+   public string? ReturnUrl { get; set; }
 
-        public string AuthStatus { get; set; } = "";
+   public string AuthStatus { get; set; } = "";
 
-        public IActionResult OnGet(string returnUrl)
-        {
-            ReturnUrl = returnUrl;
+   public IActionResult OnGet(string returnUrl)
+   {
+      ReturnUrl = returnUrl;
+      return Page();
+   }
+   
+   public async Task<IActionResult> OnPostAsync(string email, string password)
+   {
+      if (email != Consts.Email || password != Consts.Password)
+      {
+            AuthStatus = "Email or password is invalid";
             return Page();
-        }
+      }
 
-        
-        public async Task&lt;IActionResult> OnPostAsync(string email, string password)
+      var claims = new List<Claim>
+      {
+            new(ClaimTypes.Email, email),
+      };
 
-        {
-
-            if (email != Consts.Email || password != Consts.Password)
-
+      var principal = new ClaimsPrincipal(
+            new List<ClaimsIdentity> 
             {
+               new(claims, CookieAuthenticationDefaults.AuthenticationScheme)
+            });
 
-                AuthStatus = "Email or password is invalid";
+      await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-                return Page();
+      if (!string.IsNullOrEmpty(ReturnUrl))
+      {
+            return Redirect(ReturnUrl);
+      }
 
-            }
-
-            var claims = new List&lt;Claim>
-
-            {
-
-                new(ClaimTypes.Email, email),
-
-            };
-
-            var principal = new ClaimsPrincipal(
-
-                new List&lt;ClaimsIdentity> 
-
-                {
-
-                    new(claims, CookieAuthenticationDefaults.AuthenticationScheme)
-
-                });
-
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-
-            if (!string.IsNullOrEmpty(ReturnUrl))
-
-            {
-
-                return Redirect(ReturnUrl);
-
-            }
-
-            AuthStatus = "Successfully authenticated";
-
-            return Page();
-
-        }
-
-    }
-
+      AuthStatus = "Successfully authenticated";
+      return Page();
+   }
+}
 ```
 
 ```html
@@ -264,19 +243,14 @@ public class AuthenticateModel : PageModel
 
 Authenticate
 
-&lt;div>@Model.AuthStatus&lt;/div>
+<div>@Model.AuthStatus</div>
+<div>Return url: @Model.ReturnUrl</div>
 
-&lt;div>Return url: @Model.ReturnUrl&lt;/div>
-
-&lt;form method="post">
-
-    &lt;input name="email" value="@Model.Email"/>
-
-    &lt;input name="password" value="@Model.Password" />
-
-    &lt;input type="submit" />
-
-&lt;/form>
+<form method="post">
+    <input name="email" value="@Model.Email"/>
+    <input name="password" value="@Model.Password" />
+    <input type="submit" />
+</form>
 
 ```
 
@@ -296,55 +270,33 @@ In our case let’s pretend that if the `email == Consts.Email` and `password ==
 ```cs
 
 [Authorize]
-
 public class Consent : PageModel
-
 {
-
     [BindProperty]
-
     public string? ReturnUrl { get; set; }
-
     
-
     public IActionResult OnGet(string returnUrl)
-
     {
-
         ReturnUrl = returnUrl;
-
         return Page();
-
     }
 
-    public async Task&lt;IActionResult> OnPostAsync(string grant)
-
+    public async Task<IActionResult> OnPostAsync(string grant)
     {
-
         if (grant == Consts.GrantAccessValue)
-
         {
-
             var consentClaim = User.GetClaim(Consts.ConsentNaming);
-
             if (string.IsNullOrEmpty(consentClaim))
-
             {
-
                 User.SetClaim(Consts.ConsentNaming, Consts.GrantAccessValue);
-
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, User);
-
             }
 
             return Redirect(ReturnUrl);
-
         }
 
         return Forbid(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
-
     }
-
 }
 
 ```
@@ -362,22 +314,17 @@ public class Consent : PageModel
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 @{
-
     Layout = null;
-
 }
 
 Consent
 
 Redirect url: @Model.ReturnUrl
 
-&lt;form method="post">
-
-    &lt;input type="submit" name="grant" value="@Consts.GrantAccessValue">
-
-    &lt;input type="submit" name="grant" value="@Consts.DenyAccessValue"/>
-
-&lt;/form>
+<form method="post">
+    <input type="submit" name="grant" value="@Consts.GrantAccessValue">
+    <input type="submit" name="grant" value="@Consts.DenyAccessValue"/>
+</form>
 
 ```
 
@@ -404,42 +351,25 @@ Alternative solutions:
 ```cs
 
 [ApiController]
+public class AuthorizationController : Controller
+{
+   private readonly IOpenIddictApplicationManager _applicationManager;
+   private readonly IOpenIddictAuthorizationManager _authorizationManager;
+   private readonly IOpenIddictScopeManager _scopeManager;
+   private readonly AuthorizationService _authService;
 
-    public class AuthorizationController : Controller
-
-    {
-
-        private readonly IOpenIddictApplicationManager _applicationManager;
-
-        private readonly IOpenIddictAuthorizationManager _authorizationManager;
-
-        private readonly IOpenIddictScopeManager _scopeManager;
-
-        private readonly AuthorizationService _authService;
-
-        public AuthorizationController(
-
-            IOpenIddictApplicationManager applicationManager,
-
-            IOpenIddictAuthorizationManager authorizationManager,
-
-            IOpenIddictScopeManager scopeManager,
-
-            AuthorizationService authService)
-
-        {
-
-            _applicationManager = applicationManager;
-
-            _authorizationManager = authorizationManager;
-
-            _scopeManager = scopeManager;
-
-            _authService = authService;
-
-        }
-
-    }
+   public AuthorizationController(
+      IOpenIddictApplicationManager applicationManager,
+      IOpenIddictAuthorizationManager authorizationManager,
+      IOpenIddictScopeManager scopeManager,
+      AuthorizationService authService)
+   {
+      _applicationManager = applicationManager;
+      _authorizationManager = authorizationManager;
+      _scopeManager = scopeManager;
+      _authService = authService;
+   }
+}
 
 ```
 
@@ -451,112 +381,74 @@ Alternative solutions:
 ```cs
 
 [HttpGet("~/connect/authorize")]
+[HttpPost("~/connect/authorize")]
 
-        [HttpPost("~/connect/authorize")]
+public async Task<IActionResult> Authorize()
+{
+   var request = HttpContext.GetOpenIddictServerRequest() ??
+                  throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
 
-        public async Task&lt;IActionResult> Authorize()
+   var parameters = _authService.ParseOAuthParameters(HttpContext, new List<string> { Parameters.Prompt });
+   var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-        {
+   if (!_authService.IsAuthenticated(result, request))
+   {
+         return Challenge(properties: new AuthenticationProperties
+         {
+            RedirectUri = _authService.BuildRedirectUrl(HttpContext.Request, parameters)
+         }, new[] { CookieAuthenticationDefaults.AuthenticationScheme });
+   }
 
-            var request = HttpContext.GetOpenIddictServerRequest() ??
+   var application = await _applicationManager.FindByClientIdAsync(request.ClientId) ??
+                     throw new InvalidOperationException("Details concerning the calling client application cannot be found.");
 
-                          throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
+   var consentClaim = result.Principal.GetClaim(Consts.ConsentNaming);
 
-            var parameters = _authService.ParseOAuthParameters(HttpContext, new List&lt;string> { Parameters.Prompt });
+   if (consentClaim != Consts.GrantAccessValue)
+   {
+         var returnUrl = HttpUtility.UrlEncode(_authService.BuildRedirectUrl(HttpContext.Request, parameters));
+         var consentRedirectUrl = $"/Consent?returnUrl={returnUrl}";
+         return Redirect(consentRedirectUrl);
+   }
 
-            var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+   var userId = result.Principal.FindFirst(ClaimTypes.Email)!.Value;
 
-            if (!_authService.IsAuthenticated(result, request))
+   var identity = new ClaimsIdentity(
+         authenticationType: TokenValidationParameters.DefaultAuthenticationType,
+         nameType: Claims.Name,
+         roleType: Claims.Role);
 
-            {
+   identity.SetClaim(Claims.Subject, userId)
+         .SetClaim(Claims.Email, userId)
+         .SetClaim(Claims.Name, userId)
+         .SetClaims(Claims.Role, new List<string> { "user", "admin" }.ToImmutableArray());
 
-                return Challenge(properties: new AuthenticationProperties
+   identity.SetScopes(request.GetScopes());
+   identity.SetResources(await _scopeManager.ListResourcesAsync(identity.GetScopes()).ToListAsync());
 
-                {
+   var authorizations = await _authorizationManager
+         .FindAsync(
+            subject: userId,
+            client: await _applicationManager.GetIdAsync(application),
+            status: Statuses.Valid,
+            type: AuthorizationTypes.Permanent,
+            scopes: request.GetScopes())
+         .ToListAsync();
 
-                    RedirectUri = _authService.BuildRedirectUrl(HttpContext.Request, parameters)
+   var authorization = authorizations.LastOrDefault();
 
-                }, new[] { CookieAuthenticationDefaults.AuthenticationScheme });
+   authorization ??= await _authorizationManager.CreateAsync(
+         identity: identity,
+         subject: userId,
+         client: await _applicationManager.GetIdAsync(application),
+         type: AuthorizationTypes.Permanent,
+         scopes: identity.GetScopes());
 
-            }
+   identity.SetAuthorizationId(await _authorizationManager.GetIdAsync(authorization));
+   identity.SetDestinations(AuthorizationService.GetDestinations);
 
-            var application = await _applicationManager.FindByClientIdAsync(request.ClientId) ??
-
-                              throw new InvalidOperationException("Details concerning the calling client application cannot be found.");
-
-            var consentClaim = result.Principal.GetClaim(Consts.ConsentNaming);
-
-            if (consentClaim != Consts.GrantAccessValue)
-
-            {
-
-                var returnUrl = HttpUtility.UrlEncode(_authService.BuildRedirectUrl(HttpContext.Request, parameters));
-
-                var consentRedirectUrl = $"/Consent?returnUrl={returnUrl}";
-
-                return Redirect(consentRedirectUrl);
-
-            }
-
-            var userId = result.Principal.FindFirst(ClaimTypes.Email)!.Value;
-
-            var identity = new ClaimsIdentity(
-
-                authenticationType: TokenValidationParameters.DefaultAuthenticationType,
-
-                nameType: Claims.Name,
-
-                roleType: Claims.Role);
-
-            identity.SetClaim(Claims.Subject, userId)
-
-                .SetClaim(Claims.Email, userId)
-
-                .SetClaim(Claims.Name, userId)
-
-                .SetClaims(Claims.Role, new List&lt;string> { "user", "admin" }.ToImmutableArray());
-
-            identity.SetScopes(request.GetScopes());
-
-            identity.SetResources(await _scopeManager.ListResourcesAsync(identity.GetScopes()).ToListAsync());
-
-            var authorizations = await _authorizationManager
-
-                .FindAsync(
-
-                    subject: userId,
-
-                    client: await _applicationManager.GetIdAsync(application),
-
-                    status: Statuses.Valid,
-
-                    type: AuthorizationTypes.Permanent,
-
-                    scopes: request.GetScopes())
-
-                .ToListAsync();
-
-            var authorization = authorizations.LastOrDefault();
-
-            authorization ??= await _authorizationManager.CreateAsync(
-
-                identity: identity,
-
-                subject: userId,
-
-                client: await _applicationManager.GetIdAsync(application),
-
-                type: AuthorizationTypes.Permanent,
-
-                scopes: identity.GetScopes());
-
-            identity.SetAuthorizationId(await _authorizationManager.GetIdAsync(authorization));
-
-            identity.SetDestinations(AuthorizationService.GetDestinations);
-
-            return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
-
-        }
+   return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+}
 
 ```
 
@@ -579,72 +471,45 @@ From the OpenIddict source code, it could do different things with the same `Sig
 ```cs
 
 [HttpPost("~/connect/token")]
+public async Task<IActionResult> Exchange()
+{
+   var request = HttpContext.GetOpenIddictServerRequest() ??
+                  throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
 
-        public async Task&lt;IActionResult> Exchange()
+   if (!request.IsAuthorizationCodeGrantType() && !request.IsRefreshTokenGrantType())
+         throw new InvalidOperationException("The specified grant type is not supported.");
 
-        {
+   var result =
+         await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
 
-            var request = HttpContext.GetOpenIddictServerRequest() ??
+   var userId = result.Principal.GetClaim(Claims.Subject);
 
-                          throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
-
-            if (!request.IsAuthorizationCodeGrantType() && !request.IsRefreshTokenGrantType())
-
-                throw new InvalidOperationException("The specified grant type is not supported.");
-
-            
-
-            var result =
-
-                await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
-
-            var userId = result.Principal.GetClaim(Claims.Subject);
-
-                
-
-            if (string.IsNullOrEmpty(userId))
-
+   if (string.IsNullOrEmpty(userId))
+   {
+         return Forbid(
+            authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+            properties: new AuthenticationProperties(new Dictionary<string, string>
             {
+               [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.InvalidGrant,
+               [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] =
+                     "Cannot find user from the token."
+            }));
+   }
 
-                return Forbid(
+   var identity = new ClaimsIdentity(result.Principal.Claims,
+         authenticationType: TokenValidationParameters.DefaultAuthenticationType,
+         nameType: Claims.Name,
+         roleType: Claims.Role);
 
-                    authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+   identity.SetClaim(Claims.Subject, userId)
+         .SetClaim(Claims.Email, userId)
+         .SetClaim(Claims.Name, userId)
+         .SetClaims(Claims.Role, new List<string> { "user", "admin" }.ToImmutableArray());
 
-                    properties: new AuthenticationProperties(new Dictionary&lt;string, string>
+   identity.SetDestinations(AuthorizationService.GetDestinations);
 
-                    {
-
-                        [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.InvalidGrant,
-
-                        [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] =
-
-                            "Cannot find user from the token."
-
-                    }));
-
-            }
-
-            var identity = new ClaimsIdentity(result.Principal.Claims,
-
-                authenticationType: TokenValidationParameters.DefaultAuthenticationType,
-
-                nameType: Claims.Name,
-
-                roleType: Claims.Role);
-
-            identity.SetClaim(Claims.Subject, userId)
-
-                .SetClaim(Claims.Email, userId)
-
-                .SetClaim(Claims.Name, userId)
-
-                .SetClaims(Claims.Role, new List&lt;string> { "user", "admin" }.ToImmutableArray());
-
-            identity.SetDestinations(AuthorizationService.GetDestinations);
-
-            return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
-
-        }
+   return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+}
 
 ```
 
@@ -661,26 +526,17 @@ We are retrieving the identity that we put when signing in with `OpenIddictServe
 ```cs
 
 [HttpPost("~/connect/logout")]
+public async Task<IActionResult> LogoutPost()
+{
+   await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-        public async Task&lt;IActionResult> LogoutPost()
-
-        {
-
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-            return SignOut(
-
-                authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
-
-                properties: new AuthenticationProperties
-
-                {
-
-                    RedirectUri = "/"
-
-                });
-
-        }
+   return SignOut(
+         authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+         properties: new AuthenticationProperties
+         {
+            RedirectUri = "/"
+         });
+}
 
 ```
 
@@ -694,144 +550,87 @@ The Logout endpoint is straightforward - we are signing out from `CookieAuthenti
 ```cs
 
 public class ClientsSeeder
+{
 
-    {
+   private readonly IServiceProvider _serviceProvider;
 
-        private readonly IServiceProvider _serviceProvider;
+   public ClientsSeeder(IServiceProvider serviceProvider)
+   {
+      _serviceProvider = serviceProvider;
+   }
 
-        public ClientsSeeder(IServiceProvider serviceProvider)
+   public async Task AddScopes()
+   {
 
-        {
+      await using var scope = _serviceProvider.CreateAsyncScope();
+      var manager = scope.ServiceProvider.GetRequiredService<IOpenIddictScopeManager>();
+      var apiScope = await manager.FindByNameAsync("api1");
 
-            _serviceProvider = serviceProvider;
+      if (apiScope != null)
+      {
+            await manager.DeleteAsync(apiScope);
+      }
 
-        }
-
-        public async Task AddScopes()
-
-        {
-
-            await using var scope = _serviceProvider.CreateAsyncScope();
-
-            var manager = scope.ServiceProvider.GetRequiredService&lt;IOpenIddictScopeManager>();
-
-            var apiScope = await manager.FindByNameAsync("api1");
-
-            if (apiScope != null)
-
+      await manager.CreateAsync(new OpenIddictScopeDescriptor
+      {
+            DisplayName = "Api scope",
+            Name = "api1",
+            Resources =
             {
-
-                await manager.DeleteAsync(apiScope);
-
+               "resource_server_1"
             }
+      });
+   }
 
-            await manager.CreateAsync(new OpenIddictScopeDescriptor
+   public async Task AddClients()
+   {
 
+      await using var scope = _serviceProvider.CreateAsyncScope();
+      var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+      await context.Database.EnsureCreatedAsync();
+
+      var manager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
+      var client = await manager.FindByClientIdAsync("web-client");
+
+      if (client != null)
+      {
+            await manager.DeleteAsync(client);
+      }
+
+      await manager.CreateAsync(new OpenIddictApplicationDescriptor
+      {
+            ClientId = "web-client",
+            ClientSecret = "901564A5-E7FE-42CB-B10D-61EF6A8F3654",
+            ConsentType = ConsentTypes.Explicit,
+            DisplayName = "Postman client application",
+            RedirectUris =
             {
-
-                DisplayName = "Api scope",
-
-                Name = "api1",
-
-                Resources =
-
-                {
-
-                    "resource_server_1"
-
-                }
-
-            });
-
-        }
-
-        public async Task AddClients()
-
-        {
-
-            await using var scope = _serviceProvider.CreateAsyncScope();
-
-            var context = scope.ServiceProvider.GetRequiredService&lt;ApplicationDbContext>();
-
-            await context.Database.EnsureCreatedAsync();
-
-            var manager = scope.ServiceProvider.GetRequiredService&lt;IOpenIddictApplicationManager>();
-
-            var client = await manager.FindByClientIdAsync("web-client");
-
-            if (client != null)
-
+               new Uri("https://localhost:7002/swagger/oauth2-redirect.html")
+            },
+            PostLogoutRedirectUris =
             {
-
-                await manager.DeleteAsync(client);
-
-            }
-
-            await manager.CreateAsync(new OpenIddictApplicationDescriptor
-
+               new Uri("https://localhost:7002/resources")
+            },
+            Permissions =
             {
-
-                ClientId = "web-client",
-
-                ClientSecret = "901564A5-E7FE-42CB-B10D-61EF6A8F3654",
-
-                ConsentType = ConsentTypes.Explicit,
-
-                DisplayName = "Postman client application",
-
-                RedirectUris =
-
-                {
-
-                    new Uri("https://localhost:7002/swagger/oauth2-redirect.html")
-
-                },
-
-                PostLogoutRedirectUris =
-
-                {
-
-                    new Uri("https://localhost:7002/resources")
-
-                },
-
-                Permissions =
-
-                {
-
-                    Permissions.Endpoints.Authorization,
-
-                    Permissions.Endpoints.Logout,
-
-                    Permissions.Endpoints.Token,
-
-                    Permissions.GrantTypes.AuthorizationCode,
-
-                    Permissions.ResponseTypes.Code,
-
-                    Permissions.Scopes.Email,
-
-                    Permissions.Scopes.Profile,
-
-                    Permissions.Scopes.Roles,
-
-                   $"{Permissions.Prefixes.Scope}api1"
-
-                },
-
-                //Requirements =
-
-                //{
-
-                //    Requirements.Features.ProofKeyForCodeExchange
-
-                //}
-
-            });
-
-        }
-
-    }
+               Permissions.Endpoints.Authorization,
+               Permissions.Endpoints.Logout,
+               Permissions.Endpoints.Token,
+               Permissions.GrantTypes.AuthorizationCode,
+               Permissions.ResponseTypes.Code,
+               Permissions.Scopes.Email,
+               Permissions.Scopes.Profile,
+               Permissions.Scopes.Roles,
+               $"{Permissions.Prefixes.Scope}api1"
+            },
+            //Requirements =
+            //{
+            //    Requirements.Features.ProofKeyForCodeExchange
+            //}
+      });
+   }
+}
 
 ```
 
@@ -848,36 +647,22 @@ On top of that, it will create Resource Server as a scope with name `api1` and r
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext&lt;ApplicationDbContext>(options =>
-
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
-
     options.UseOpenIddict();
-
 });
 
 builder.Services.AddOpenIddict()
-
     .AddCore(options =>
-
     {
-
         options.UseEntityFrameworkCore()
-
-                .UseDbContext&lt;ApplicationDbContext>();
-
+                .UseDbContext<ApplicationDbContext>();
     })
-
     .AddServer(options =>
-
     {
-
         options.SetAuthorizationEndpointUris("connect/authorize")
-
                 .SetLogoutEndpointUris("connect/logout")
-
                 .SetTokenEndpointUris("connect/token");
 
         options.RegisterScopes(Scopes.Email, Scopes.Profile, Scopes.Roles);
@@ -885,61 +670,41 @@ builder.Services.AddOpenIddict()
         options.AllowAuthorizationCodeFlow();
 
         options.AddEncryptionKey(new SymmetricSecurityKey(
-
             Convert.FromBase64String("DRjd/GnduI3Efzen9V9BvbNUfc/VKgXltV7Kbk9sMkY=")));
 
-        
-
         options.AddDevelopmentEncryptionCertificate()
-
                 .AddDevelopmentSigningCertificate();
 
         options.UseAspNetCore()
-
                 .EnableAuthorizationEndpointPassthrough()
-
                 .EnableLogoutEndpointPassthrough()
-
                 .EnableTokenEndpointPassthrough();
-
     });
 
-builder.Services.AddTransient&lt;AuthorizationService>();
+builder.Services.AddTransient<AuthorizationService>();
 
 builder.Services.AddControllers();
-
 builder.Services.AddRazorPages();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-
     .AddCookie(c =>
-
     {
-
         c.LoginPath = "/Authenticate";
-
     });
 
-builder.Services.AddTransient&lt;ClientsSeeder>();
+builder.Services.AddTransient<ClientsSeeder>();
 
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddCors(options =>
-
 {
-
     options.AddDefaultPolicy(policy => 
-
     {
-
         policy.WithOrigins("https://localhost:7002")
-
             .AllowAnyHeader(); 
-
     });
-
 });
 
 var app = builder.Build();
@@ -969,25 +734,15 @@ Added Cors to allow Swagger to call `token` endpoint.
 ```cs
 
 using (var scope = app.Services.CreateScope())
-
 {
-
-    var seeder = scope.ServiceProvider.GetRequiredService&lt;ClientsSeeder>();
-
+    var seeder = scope.ServiceProvider.GetRequiredService<ClientsSeeder>();
     seeder.AddClients().GetAwaiter().GetResult();
-
     seeder.AddScopes().GetAwaiter().GetResult();
-
 }
-
 if (app.Environment.IsDevelopment())
-
 {
-
     app.UseSwagger();
-
     app.UseSwaggerUI();
-
 }
 
 app.UseHttpsRedirection();
@@ -995,11 +750,9 @@ app.UseHttpsRedirection();
 app.UseCors();
 
 app.UseAuthentication();
-
 app.UseAuthorization();
 
 app.MapControllers();
-
 app.MapRazorPages();
 
 app.Run();
@@ -1059,27 +812,16 @@ OpenIddict.Validation.SystemNetHttp
 ```cs
 
 [ApiController]
-
 [Route("resources")]
-
 public class ResourceController : Controller
-
 {
-
     [Authorize]
-
     [HttpGet]
-
-    public async Task&lt;IActionResult> GetSecretResources()
-
+    public async Task<IActionResult> GetSecretResources()
     {
-
         var user = HttpContext.User?.Identity?.Name;
-
         return Ok($"user: {user}");
-
     }
-
 }
 
 ```
@@ -1098,109 +840,66 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddOpenIddict()
-
     .AddValidation(options =>
-
     {
-
         options.SetIssuer("https://localhost:7000/");
-
         options.AddAudiences("resource_server_1");
 
         options.AddEncryptionKey(new SymmetricSecurityKey(
-
             Convert.FromBase64String("DRjd/GnduI3Efzen9V9BvbNUfc/VKgXltV7Kbk9sMkY=")));
 
         options.UseSystemNetHttp();
-
         options.UseAspNetCore();
-
     });
 
 builder.Services.AddAuthentication(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
-
 builder.Services.AddAuthorization();
 
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(c =>
-
 {
-
     c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
-
     {
-
         Type = SecuritySchemeType.OAuth2,
-
         Flows = new OpenApiOAuthFlows
-
         {
-
             AuthorizationCode = new OpenApiOAuthFlow
-
             {
-
                 AuthorizationUrl = new Uri("https://localhost:7000/connect/authorize"),
-
                 TokenUrl = new Uri("https://localhost:7000/connect/token"),
-
-                Scopes = new Dictionary&lt;string, string>
-
+                Scopes = new Dictionary<string, string>
                 {
-
                     { "api1", "resource server scope" }
-
                 }
-
             },
-
         }
-
     });
-
-    
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
-
     {
-
         {
-
             new OpenApiSecurityScheme
-
             {
-
                 Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" }
-
             },
-
-            Array.Empty&lt;string>()
-
+            Array.Empty<string>()
         }
-
     });
-
 });
 
 var app = builder.Build();
 
 app.UseSwagger();
-
 app.UseSwaggerUI(c =>
-
 {
-
     c.OAuthClientId("web-client");
-
     c.OAuthClientSecret("901564A5-E7FE-42CB-B10D-61EF6A8F3654");
-
 });
 
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
-
 app.UseAuthorization();
 
 app.MapControllers();
