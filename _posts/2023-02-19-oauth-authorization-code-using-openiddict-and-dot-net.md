@@ -131,6 +131,8 @@ The authorization Server will listen to the 7000 port.
 
 ### **1. Create ASP NET Core Web App**
 
+Create using whatever tool is more convenient for you.
+I'm using Visual Studio.
 
 ### **2. Add the necessary Nuget packages**
 
@@ -729,7 +731,7 @@ Added Cors to allow Swagger to call `token` endpoint.
 
 <br>
 
-### **9. Use Registered services and Middlwares in [Program](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.AuthorizationServer/Program.cs)**
+### **9. Use Registered services and Middlewares in [Program](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.AuthorizationServer/Program.cs)**
 
 ```cs
 
