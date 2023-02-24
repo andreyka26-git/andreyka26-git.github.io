@@ -428,25 +428,6 @@ public async Task<IActionResult> Authorize()
    identity.SetScopes(request.GetScopes());
    identity.SetResources(await _scopeManager.ListResourcesAsync(identity.GetScopes()).ToListAsync());
 
-   var authorizations = await _authorizationManager
-         .FindAsync(
-            subject: userId,
-            client: await _applicationManager.GetIdAsync(application),
-            status: Statuses.Valid,
-            type: AuthorizationTypes.Permanent,
-            scopes: request.GetScopes())
-         .ToListAsync();
-
-   var authorization = authorizations.LastOrDefault();
-
-   authorization ??= await _authorizationManager.CreateAsync(
-         identity: identity,
-         subject: userId,
-         client: await _applicationManager.GetIdAsync(application),
-         type: AuthorizationTypes.Permanent,
-         scopes: identity.GetScopes());
-
-   identity.SetAuthorizationId(await _authorizationManager.GetIdAsync(authorization));
    identity.SetDestinations(AuthorizationService.GetDestinations);
 
    return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
@@ -460,7 +441,6 @@ The flow here is the following:
 
 * We check whether the Resource Owner is Authenticated (has authentication cookies with data inside it). If not - we redirect him to `Authenticate` page with `return Challenge`
 * We check whether Resource Owner parsed from Authentication cookies contains `Consent` claim. If not - we redirect him to `Consent` page that will set `Consent` claim to cookies
-* We create authorization and store it. We don’t actually need it now, but for the OpenId Connect implementation, it will be needed to remember the user and not prompt him to log in and consent all the time. For now - if the cookie is expired - we will redo all the authentication and consent processes.
 * We create a new identity and sign in it with `OpenIddictServerAspNetCoreDefaults.AuthenticationScheme`. It will redirect us to `ReturnUrl` with `authorization code`. 
 
 From the OpenIddict source code, it could do different things with the same `SignIn` operation. For example, for the `authorize endpoint` it will redirect to ReturnUrl with Authorization Code, for `token endpoint` it will issue a new Access Token and return it to the Client.
