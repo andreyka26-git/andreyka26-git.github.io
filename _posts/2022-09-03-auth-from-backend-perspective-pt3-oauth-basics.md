@@ -268,18 +268,21 @@ The endpoint is implemented in Authorization Server.
 
 This endpoint should authenticate Resource Owner. After this, its behavior depends on Authorization Grant (Flow)
 
-From RFC: \
-“_The authorization endpoint is used to interact with the resource_
+From RFC: 
 
-_owner and obtain an authorization grant.  `The authorization server`_
+<br> 
+
+“_`The authorization endpoint is used to interact with the resource`_
+
+_`owner and obtain an authorization grant.  The authorization server`_
 
 _`MUST first verify the identity of the resource owner.  The way in`_
 
-_which the authorization server authenticates the resource owner_
+_`which the authorization server authenticates the resource owner`_
 
-_(e.g., username and password login, session cookies) is beyond the_
+_`(e.g., username and password login, session cookies) is beyond the`_
 
-_scope of this specification_.”
+_`scope of this specification_.`”
 
 This endpoint is only used by the `Authorization Code` and `Implicit` grant types. For Resource Owner Password Credentials and Client Credentials the Token Endpoint is used directly.
 
