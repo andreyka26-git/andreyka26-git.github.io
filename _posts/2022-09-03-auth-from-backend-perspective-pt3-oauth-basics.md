@@ -282,7 +282,7 @@ _`which the authorization server authenticates the resource owner`_
 
 _`(e.g., username and password login, session cookies) is beyond the`_
 
-_`scope of this specification_.`”
+_`scope of this specification.`_”
 
 This endpoint is only used by the `Authorization Code` and `Implicit` grant types. For Resource Owner Password Credentials and Client Credentials the Token Endpoint is used directly.
 
