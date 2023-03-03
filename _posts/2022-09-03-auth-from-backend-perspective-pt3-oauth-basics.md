@@ -270,7 +270,6 @@ This endpoint should authenticate Resource Owner. After this, its behavior depen
 
 From RFC: 
 
-<br> 
 
 “_`The authorization endpoint is used to interact with the resource`_
 
