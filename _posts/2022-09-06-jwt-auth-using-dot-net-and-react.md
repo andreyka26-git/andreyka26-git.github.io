@@ -99,7 +99,7 @@ docker run -p 5432:5432 --name postgres -v pgdata:/var/lib/postgresql/data -e PO
 
 In the end, you should have postgres running on a particular port, for simplicity, it is 5432 in my case.
 
-[![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image6.png "image_tooltip")](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image6.png "image_tooltip")
+[![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image6.png "image_tooltip")](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image6.png "image_tooltip"){:target="_blank"}
 
 <br>
 
@@ -501,15 +501,15 @@ Run the application locally. By following “[https://localhost:7000/swagger/ind
 
 Try authorization endpoint with creds “andreyka26\_” and “Mypass1\*”
 
-[![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image7.png "image_tooltip")](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image7.png "image_tooltip")
+[![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image7.png "image_tooltip")](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image7.png "image_tooltip"){:target="_blank"}
 
 Now you could add this authorization token to header with “Bearer {token}” and run ResourceController.
 
-[![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image1.png "image_tooltip")](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image1.png "image_tooltip")
+[![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image1.png "image_tooltip")](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image1.png "image_tooltip"){:target="_blank"}
 
 And as response you could see that in controller our auth middleware successfully parsed username claim:
 
-[![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image8.png "image_tooltip")](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image8.png "image_tooltip")
+[![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image8.png "image_tooltip")](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image8.png "image_tooltip"){:target="_blank"}
 
 <br>
 
@@ -689,19 +689,19 @@ Go to “[http://localhost:3000/login](http://localhost:3000/login)”, and pres
 
 In network tab you should be able to see token request:
 
-[![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image3.png "image_tooltip")](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image3.png "image_tooltip")
+[![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image3.png "image_tooltip")](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image3.png "image_tooltip"){:target="_blank"}
 
-[![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image5.png "image_tooltip")](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image5.png "image_tooltip")
+[![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image5.png "image_tooltip")](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image5.png "image_tooltip"){:target="_blank"}
 
 And then the redirection to home page which queries our backend with this token:
 
-[![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image2.png "image_tooltip")](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image2.png "image_tooltip")
+[![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image2.png "image_tooltip")](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image2.png "image_tooltip"){:target="_blank"}
 
-[![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image9.png "image_tooltip")](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image9.png "image_tooltip")
+[![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image9.png "image_tooltip")](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image9.png "image_tooltip"){:target="_blank"}
 
 In our case we can even see what is stored in our token because we don’t encrypt it. Go to `[https://jwt.io](https://jwt.io) `and paste there your token.
 
-[![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image4.png "image_tooltip")](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image4.png "image_tooltip")
+[![alt_text](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image4.png "image_tooltip")](/assets/2022-09-07-jwt-auth-using-dot-net-and-react/image4.png "image_tooltip"){:target="_blank"}
 
 You can see our name and id claims we’ve created on token generation step in the backend. The same way you could add role and validate by role.
 

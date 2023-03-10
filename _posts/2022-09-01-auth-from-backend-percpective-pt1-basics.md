@@ -40,7 +40,6 @@ Conversion notes:
 
 To be honest, I planned to write this set of articles about a year ago, because for a long time the `authentication & authorization` process was for me not so clear. I didn’t find any book or article which in simple words can show the whole picture of that process, especially digging into details.
 
- \
 So in that article, we are covering:
 
 

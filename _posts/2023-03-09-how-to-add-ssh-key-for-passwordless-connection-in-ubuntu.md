@@ -51,6 +51,32 @@ This article is a step-by-step guide about how to create an ubuntu user, how to 
 <br>
 
 
+## **Optional: Working with files in ubuntu**
+
+You could use whatever tool in Ubuntu you want, but I prefer `nano`, because it is simpler than default `vim`.
+
+```
+apt install nano
+```
+
+To open file
+
+```
+nano <filename>
+```
+
+```
+//inside opened file
+
+//to save changes: 
+ctrl + O
+
+//to close opened file
+ctrl + x
+```
+
+[![alt_text](/assets/2023-03-09-how-to-add-ssh-key-for-passwordless-connection-in-ubuntu/image4.png "image_tooltip")](/assets/2023-03-09-how-to-add-ssh-key-for-passwordless-connection-in-ubuntu/image4.png "image_tooltip"){:target="_blank"}
+
 ## **On the client’s machine**
 
 Go to your user directory
@@ -81,7 +107,7 @@ cat id_rsa.pub
 It should have the following format `ssh-rsa <key> <hostname>`
 
 
-[![alt_text](/assets/2023-03-09-how-to-add-ssh-key-for-passwordless-connection-in-ubuntu/image3.png "image_tooltip")](/assets/2023-03-09-how-to-add-ssh-key-for-passwordless-connection-in-ubuntu/image3.png "image_tooltip")
+[![alt_text](/assets/2023-03-09-how-to-add-ssh-key-for-passwordless-connection-in-ubuntu/image3.png "image_tooltip")](/assets/2023-03-09-how-to-add-ssh-key-for-passwordless-connection-in-ubuntu/image3.png "image_tooltip"){:target="_blank"}
 
 
 
@@ -101,7 +127,7 @@ adduser admin
 ```
 
 
-[![alt_text](/assets/2023-03-09-how-to-add-ssh-key-for-passwordless-connection-in-ubuntu/image2.png "image_tooltip")](/assets/2023-03-09-how-to-add-ssh-key-for-passwordless-connection-in-ubuntu/image2.png "image_tooltip")
+[![alt_text](/assets/2023-03-09-how-to-add-ssh-key-for-passwordless-connection-in-ubuntu/image2.png "image_tooltip")](/assets/2023-03-09-how-to-add-ssh-key-for-passwordless-connection-in-ubuntu/image2.png "image_tooltip"){:target="_blank"}
 
 
 Run
@@ -132,10 +158,9 @@ touch authorized_keys
 
 Let’s say you have user called `admin`. And the .ssh folder is located in `/home/admin` folder.
 
-Copy the line from the  **Client’s** `/home/admin/.ssh/id_rsa.pub` and append this line to the **Server’s** `/home/admin/.ssh/authorized_keys`
+Copy the line from the  **Client’s** `~/.ssh/id_rsa.pub` and append this line to the **Server’s** `/home/admin/.ssh/authorized_keys`
 
-
-[![alt_text](/assets/2023-03-09-how-to-add-ssh-key-for-passwordless-connection-in-ubuntu/image1.png "image_tooltip")](/assets/2023-03-09-how-to-add-ssh-key-for-passwordless-connection-in-ubuntu/image1.png "image_tooltip")
+[![alt_text](/assets/2023-03-09-how-to-add-ssh-key-for-passwordless-connection-in-ubuntu/image1.png "image_tooltip")](/assets/2023-03-09-how-to-add-ssh-key-for-passwordless-connection-in-ubuntu/image1.png "image_tooltip"){:target="_blank"}
 
 
 The line you are going to append is in  `ssh-rsa <key> <hostname>` format. Append it from new line if you already have ssh keys in `authorized_keys` file.

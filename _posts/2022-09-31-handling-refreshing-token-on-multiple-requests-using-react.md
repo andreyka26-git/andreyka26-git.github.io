@@ -81,7 +81,7 @@ The steps that should be taken in this case are:
 
 In the network tab it should look like that:
 
-[![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image2.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image2.png "image_tooltip")
+[![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image2.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image2.png "image_tooltip"){:target="_blank"}
 
 
 
@@ -100,7 +100,7 @@ One example of this behavior is inside the OAuth protocol
 
 [RFC reference](https://www.rfc-editor.org/rfc/rfc6749)
 
-[![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image4.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image4.png "image_tooltip")
+[![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image4.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image4.png "image_tooltip"){:target="_blank"}
 
 
 Going forward - we will have the ability to intercept each request and handle errors for each request.
@@ -592,19 +592,19 @@ Launch Backend and Frontend.
 The first page has empty local storage:
 
 
-[![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image6.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image6.png "image_tooltip")
+[![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image6.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image6.png "image_tooltip"){:target="_blank"}
 
 
 After submitting default credentials we have access and refresh token inside the localstorage.
 
 
 
-[![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image3.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image3.png "image_tooltip")
+[![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image3.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image3.png "image_tooltip"){:target="_blank"}
 
 
 Now, let’s break access token by submitting `localStorage.setItem("token", "sdf")` inside Browser Console. 
 
-[![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image1.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image1.png "image_tooltip")
+[![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image1.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image1.png "image_tooltip"){:target="_blank"}
 
 
 
@@ -613,7 +613,7 @@ Ensure that the token is not valid, and then click `Send 3 requests`.
 
 
 
-[![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image5.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image5.png "image_tooltip")
+[![alt_text](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image5.png "image_tooltip")](/assets/2022-12-08-handling-refreshing-token-on-multiple-requests-using-react/image5.png "image_tooltip"){:target="_blank"}
 
 
 You could observe, that the first 3 requests failed with 401, ONLY ONE refresh request happened and all 3 `resources` requests were retried successfully. We can observe that each response was set for each retried request.

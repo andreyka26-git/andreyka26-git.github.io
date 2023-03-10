@@ -69,7 +69,7 @@ Since the user passes his credentials in a raw state - it is required to use one
 
 [Basic Auth Client in Github](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/SimpleAuth/Basic.Custom.WebClient)
 
-[![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image1.png "image_tooltip")](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image1.png "image_tooltip")
+[![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image1.png "image_tooltip")](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image1.png "image_tooltip"){:target="_blank"}
 
 `HandleAuthenticateAsync` first does the authentication: it extracts username and password from the header (decoding base64) and ensures this user does exist (in our case it is a simple if statement, but in the real case, it should hash the pass and check it along with username). It does it for every request because we used `.UseAuthorization() .UseAuthentication()` middleware registration methods.
 
@@ -77,7 +77,7 @@ But this is the `Authentication` part of it, we only checked that the user is wh
 
 After `HandleAuthenticateAsync` did the authentication part we will have `User.Identity` in each endpoint, and based on this identity we can do `Authorization` - to verify whether this particular user is allowed to access this endpoint or not.
 
-[![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image3.png "image_tooltip")](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image3.png "image_tooltip")
+[![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image3.png "image_tooltip")](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image3.png "image_tooltip"){:target="_blank"}
 
 However, `Basic Auth` is so simple it brings a few problems:
 
@@ -126,7 +126,7 @@ The flow is the following:
 
 2.`The Client` collects `realm`, `qop`, `nonce`, and `opaque` from the response header.
 
-[![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image5.png "image_tooltip")](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image5.png "image_tooltip")
+[![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image5.png "image_tooltip")](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image5.png "image_tooltip"){:target="_blank"}
 
 3.The `Client` generates a request auth token:
 
@@ -142,7 +142,7 @@ _**Second Hash (A2)** = MD5 (httpMethod:requestUrl)_
 
 _**Response** = MD5 ({**First Hash**}:`nonce`:`nonceCount`:`cnonce`:`qop`:{**Second Hash**})_
 
-[![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image6.png "image_tooltip")](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image6.png "image_tooltip")
+[![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image6.png "image_tooltip")](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image6.png "image_tooltip"){:target="_blank"}
 
 4.The `Client` sends the same request including the Authorization header in the following format: Digest `username`=”{username}”,
 
@@ -162,11 +162,11 @@ _**Response** = MD5 ({**First Hash**}:`nonce`:`nonceCount`:`cnonce`:`qop`:{**Sec
 
 `opaque`=”{opaque}”
 
-[![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image4.png "image_tooltip")](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image4.png "image_tooltip")
+[![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image4.png "image_tooltip")](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image4.png "image_tooltip"){:target="_blank"}
 
 5.The `Server` verifies the hash by using values provided by the `Client` (authenticate and authorize). Then it either rejects with a 4XX error or serves the response.
 
-[![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image2.png "image_tooltip")](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image2.png "image_tooltip")
+[![alt_text](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image2.png "image_tooltip")](/assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/image2.png "image_tooltip"){:target="_blank"}
 
 There is one interesting question: How is the `Server` supposed to generate the first hash without knowing the password since the `Client` doesn’t pass it on request?
 

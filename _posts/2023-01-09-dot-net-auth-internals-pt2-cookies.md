@@ -59,7 +59,7 @@ It is a time to research how a particular `IAuthenticationHandler` implementatio
 
 Regularly, we register the cookies authentication handler using this method [.AddCookie](https://github.com/dotnet/aspnetcore/blob/main/src/Security/Authentication/Cookies/src/CookieExtensions.cs#L25)
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image23.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image23.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image23.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image23.png "image_tooltip"){:target="_blank"}
 
 All calls go to this method. 36-40 lines are registering configurations and 42 line registers the handler itself. `AddScheme` implementation is [here](https://github.com/dotnet/aspnetcore/blob/main/src/Security/Authentication/Core/src/AuthenticationBuilder.cs#L90)
 
@@ -77,11 +77,11 @@ We need to understand some implementation from it:
 
 The cookie manager is used to provide cookies from requests and write them to responses.
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image10.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image10.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image10.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image10.png "image_tooltip"){:target="_blank"}
 
 It is initialized [here](https://github.com/dotnet/aspnetcore/blob/main/src/Security/Authentication/Cookies/src/PostConfigureCookieAuthenticationOptions.cs)
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image5.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image5.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image5.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image5.png "image_tooltip"){:target="_blank"}
 
 [ChunkingCookieManager](https://github.com/dotnet/aspnetcore/blob/main/src/Shared/ChunkingCookieManager/ChunkingCookieManager.cs) is a service that breaks down long cookies for responses and reassembles them from requests.
 
@@ -90,11 +90,11 @@ It is initialized [here](https://github.com/dotnet/aspnetcore/blob/main/src/Secu
 
 Ticket data format is used to serialize/deserialize + encrypt/decrypt identity (user info) from cookies.
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image32.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image32.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image32.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image32.png "image_tooltip"){:target="_blank"}
 
 It is Initialized [here](https://github.com/dotnet/aspnetcore/blob/main/src/Security/Authentication/Cookies/src/PostConfigureCookieAuthenticationOptions.cs)
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image24.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image24.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image24.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image24.png "image_tooltip"){:target="_blank"}
 
 <br>
 
@@ -109,7 +109,7 @@ To be able to authenticate the request successfully we should sign in it first.
 [CookieAuthenticationHandler](https://github.com/dotnet/aspnetcore/blob/main/src/Security/Authentication/Cookies/src/CookieAuthenticationHandler.cs) extends [SignInAuthenticationHandler](https://github.com/dotnet/aspnetcore/blob/main/src/Security/Authentication/Core/src/SignInAuthenticationHandler.cs) which has `SignInAsync` method.
 
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image17.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image17.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image17.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image17.png "image_tooltip"){:target="_blank"}
 
 You may be interested in what is `ResolveTarget()`, what is target at all, and why it is here. To put it simply we can combine different authentication schemes and this method is needed for managing those combinations. You could see the answer for “why” by following [this stack overflow question](https://stackoverflow.com/questions/55062245/authentication-based-dynamically-on-authorization-header-scheme-in-non-mvc-asp-n)
 
@@ -119,15 +119,15 @@ The main behavior for signing in is implemented in `HandleSignInAsync` method wh
 
 [HandleSignInAsync - first part](https://github.com/dotnet/aspnetcore/blob/main/src/Security/Authentication/Cookies/src/CookieAuthenticationHandler.cs#L280)
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image30.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image30.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image30.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image30.png "image_tooltip"){:target="_blank"}
 
 Line 292: `EnsureCookieTicket` tries to get cookies, then read, unencrypt, extract principal verify expiration of authentication ticket. Also, this operation sets additional data like session id.
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image26.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image26.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image26.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image26.png "image_tooltip"){:target="_blank"}
 
 Here it ensures operation is done once.
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image28.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image28.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image28.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image28.png "image_tooltip"){:target="_blank"}
 
 Then method [ReadCookieTicket](https://github.com/dotnet/aspnetcore/blob/main/src/Security/Authentication/Cookies/src/CookieAuthenticationHandler.cs#L139) does:
 
@@ -145,7 +145,7 @@ Line 293: builds different cookie options like SameSite, HttpOnly, SecurePolicy,
 
 [HandleSignInAsync - second part](https://github.com/dotnet/aspnetcore/blob/main/src/Security/Authentication/Cookies/src/CookieAuthenticationHandler.cs#L290)
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image6.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image6.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image6.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image6.png "image_tooltip"){:target="_blank"}
 
 Line 295: builds signin context with all info available at this point including user info, httpcontext, scheme, cookie options, etc.
 
@@ -157,7 +157,7 @@ Line 321: updates expired time for cookies (not for authentication validity).
 
 [HandleSignInAsync - third part](https://github.com/dotnet/aspnetcore/blob/main/src/Security/Authentication/Cookies/src/CookieAuthenticationHandler.cs#L324)
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image16.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image16.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image16.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image16.png "image_tooltip"){:target="_blank"}
 
 Line 329-346: if the session store is configured - then a tricky thing happens - it stores the user in this store and puts only the session id into auth ticket. It means that your cookie will contain only the session id encrypted.
 
@@ -177,13 +177,13 @@ Line 366: setting additional headers and return URL, calling events.
 
 [HandleAuthenticateAsync](https://github.com/dotnet/aspnetcore/blob/main/src/Security/Authentication/Cookies/src/CookieAuthenticationHandler.cs#L280)
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image14.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image14.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image14.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image14.png "image_tooltip"){:target="_blank"}
 
 Line 191: The actual authentication happens here. It reads user identity from cookies (already discussed in `HandleSignInAsync`) and returns successful AuthenticateResult if the cookie is valid and it is not expired along with the authentication ticket.
 
 Line 199: we try to refresh cookies' expiration if the remaining time is less than half of the whole expiration time.
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image19.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image19.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image19.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image19.png "image_tooltip"){:target="_blank"}
 
 <br>
 
@@ -197,12 +197,12 @@ It is a pure backend without anything unnecessary. You could use it through the 
 
 Registering scheme and other authentication services along with CookieAuthenticationHandler:
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image8.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image8.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image8.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image8.png "image_tooltip"){:target="_blank"}
 
 
 `Sign in using cookies`:
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image1.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image1.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image1.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image1.png "image_tooltip"){:target="_blank"}
 
 Line 15: this method is supposed to check the password hash against stored one in your database or any other storage. But for the sample, it checks whether the username and password are mines.
 
@@ -210,19 +210,19 @@ Line 22-32: setting claims identity with necessary claims (user data).
 
 Line 34: setting auth cookies.
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image29.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image29.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image29.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image29.png "image_tooltip"){:target="_blank"}
 
 As you can see we have set authentication cookies.
 
 `Authenticate using cookies`:
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image13.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image13.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image13.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image13.png "image_tooltip"){:target="_blank"}
 
 This endpoint just outputs one of your claims (Name). If you are authenticated you will see the username.
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image18.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image18.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image18.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image18.png "image_tooltip"){:target="_blank"}
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image22.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image22.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image22.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt2-cookies/image22.png "image_tooltip"){:target="_blank"}
 
 As you can see we can successfully read user identity from cookies. 
 

@@ -72,17 +72,17 @@ Go [here](https://support.google.com/accounts/answer/185833?hl=en)
 
 1.Go to `Google Account` -> `Security` -> `Signing in to Google` -> `2-Step Verification`, enable it.
 
-[![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image4.png "image_tooltip")](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image4.png "image_tooltip")
+[![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image4.png "image_tooltip")](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image4.png "image_tooltip"){:target="_blank"}
 
 2.Go to `Google Account` -> `Security` -> `Signing in to Google` -> `App Passwords`
 
-[![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image2.png "image_tooltip")](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image2.png "image_tooltip")
+[![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image2.png "image_tooltip")](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image2.png "image_tooltip"){:target="_blank"}
 
 Copy generated password (we will name it `{gmail-password}`):
 
 “aaaaaaaaaaaa”
 
-[![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image1.png "image_tooltip")](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image1.png "image_tooltip")
+[![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image1.png "image_tooltip")](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image1.png "image_tooltip"){:target="_blank"}
 
 <br>
 
@@ -144,15 +144,15 @@ chmod u+x test.sh
 
 We will see the logs:
 
-[![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image5.png "image_tooltip")](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image5.png "image_tooltip")
+[![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image5.png "image_tooltip")](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image5.png "image_tooltip"){:target="_blank"}
 
 Telegram result:
 
-[![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image6.png "image_tooltip")](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image6.png "image_tooltip")
+[![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image6.png "image_tooltip")](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image6.png "image_tooltip"){:target="_blank"}
 
 Gmail result:
 
-[![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image3.png "image_tooltip")](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image3.png "image_tooltip")
+[![alt_text](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image3.png "image_tooltip")](/assets/2022-09-20-postgres-backup-to-email-and-telegram/image3.png "image_tooltip"){:target="_blank"}
 
 <br>
 

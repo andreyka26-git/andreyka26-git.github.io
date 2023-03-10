@@ -67,7 +67,7 @@ Authentication is similar in .NET so the main magic is happening inside Authenti
 [GoogleExtensions source code](https://github.com/dotnet/aspnetcore/blob/3b5400a286f9e827d9e14aa30a79c5db0df439cc/src/Security/Authentication/Google/src/GoogleExtensions.cs#L65)
 
 
-[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image5.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image5.png "image_tooltip")
+[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image5.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image5.png "image_tooltip"){:target="_blank"}
 
 
 This call just redirects registering to `AddOAuth`. Since google provides authentication via OAuth protocol it is expected.
@@ -80,7 +80,7 @@ This call just redirects registering to `AddOAuth`. Since google provides authen
 [OAuthExtensions source code](https://github.com/dotnet/aspnetcore/blob/3b5400a286f9e827d9e14aa30a79c5db0df439cc/src/Security/Authentication/OAuth/src/OAuthExtensions.cs#L58)
 
 
-[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image10.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image10.png "image_tooltip")
+[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image10.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image10.png "image_tooltip"){:target="_blank"}
 
 
 
@@ -93,7 +93,7 @@ This call just redirects registering to `AddOAuth`. Since google provides authen
 `AddRemoteScheme` method is just registering auth handler with options. The calls go down to `AddSchemeHelper`. 
 
 
-[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image13.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image13.png "image_tooltip")
+[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image13.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image13.png "image_tooltip"){:target="_blank"}
 
 
 52nd line: we are validating auth options. `This is the answer to why we cannot have GoogleAuth without CookieAuth`.
@@ -138,7 +138,7 @@ The callstack of **`Challenge`** method is:
 `AuthenticationSchemeOptions` contains mostly forward scheme options.
 
 
-[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image9.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image9.png "image_tooltip")
+[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image9.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image9.png "image_tooltip"){:target="_blank"}
 
 
 This is needed especially when we use different schemes at the same time like `GoogleScheme` and `CookiesScheme`. So one scheme can forward to another scheme.
@@ -164,7 +164,7 @@ Below I will show example of `ChallengeAsync`, but it is similar for authenticat
 #### **ChallengeAsync**
 
 
-[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image2.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image2.png "image_tooltip")
+[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image2.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image2.png "image_tooltip"){:target="_blank"}
 
 
 280th line: we are trying to resolve new auth scheme (screen below). If successful - we start challenging from scratch via `HttpContextExtensions`.
@@ -177,7 +177,7 @@ Below I will show example of `ChallengeAsync`, but it is similar for authenticat
 #### **ResolveTarget**
 
 
-[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image14.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image14.png "image_tooltip")
+[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image14.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image14.png "image_tooltip"){:target="_blank"}
 
 
 This method is changing one auth scheme to another.
@@ -198,7 +198,7 @@ This method is changing one auth scheme to another.
 On top of that it contains [SignInScheme](https://github.com/dotnet/aspnetcore/blob/4535ea1263e9a24ca8d37b7266797fe1563b8b12/src/Security/Authentication/Core/src/RemoteAuthenticationOptions.cs#L112)
 
 
-[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image1.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image1.png "image_tooltip")
+[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image1.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image1.png "image_tooltip"){:target="_blank"}
 
 
 As you can see from comments, it is DIFFERENT scheme from Remote Scheme (Google, Github, Facebook) that is used to persist user identity after authentication. 
@@ -208,7 +208,7 @@ In other words to save user identity somewhere on side of your application to NO
 These options contains validate method that ensures that `SignInSheme` is not the same as RemoteScheme [here](https://github.com/dotnet/aspnetcore/blob/4535ea1263e9a24ca8d37b7266797fe1563b8b12/src/Security/Authentication/Core/src/RemoteAuthenticationOptions.cs#L41).
 
 
-[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image18.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image18.png "image_tooltip")
+[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image18.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image18.png "image_tooltip"){:target="_blank"}
 
 
 41nd line: this validation is happening. If our `SignInScheme` is the same as `sheme` (that is GoogleScheme) then we are throwing `RemoteSignInSchemeCannotBeSelf`. Why .NET team did like that we will answer in separate article.
@@ -230,7 +230,7 @@ This guy is responsible for handling response from Remote Auth provider. There a
 [ShouldHandleRequestAsync](https://github.com/dotnet/aspnetcore/blob/4535ea1263e9a24ca8d37b7266797fe1563b8b12/src/Security/Authentication/Core/src/RemoteAuthenticationHandler.cs#L58) returns true if the request is coming to Callback path from Authorizataion Server.
 
 
-[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image17.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image17.png "image_tooltip")
+[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image17.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image17.png "image_tooltip"){:target="_blank"}
 
 
 
@@ -239,7 +239,7 @@ This guy is responsible for handling response from Remote Auth provider. There a
 #### **HandleRequestAsync**
 
 
-[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image12.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image12.png "image_tooltip")
+[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image12.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image12.png "image_tooltip"){:target="_blank"}
 
 
 [HandleRequestAsync](https://github.com/dotnet/aspnetcore/blob/4535ea1263e9a24ca8d37b7266797fe1563b8b12/src/Security/Authentication/Core/src/RemoteAuthenticationHandler.cs#L65) is called whenever we get redirected from identity provider to Callback Url (OAuth) to process Authorization Code, get tokens, create identity from them, etc.
@@ -250,7 +250,7 @@ This guy is responsible for handling response from Remote Auth provider. There a
 
 Then a couple of checks are happening with exception handling.
 
-[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image15.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image15.png "image_tooltip")
+[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image15.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image15.png "image_tooltip"){:target="_blank"}
 
 
 162nd line: signs in principal (user data) with `SignInScheme`. As was previously mentioned `SignInScheme` is typically Cookies Scheme, not current Scheme (Google, Github, Facebook, etc). On top of that as we previously mentioned `SignInScheme` must be different from current Authentication Scheme.
@@ -262,7 +262,7 @@ Then a couple of checks are happening with exception handling.
 
 #### **HandleAuthenticateAsync**
 
-[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image7.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image7.png "image_tooltip")
+[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image7.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image7.png "image_tooltip"){:target="_blank"}
 
 
 [HandleAuthenticateAsync](https://github.com/dotnet/aspnetcore/blob/4535ea1263e9a24ca8d37b7266797fe1563b8b12/src/Security/Authentication/Core/src/RemoteAuthenticationHandler.cs#L182) is called whenever we got request to endpoint, protected by `[Authorize]` attribute.
@@ -294,7 +294,7 @@ This handler is responsible for all communication according to OAuth / OpenId Co
 
 #### **HandleRemoteAuthenticateAsync**
 
-[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image16.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image16.png "image_tooltip")
+[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image16.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image16.png "image_tooltip"){:target="_blank"}
 
 
 [HandleRemoteAuthenticateAsync](https://github.com/dotnet/aspnetcore/blob/4535ea1263e9a24ca8d37b7266797fe1563b8b12/src/Security/Authentication/OAuth/src/OAuthHandler.cs#L55) is handling redirection to callback url from Authorization Server. It uses Authorization Code grant, so in this method it tries to exchange Authorization Code for tokens.
@@ -304,7 +304,7 @@ This handler is responsible for all communication according to OAuth / OpenId Co
 74th line: processing errors from authorization server
 
 
-[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image11.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image11.png "image_tooltip")
+[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image11.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image11.png "image_tooltip"){:target="_blank"}
 
 
 117th line: it gets code parameter (Authorization Code)
@@ -314,7 +314,7 @@ This handler is responsible for all communication according to OAuth / OpenId Co
 137th line: creates empty (default) identity.
 
 
-[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image6.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image6.png "image_tooltip")
+[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image6.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image6.png "image_tooltip"){:target="_blank"}
 
 
 139-171 lines: persists tokens from Authorization Server if we mark it in the options.
@@ -326,7 +326,7 @@ This handler is responsible for all communication according to OAuth / OpenId Co
 
 #### **ExchangeCodeAsync**
 
-[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image8.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image8.png "image_tooltip")
+[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image8.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image8.png "image_tooltip"){:target="_blank"}
 
 
 [ExchangeCodeAsync](https://github.com/dotnet/aspnetcore/blob/4535ea1263e9a24ca8d37b7266797fe1563b8b12/src/Security/Authentication/OAuth/src/OAuthHandler.cs#L189) is used for exchange Authorization Code for Access / Id / Refresh tokens. Under hood it is sending request to Authorization Server with OAuth parameters like client id, client secret.
@@ -335,7 +335,7 @@ This handler is responsible for all communication according to OAuth / OpenId Co
 
 #### **CreateTicketAsync**
 
-[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image4.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image4.png "image_tooltip")
+[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image4.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image4.png "image_tooltip"){:target="_blank"}
 
 
 [CreateTicketAsync](https://github.com/dotnet/aspnetcore/blob/4535ea1263e9a24ca8d37b7266797fe1563b8b12/src/Security/Authentication/OAuth/src/OAuthHandler.cs#L243) creates authentication ticket with empty principal (user data) that was created in HandleRemoteAuthenticateAsync.
@@ -366,7 +366,7 @@ As you can see this method is virtual and it will be overridden in particular Id
 [CreateTicketAsync](https://github.com/dotnet/aspnetcore/blob/4535ea1263e9a24ca8d37b7266797fe1563b8b12/src/Security/Authentication/Google/src/GoogleHandler.cs#L32) is overridden from OAuthHandler, it creates Authentication Ticket with data parsed from tokens.
 
 
-[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image3.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image3.png "image_tooltip")
+[![alt_text](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image3.png "image_tooltip")](/assets/2023-01-10-dot-net-auth-internals-pt3-google/image3.png "image_tooltip"){:target="_blank"}
 
 
 38-41 lines: it sends request to Authorization Server to get user data with Access Token.
