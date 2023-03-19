@@ -66,7 +66,7 @@ We can see different alternatives for `OAuth / OpenId Connect` implementation li
 The thing is that the majority of them are standalone products, SaaS, or self-hosted:
 
 
-[![alt_text](/assets/2023-02-19-oauth-authorization-code-using-openiddict-and-dot-net/image1.png "image_tooltip")](/assets/2023-02-19-oauth-authorization-code-using-openiddict-and-dot-net/image1.png "image_tooltip")
+[![alt_text](/assets/2023-02-19-oauth-authorization-code-using-openiddict-and-dot-net/image1.png "image_tooltip")](/assets/2023-02-19-oauth-authorization-code-using-openiddict-and-dot-net/image1.png "image_tooltip"){:target="_blank"}
 
 
 The real flexibility comes with libraries, and there are 2 main competitors: `Identity Server` and `OpenIddict`.
@@ -913,7 +913,7 @@ Let’s launch both services.
 Click `Authorize`
 
 
-[![alt_text](/assets/2023-02-19-oauth-authorization-code-using-openiddict-and-dot-net/image5.png "image_tooltip")](/assets/2023-02-19-oauth-authorization-code-using-openiddict-and-dot-net/image5.png "image_tooltip")
+[![alt_text](/assets/2023-02-19-oauth-authorization-code-using-openiddict-and-dot-net/image5.png "image_tooltip")](/assets/2023-02-19-oauth-authorization-code-using-openiddict-and-dot-net/image5.png "image_tooltip"){:target="_blank"}
 
 
 Click `Authorize` in the pop up window
@@ -921,7 +921,7 @@ Click `Authorize` in the pop up window
 It will go to `connect/authorize` **the first time**, see, that the request does not have `Authenticate` cookies, and redirect the Resource Owner to `Authenticate` razor page
 
 
-[![alt_text](/assets/2023-02-19-oauth-authorization-code-using-openiddict-and-dot-net/image2.png "image_tooltip")](/assets/2023-02-19-oauth-authorization-code-using-openiddict-and-dot-net/image2.png "image_tooltip")
+[![alt_text](/assets/2023-02-19-oauth-authorization-code-using-openiddict-and-dot-net/image2.png "image_tooltip")](/assets/2023-02-19-oauth-authorization-code-using-openiddict-and-dot-net/image2.png "image_tooltip"){:target="_blank"}
 
 
 Click `Submit`
@@ -929,7 +929,7 @@ Click `Submit`
 It will sign in the user and set Authenticate cookies ( `.AspNetCore.Cookies`) - then redirect Resource Owner to `connect/authorize`.
 
 
-[![alt_text](/assets/2023-02-19-oauth-authorization-code-using-openiddict-and-dot-net/image4.png "image_tooltip")](/assets/2023-02-19-oauth-authorization-code-using-openiddict-and-dot-net/image4.png "image_tooltip")
+[![alt_text](/assets/2023-02-19-oauth-authorization-code-using-openiddict-and-dot-net/image4.png "image_tooltip")](/assets/2023-02-19-oauth-authorization-code-using-openiddict-and-dot-net/image4.png "image_tooltip"){:target="_blank"}
 
 
  You might also see Antiforgery cookies are in place, they are needed to prevent CSRF vulnerability.
@@ -941,7 +941,7 @@ But Cookies don’t contain `consent` value, so we are redirected to the consent
 Click `Grant`, and after that, we try to go to `connect/authorize` the third time. Now with authenticated Resource Owner that granted access to its data.
 
 
-[![alt_text](/assets/2023-02-19-oauth-authorization-code-using-openiddict-and-dot-net/image3.png "image_tooltip")](/assets/2023-02-19-oauth-authorization-code-using-openiddict-and-dot-net/image3.png "image_tooltip")
+[![alt_text](/assets/2023-02-19-oauth-authorization-code-using-openiddict-and-dot-net/image3.png "image_tooltip")](/assets/2023-02-19-oauth-authorization-code-using-openiddict-and-dot-net/image3.png "image_tooltip"){:target="_blank"}
 
 
 This time we successfully authorized and got redirected to the Swagger Return URL with Authorization Code. 

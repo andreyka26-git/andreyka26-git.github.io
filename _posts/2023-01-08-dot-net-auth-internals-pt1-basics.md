@@ -90,7 +90,7 @@ Every auth implementation starts with the Registration of necessary services and
 
 Before this part, let's take a look at what will be registered. So high-level components & connectors overview (runtime) is the following:
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image14.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image14.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image14.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image14.png "image_tooltip"){:target="_blank"}
 
 <br>
 
@@ -98,7 +98,7 @@ Before this part, let's take a look at what will be registered. So high-level co
 
 [AuthenticationScheme source code](https://github.com/dotnet/aspnetcore/blob/main/src/Http/Authentication.Abstractions/src/AuthenticationScheme.cs)
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image15.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image15.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image15.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image15.png "image_tooltip"){:target="_blank"}
 
 The most important concept is `Authentication Scheme`, put in simple words - it is the thing that represents what auth you are going to use. There are different auth schemes:
 
@@ -116,7 +116,7 @@ Each `Authentication Scheme` is tied to a particular `AuthenticationHandler` or 
 
 [IAuthenticationHandler source code](https://github.com/dotnet/aspnetcore/blob/main/src/Http/Authentication.Abstractions/src/IAuthenticationHandler.cs)
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image2.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image2.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image2.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image2.png "image_tooltip"){:target="_blank"}
 
 Each `Authentication Scheme` has a dedicated `Authentication Handler` that implements the interface above. Most usually we will try to cast to another derived interface to be able to sign in, sign out, etc.
 
@@ -128,7 +128,7 @@ For example, the Cookie-based handler interface has these `SignIn` and `SignOut`
 
 [IAuthenticationRequestHandler source code](https://github.com/dotnet/aspnetcore/blob/main/src/Http/Authentication.Abstractions/src/IAuthenticationRequestHandler.cs)
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image1.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image1.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image1.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image1.png "image_tooltip"){:target="_blank"}
 
 Some of the `AuthenticationHandlers` could implement `IAuthenticationRequestHandler`.
 
@@ -150,7 +150,7 @@ The most important part here is part of adding a particular scheme:
 
 [On this line](https://github.com/dotnet/aspnetcore/blob/main/src/Http/Authentication.Core/src/AuthenticationSchemeProvider.cs#L137)
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image10.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image10.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image10.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image10.png "image_tooltip"){:target="_blank"}
 
 This provider keeps two types of schemes:
 
@@ -167,7 +167,7 @@ This provider does not have any rocket science.
 
 It resolves particular `AuthenticationHandler` based on the scheme, using `AuthenticationSchemeProvider` (remember this HandlerType field in AuthenticationScheme class).
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image11.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image11.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image11.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image11.png "image_tooltip"){:target="_blank"}
 
 <br>
 
@@ -175,7 +175,7 @@ It resolves particular `AuthenticationHandler` based on the scheme, using `Authe
 
 [AuthenticationMiddleware source code](https://github.com/dotnet/aspnetcore/blob/main/src/Security/Authentication/Core/src/AuthenticationMiddleware.cs#L46)
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image5.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image5.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image5.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image5.png "image_tooltip"){:target="_blank"}
 
 It is impossible to do auth without `AuthenticationMiddleware`. This middleware is invoked for each request to do auth process. By doing auth process it verifies the authentication ticket and sets `HttpContext.User` property so we can access it from controllers.
 
@@ -189,7 +189,7 @@ A good example of the handler that is implementing `IAuthenticationRequestHandle
 It is used in most External auth handlers: Google, Facebook, Microsoft, Github, etc.
 
 There is just part of this method:
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image13.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image13.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image13.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image13.png "image_tooltip"){:target="_blank"}
 
 It is a good question why we might want to keep authenticating after handling the request using some `IAuthenticationRequestHandler`.
 
@@ -204,12 +204,12 @@ I see a few possible scenarios for this:
 
 [HttpContext.AuthenticateAsync](https://github.com/dotnet/aspnetcore/blob/main/src/Http/Authentication.Abstractions/src/AuthenticationHttpContextExtensions.cs#L31) simply resolves `AuthenticationService` which in turn authenticates the request.
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image4.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image4.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image4.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image4.png "image_tooltip"){:target="_blank"}
 
 
 [HttpContext.SignInAsync](https://github.com/dotnet/aspnetcore/blob/main/src/Http/Authentication.Abstractions/src/AuthenticationHttpContextExtensions.cs#L157) resolves AuthenticationService as well which signs in the request.
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image12.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image12.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image12.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image12.png "image_tooltip"){:target="_blank"}
 
 <br>
 
@@ -218,14 +218,14 @@ I see a few possible scenarios for this:
 [AuthenticateAsync](https://github.com/dotnet/aspnetcore/blob/main/src/Http/Authentication.Core/src/AuthenticationService.cs#L59)
 
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image16.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image6.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image16.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image6.png "image_tooltip"){:target="_blank"}
 `AuthenticateAsync` resolves particular IAuthenticationHandler from [IAuthenticationHandlerProvider](https://github.com/dotnet/aspnetcore/blob/main/src/Http/Authentication.Core/src/AuthenticationHandlerProvider.cs) by the authentication scheme. No rocket science - just resolve from DI container by Handler Type.
 
 Then it calls the AuthenticateAsync method on the handler and creates `AuthenticateResult` with the corresponding auth ticket, claims, and user.
 
 [SignInAsync](https://github.com/dotnet/aspnetcore/blob/main/src/Http/Authentication.Core/src/AuthenticationService.cs#L164)
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image9.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image9.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image9.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image9.png "image_tooltip"){:target="_blank"}
 
 `SignInAsync` is acting pretty similar to AuthenticateAsync. It resolves particular `IAuthenticationHandler` from [IAuthenticationHandlerProvider](https://github.com/dotnet/aspnetcore/blob/main/src/Http/Authentication.Core/src/AuthenticationHandlerProvider.cs) by the authentication scheme. Then it calls the SignInAsync method on the handler.
 
@@ -237,7 +237,7 @@ This is a kind of wrapper on every provider that calls necessary `IAuthenticatio
 
 [AuthenticateResult source code](https://github.com/dotnet/aspnetcore/blob/main/src/Http/Authentication.Abstractions/src/AuthenticateResult.cs)
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image6.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image6.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image6.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image6.png "image_tooltip"){:target="_blank"}
 
 This is a container with related auth info.
 
@@ -247,7 +247,7 @@ If authentication is not successful then it will contain failure details.
 
 `AuthenticateResult` contains `ClaimsPrincipal`. For a simpler understanding, it is a kind of authenticated user object. `ClaimsPrincipal` in turn contains a collection of `ClaimsIdentity` which in turn contains a collection of `Claims`. So it looks like this: 
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image7.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image7.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image7.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image7.png "image_tooltip"){:target="_blank"}
 
 
 [ClaimsPrincipal source code](https://github.com/microsoft/referencesource/blob/master/mscorlib/system/security/claims/ClaimsPrincipal.cs)
@@ -256,7 +256,7 @@ It is a bag with user-associated identity information. The most important part o
 
 [ClaimsIdentity source code](https://github.com/microsoft/referencesource/blob/master/mscorlib/system/security/claims/ClaimsIdentity.cs)
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image17.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image17.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image17.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image17.png "image_tooltip"){:target="_blank"}
 
 For ClaimsIdentity what we are interested in is a collection of claims that are related to the user.
 
@@ -278,19 +278,19 @@ Registration starts with
 
 [.AddAuthentication source code](https://github.com/dotnet/aspnetcore/blob/7cb457bdaac8de9214391a9b9b273821d01c2300/src/Security/Authentication/Core/src/AuthenticationServiceCollectionExtensions.cs#L19)
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image8.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image8.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image8.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image8.png "image_tooltip"){:target="_blank"}
 
 This method in turn registers different general services for authentication. The most interesting for us is the following:
 
 [.AddAuthenticationCore source code](https://github.com/dotnet/aspnetcore/blob/7cb457bdaac8de9214391a9b9b273821d01c2300/src/Http/Authentication.Core/src/AuthenticationCoreServiceCollectionExtensions.cs#L19)
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image19.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image19.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image19.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image19.png "image_tooltip"){:target="_blank"}
 
 These are general services needed for authentication, the most important we already discussed above.
 
 [.AddDataProtection source code](https://github.com/dotnet/aspnetcore/blob/7cb457bdaac8de9214391a9b9b273821d01c2300/src/DataProtection/DataProtection/src/DataProtectionServiceCollectionExtensions.cs#L31)
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image3.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image3.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image3.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image3.png "image_tooltip"){:target="_blank"}
 
 It registers different services for the security of the auth data, for example, encryption of cookies.
 
@@ -302,7 +302,7 @@ After we registered all services we need to add middlewares to allow them to aut
 
 For registering authentication we are using [.UseAuthentication](https://github.com/dotnet/aspnetcore/blob/main/src/Security/Authentication/Core/src/AuthAppBuilderExtensions.cs#L20)
 
-[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image18.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image18.png "image_tooltip")
+[![alt_text](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image18.png "image_tooltip")](/assets/2022-09-31-dot-net-auth-internals-pt1-basics/image18.png "image_tooltip"){:target="_blank"}
 
 This method just registers important middleware which does all work named `AuthenticationMiddleware` which we have already discussed.
 
