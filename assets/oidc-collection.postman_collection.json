@@ -1,0 +1,59 @@
+{
+	"info": {
+		"_postman_id": "65a1aee2-53bd-4092-80cc-b6b5537267b2",
+		"name": "oidc-collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "exchange-code-for-tokens",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "authorization_code",
+							"type": "default"
+						},
+						{
+							"key": "code",
+							"value": "O0mAQzAO3TSns1cv7fvMbn7eM6aJ_zTXME820an57mc",
+							"type": "default"
+						},
+						{
+							"key": "client_id",
+							"value": "oidc-debugger",
+							"type": "default"
+						},
+						{
+							"key": "client_secret",
+							"value": "901564A5-E7FE-42CB-B10D-61EF6A8F3654",
+							"type": "default"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "https://oidcdebugger.com/debug",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://localhost:7000/connect/token",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7000",
+					"path": [
+						"connect",
+						"token"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
