@@ -771,6 +771,25 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var seeder = scope.ServiceProvider.GetRequiredService<ClientsSeeder>();
+    seeder.AddClients().GetAwaiter().GetResult();
+    seeder.AddScopes().GetAwaiter().GetResult();
+}
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+app.UseHttpsRedirection();
+app.UseCors();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+app.MapRazorPages();
+app.Run();
+
 ```
 
 We added DbContext for OpenIddict and registered all OpenIddict services:
