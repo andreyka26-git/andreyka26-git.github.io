@@ -156,6 +156,73 @@ As you can see, we are going to use my favorite database called `Postgres`. You 
 
 `Microsoft.EntityFrameworkCore.Design` is only used for `Add-Migration` command. It is not necessary.
 
+<br>
+
+### **3. Add [Authorization Service](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/AuthorizationService.cs)**
+
+```cs
+
+public class AuthorizationService
+{
+    public IDictionary<string, StringValues> ParseOAuthParameters(HttpContext httpContext, List<string>? excluding = null)
+    {
+        excluding ??= new List<string>();
+
+        var parameters = httpContext.Request.HasFormContentType
+            ? httpContext.Request.Form
+                .Where(v => !excluding.Contains(v.Key))
+                .ToDictionary(v => v.Key, v => v.Value)
+            : httpContext.Request.Query
+                .Where(v => !excluding.Contains(v.Key))
+                .ToDictionary(v => v.Key, v => v.Value);
+
+        return parameters;
+    }
+
+    public string BuildRedirectUrl(HttpRequest request, IDictionary<string, StringValues> oAuthParameters)
+    {
+        var url = request.PathBase + request.Path + QueryString.Create(oAuthParameters);
+        return url;
+    }
+
+    public bool IsAuthenticated(AuthenticateResult authenticateResult, OpenIddictRequest request)
+    {
+        if (!authenticateResult.Succeeded)
+        {
+            return false;
+        }
+
+        if (request.MaxAge.HasValue && authenticateResult.Properties != null)
+        {
+            var maxAgeSeconds = TimeSpan.FromSeconds(request.MaxAge.Value);
+
+            var expired = !authenticateResult.Properties.IssuedUtc.HasValue ||
+                          DateTimeOffset.UtcNow - authenticateResult.Properties.IssuedUtc > maxAgeSeconds;
+            if (expired)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static List<string> GetDestinations(ClaimsIdentity identity, Claim claim)
+    {
+        var destinations = new List<string>();
+
+        if (claim.Type is OpenIddictConstants.Claims.Name or OpenIddictConstants.Claims.Email)
+        {
+            destinations.Add(OpenIddictConstants.Destinations.AccessToken);
+        }
+
+        return destinations;
+    }
+}
+```
+
+This service is just encapsulated behavior that I didn't want to keep in Controller or Razor Pages behavior.
+It can extract parameters, check whether the user is authenticated and set Token destinations (by default OpenIddict does not put ClaimsIdentity claims into token).
 
 <br>
 
@@ -285,19 +352,10 @@ public class Consent : PageModel
 
     public async Task<IActionResult> OnPostAsync(string grant)
     {
-        if (grant == Consts.GrantAccessValue)
-        {
-            var consentClaim = User.GetClaim(Consts.ConsentNaming);
-            if (string.IsNullOrEmpty(consentClaim))
-            {
-                User.SetClaim(Consts.ConsentNaming, Consts.GrantAccessValue);
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, User);
-            }
+        User.SetClaim(Consts.ConsentNaming, grant);
 
-            return Redirect(ReturnUrl);
-        }
-
-        return Forbid(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, User);
+        return Redirect(ReturnUrl);
     }
 }
 
@@ -384,52 +442,72 @@ public class AuthorizationController : Controller
 
 [HttpGet("~/connect/authorize")]
 [HttpPost("~/connect/authorize")]
-
 public async Task<IActionResult> Authorize()
 {
-   var request = HttpContext.GetOpenIddictServerRequest() ??
-                  throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
+    var request = HttpContext.GetOpenIddictServerRequest() ??
+                    throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
 
-   var parameters = _authService.ParseOAuthParameters(HttpContext, new List<string> { Parameters.Prompt });
-   var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    var parameters = _authService.ParseOAuthParameters(HttpContext, new List<string> { Parameters.Prompt });
 
-   if (!_authService.IsAuthenticated(result, request))
-   {
-         return Challenge(properties: new AuthenticationProperties
-         {
+    var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+    if (!_authService.IsAuthenticated(result, request))
+    {
+        return Challenge(properties: new AuthenticationProperties
+        {
             RedirectUri = _authService.BuildRedirectUrl(HttpContext.Request, parameters)
-         }, new[] { CookieAuthenticationDefaults.AuthenticationScheme });
-   }
+        }, new[] { CookieAuthenticationDefaults.AuthenticationScheme });
+    }
 
-   var application = await _applicationManager.FindByClientIdAsync(request.ClientId) ??
-                     throw new InvalidOperationException("Details concerning the calling client application cannot be found.");
+    var application = await _applicationManager.FindByClientIdAsync(request.ClientId) ??
+                        throw new InvalidOperationException("Details concerning the calling client application cannot be found.");
 
-   var consentClaim = result.Principal.GetClaim(Consts.ConsentNaming);
+    var consentType = await _applicationManager.GetConsentTypeAsync(application);
 
-   if (consentClaim != Consts.GrantAccessValue)
-   {
-         var returnUrl = HttpUtility.UrlEncode(_authService.BuildRedirectUrl(HttpContext.Request, parameters));
-         var consentRedirectUrl = $"/Consent?returnUrl={returnUrl}";
-         return Redirect(consentRedirectUrl);
-   }
+    // we just ignore other consent types, because they are not compliant with OAuth and OpenId Connect docs, that state that Resource Owner should grant the Client access
+    // you might also support Implicit ConsentType - where you do not require consent screen even if `prompt=consent` provided. In that case just drop this if.
+    // you might want to support External ConsentType - where you need to get created authorization first by admin to be able to log in.
+    if (consentType != ConsentTypes.Explicit)
+    {
+        return Forbid(
+            authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+            properties: new AuthenticationProperties(new Dictionary<string, string?>
+            {
+                [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.InvalidClient,
+                [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] =
+                    "Only explicit consent clients are supported"
+            }));
+    }
 
-   var userId = result.Principal.FindFirst(ClaimTypes.Email)!.Value;
+    var consentClaim = result.Principal.GetClaim(Consts.ConsentNaming);
 
-   var identity = new ClaimsIdentity(
-         authenticationType: TokenValidationParameters.DefaultAuthenticationType,
-         nameType: Claims.Name,
-         roleType: Claims.Role);
+    // it might be extended in a way that consent claim will contain list of allowed client ids.
+    if (consentClaim != Consts.GrantAccessValue)
+    {
+        var returnUrl = HttpUtility.UrlEncode(_authService.BuildRedirectUrl(HttpContext.Request, parameters));
+        var consentRedirectUrl = $"/Consent?returnUrl={returnUrl}";
 
-   identity.SetClaim(Claims.Subject, userId)
-         .SetClaim(Claims.Email, userId)
-         .SetClaim(Claims.Name, userId)
-         .SetClaims(Claims.Role, new List<string> { "user", "admin" }.ToImmutableArray());
+        return Redirect(consentRedirectUrl);
+    }
 
-   identity.SetScopes(request.GetScopes());
-   identity.SetResources(await _scopeManager.ListResourcesAsync(identity.GetScopes()).ToListAsync());
-   identity.SetDestinations(AuthorizationService.GetDestinations);
+    var userId = result.Principal.FindFirst(ClaimTypes.Email)!.Value;
 
-   return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+    var identity = new ClaimsIdentity(
+        authenticationType: TokenValidationParameters.DefaultAuthenticationType,
+        nameType: Claims.Name,
+        roleType: Claims.Role);
+
+    identity.SetClaim(Claims.Subject, userId)
+        .SetClaim(Claims.Email, userId)
+        .SetClaim(Claims.Name, userId)
+        .SetClaims(Claims.Role, new List<string> { "user", "admin" }.ToImmutableArray());
+
+    identity.SetScopes(request.GetScopes());
+    identity.SetResources(await _scopeManager.ListResourcesAsync(identity.GetScopes()).ToListAsync());
+
+    identity.SetDestinations(c => AuthorizationService.GetDestinations(identity, c));
+
+    return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
 }
 
 ```
@@ -441,6 +519,9 @@ The flow here is the following:
 * We check whether the Resource Owner is Authenticated (has authentication cookies with data inside it). If not - we redirect him to `Authenticate` page with `return Challenge`
 * We check whether Resource Owner parsed from Authentication cookies contains `Consent` claim. If not - we redirect him to `Consent` page that will set `Consent` claim to cookies
 * We create a new identity and sign in it with `OpenIddictServerAspNetCoreDefaults.AuthenticationScheme`. It will redirect us to `ReturnUrl` with `authorization code`. 
+
+OpenIddict has ConsentType term. It is the way Resource Owner can consent access for the Client to access Resource Owner's data.
+To follow [OAuth RFC](https://www.rfc-editor.org/rfc/rfc6749) that states `The authorization server authenticates the resource owner (via the user-agent) and establishes whether the resource owner grants or denies the client's access request.` we ensure Resource Owner has granted access.
 
 From the OpenIddict source code, it could do different things with the same `SignIn` operation. For example, for the `authorize endpoint` it will redirect to ReturnUrl with Authorization Code, for `token endpoint` it will issue a new Access Token and return it to the Client.
 
@@ -487,7 +568,7 @@ public async Task<IActionResult> Exchange()
          .SetClaim(Claims.Name, userId)
          .SetClaims(Claims.Role, new List<string> { "user", "admin" }.ToImmutableArray());
 
-   identity.SetDestinations(AuthorizationService.GetDestinations);
+   identity.SetDestinations(c => AuthorizationService.GetDestinations(identity, c));
 
    return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
 }
