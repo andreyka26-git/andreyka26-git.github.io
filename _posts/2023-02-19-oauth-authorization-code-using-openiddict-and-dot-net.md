@@ -226,7 +226,7 @@ It can extract parameters, check whether the user is authenticated and set Token
 
 <br>
 
-### **3. Add [global constants](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Consts.cs)**
+### **4. Add [global constants](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Consts.cs)**
 
 ```cs
 
@@ -243,7 +243,7 @@ public class Consts
 
 <br>
 
-### **4. Add [Authenticate page model](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Pages/Authenticate.cshtml.cs) and [html page](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Pages/Authenticate.cshtml)**
+### **5. Add [Authenticate page model](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Pages/Authenticate.cshtml.cs) and [html page](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Pages/Authenticate.cshtml)**
 
 ```cs
 
@@ -334,7 +334,7 @@ In our case let’s pretend that if the `email == Consts.Email` and `password ==
 
 <br>
 
-### **5. Add [Consent page model](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Pages/Consent.cshtml.cs) and [html page](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Pages/Consent.cshtml)**
+### **6. Add [Consent page model](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Pages/Consent.cshtml.cs) and [html page](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Pages/Consent.cshtml)**
 
 ```cs
 
@@ -406,7 +406,7 @@ Alternative solutions:
 
 <br>
 
-### **6. Add the [AuthorizationController](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Controllers/AuthorizationController.cs)**
+### **7. Add the [AuthorizationController](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Controllers/AuthorizationController.cs)**
 
 ```cs
 
@@ -436,7 +436,7 @@ public class AuthorizationController : Controller
 
 <br>
 
-#### **6.1 Add Authorize endpoint as described [in rfc](https://www.rfc-editor.org/rfc/rfc6749#section-3.1)**
+#### **7.1 Add Authorize endpoint as described [in rfc](https://www.rfc-editor.org/rfc/rfc6749#section-3.1)**
 
 ```cs
 
@@ -528,7 +528,7 @@ From the OpenIddict source code, it could do different things with the same `Sig
 
 <br>
 
-#### **6.2 Token Endpoint as described in [rfc](https://www.rfc-editor.org/rfc/rfc6749#section-3.2)**
+#### **7.2 Token Endpoint as described in [rfc](https://www.rfc-editor.org/rfc/rfc6749#section-3.2)**
 
 ```cs
 
@@ -583,7 +583,7 @@ We are retrieving the identity that we put when signing in with `OpenIddictServe
 
 <br>
 
-#### **6.3 Logout endpoint**
+#### **7.3 Logout endpoint**
 
 ```cs
 
@@ -607,7 +607,7 @@ The Logout endpoint is straightforward - we are signing out from `CookieAuthenti
 
 <br>
 
-### **7. Create [Clients and Resources DbSeeder](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/ClientsSeeder.cs)**
+### **8. Create [Clients and Resources DbSeeder](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/ClientsSeeder.cs)**
 
 ```cs
 
@@ -703,7 +703,7 @@ On top of that, it will create Resource Server as a scope with name `api1` and r
 
 <br>
 
-### **8. Register Services in [Program](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Program.cs)**
+### **9. Register Services in [Program](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Program.cs)**
 
 ```cs
 
@@ -810,7 +810,7 @@ Added Cors to allow Swagger to call `token` endpoint.
 
 <br>
 
-### **9. Use Registered services and Middlewares in [Program](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Program.cs)**
+### **10. Use Registered services and Middlewares in [Program](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Program.cs)**
 
 ```cs
 
@@ -847,7 +847,7 @@ First of all we are seeding clients and scopes with resources, used https redire
 
 <br>
 
-### **10. Add Migrations**
+### **11. Add Migrations**
 
 Run `Add-Migration Initial` from your `Package Manager Console` in Visual Studio, or create the migration using any convenient tool for you
 
