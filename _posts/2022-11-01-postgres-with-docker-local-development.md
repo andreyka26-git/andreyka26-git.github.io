@@ -5,6 +5,7 @@ date: 2022-11-01 10:05:35 -0000
 category: ["Infrastructure"]
 tags: [guides, infrastructure, tutorials]
 description: "Whever I had project with Postgres I ended up with searching with commands to up it locally with docker, all the commands to create, update, drop database, make a postgres backup restore from postgres backup. So I put all those commands in this article to have in one place"
+thumbnail: /assets/2022-11-01-postgres-with-docker-local-development/logo.png
 ---
 
 * TOC

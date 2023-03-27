@@ -1,10 +1,11 @@
 ---
 layout: post
-title: "Why google auth cannot be without cookies"
+title: "Why google auth cannot be without cookies in .NET"
 date: 2023-01-27 11:02:35 -0000
 category: [".NET Auth Internals"]
 tags: [authorization]
 description: "This article is focused on understanding .AddGoogle() and .AddCookies(), why we cannot use Google authorization and authentication without Cookies. Why we cannot rely on OAuth flow from Google and we need application Cookies. We will review answers from software engineers that develop .NET language. They are developers of Google Auth"
+thumbnail: /assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/logo.png
 ---
 
 * TOC
@@ -60,7 +61,7 @@ Every time I need to use Google auth in .NET I encounter unknown spots that are 
 On top of that it contains **SignInScheme** [here](https://github.com/dotnet/aspnetcore/blob/4535ea1263e9a24ca8d37b7266797fe1563b8b12/src/Security/Authentication/Core/src/RemoteAuthenticationOptions.cs#L112)
 
 
-[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image8.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image8.png "image_tooltip"){:target="_blank"}
+[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image8.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image8.png "image_tooltip"){:target="_blank"}
 
 
 As you can see from the comments, it is **DIFFERENT** scheme from Remote Scheme (Google, Github, Facebook) that is used to persist user identity after authentication. 
@@ -70,7 +71,7 @@ In other words, it saves user identity somewhere on side of your application to 
 [RemoteAuthenticationOptions](https://github.com/dotnet/aspnetcore/blob/main/src/Security/Authentication/Core/src/RemoteAuthenticationOptions.cs) contain validate method that ensures that `SignInSheme` is not the same as `RemoteScheme (current)` [here](https://github.com/dotnet/aspnetcore/blob/4535ea1263e9a24ca8d37b7266797fe1563b8b12/src/Security/Authentication/Core/src/RemoteAuthenticationOptions.cs#L41)
 
 
-[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image2.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image2.png "image_tooltip"){:target="_blank"}
+[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image2.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image2.png "image_tooltip"){:target="_blank"}
 
 
 **41nd line**: this validation is happening. If our `SignInScheme` is the same as `sheme` (that is `GoogleScheme`) then we are throwing `RemoteSignInSchemeCannotBeSelf`).
@@ -103,7 +104,7 @@ It seems like a relatively inexpensive operation, especially considering most Re
 For example, try to investigate **Github** request in the network tab to get your repositories. You will see cookies with the user session going to the request, without the Authorization header. So, why not?
 
 
-[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image11.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image11.png "image_tooltip"){:target="_blank"}
+[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image11.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image11.png "image_tooltip"){:target="_blank"}
 
 
 **Actual solution**
@@ -131,18 +132,18 @@ This is what I got:
  
 
 
-[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image9.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image9.png "image_tooltip"){:target="_blank"}
+[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image9.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image9.png "image_tooltip"){:target="_blank"}
 
 
 
 ### **Answer from [Tratcher](https://github.com/Tratcher):**
 
 
-[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image6.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image6.png "image_tooltip"){:target="_blank"}
+[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image6.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image6.png "image_tooltip"){:target="_blank"}
 
 
 
-[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image10.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image10.png "image_tooltip"){:target="_blank"}
+[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image10.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image10.png "image_tooltip"){:target="_blank"}
 
 
 
@@ -153,19 +154,19 @@ Demo is run from [this repo](https://github.com/andreyka26-git/dot-net-samples/t
 This is simple .NET application with Razor Pages. We have added `Google` and `Cookies` to demonstrate how they work together [here](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/SimpleAuth/Google/Program.cs#L6).
 
 
-[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image12.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image12.png "image_tooltip"){:target="_blank"}
+[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image12.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image12.png "image_tooltip"){:target="_blank"}
 
 
 We have 1 private endpoint that is under [Authorize] attribute [here](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/SimpleAuth/Google/Pages/Secret/Index.cshtml.cs#L8).
 
 
-[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image4.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image4.png "image_tooltip"){:target="_blank"}
+[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image4.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image4.png "image_tooltip"){:target="_blank"}
 
 
 Lets try to access Secret page
 
 
-[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image1.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image1.png "image_tooltip"){:target="_blank"}
+[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image1.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image1.png "image_tooltip"){:target="_blank"}
 
 
 Response from request page was `302` with `location` header that points to Google authorize endpoint.
@@ -175,13 +176,13 @@ As you might know from my [previous article](https://andreyka26.com/auth-from-ba
 In  your browser  you should see the Google Login page
 
 
-[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image13.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image13.png "image_tooltip"){:target="_blank"}
+[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image13.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image13.png "image_tooltip"){:target="_blank"}
 
 
 If your browser contains Google cookies already, meaning that you are already logged in somewhere in Google Services - then your Authorization Middleware (`.AddGoogle()`) will set your application cookies.
 
 
-[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image7.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image7.png "image_tooltip"){:target="_blank"}
+[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image7.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image7.png "image_tooltip"){:target="_blank"}
 
 
 In the screen above you see Authorization Callback to your `Return Url` with Authorization Code which will be exchanged to get token.
@@ -191,13 +192,13 @@ After we got Access Token, Authorization Middleware will do the request to Googl
 To understand Google Auth inside .NET - you could read [this article](https://andreyka26.com/dot-net-auth-internals-pt3-google).
 
 
-[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image5.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image5.png "image_tooltip"){:target="_blank"}
+[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image5.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image5.png "image_tooltip"){:target="_blank"}
 
 
 Our `locahost:7000/signin-google` endpoint redirects us to our initial `/secret` endpoint where we have Cookies set. With those cookies, we can be Authorized and get User Claims that we got from the Google endpoint.
 
 
-[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image3.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies/image3.png "image_tooltip"){:target="_blank"}
+[![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image3.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image3.png "image_tooltip"){:target="_blank"}
 
 
 
