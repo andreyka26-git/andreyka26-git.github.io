@@ -1,4 +1,4 @@
-<article class="card" itemscope itemtype="http://schema.org/BlogPosting">
+<article id="article-card" class="card" itemscope itemtype="http://schema.org/BlogPosting">
   <div class="card-header">
     <h1 class="post-title" itemprop="name headline">{{ page.title }}</h1>
     {% if  page.summary %}
@@ -28,13 +28,12 @@
       {% unless forloop.last %}&nbsp;{% endunless %} {% endfor %}
     </div>
   </div>
-
+  <img
+    class="card-img-top"
+    src="{{site.url}}{{site.baseurl}}{{ page.thumbnail }}"
+    alt="{{ post.title }}"
+  />
   <div class="card-body" itemprop="articleBody">
-    <img
-      class="card-img-top"
-      src="{{site.url}}{{site.baseurl}}{{ page.thumbnail }}"
-      alt="{{ post.title }}"
-    />
     {{ content }}
     <br />
     {%- include share_page.html -%}
