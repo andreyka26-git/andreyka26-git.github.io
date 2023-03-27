@@ -6,6 +6,7 @@ category: ["Auth from backend perspective"]
 tags: [guides, authorization, dotnet, tutorials]
 description: "In this article we will discuss OAuth protocol basics, all 4 Authorization grant types: Authorization Code, Implicit, Resource Owner Password Credentials, and Client Credentials, how they work, explain how to use it. In the end we will do demo with integrating with GitHub by using GitHub's OAuth protocol and getting github profile."
 thumbnail: /assets/2022-09-03-auth-from-backend-perspective-pt3-oauth-basics/logo.png
+thumbnailwide: /assets/2022-09-03-auth-from-backend-perspective-pt3-oauth-basics/logo-wide.png
 ---
 
 * TOC

@@ -6,6 +6,7 @@ category: ["Infrastructure"]
 tags: [guides, infrastructure, tutorials]
 description: "In this article we will do regular and recurring backup of PostgreSQL to telegram and email for ubuntu server using curl + cron."
 thumbnail: /assets/2022-09-20-postgres-backup-to-email-and-telegram/logo.png
+thumbnailwide: /assets/2022-09-20-postgres-backup-to-email-and-telegram/logo-wide.png
 ---
 
 * TOC

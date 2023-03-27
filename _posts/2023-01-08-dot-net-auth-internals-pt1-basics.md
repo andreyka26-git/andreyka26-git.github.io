@@ -6,6 +6,7 @@ category: [".NET Auth Internals"]
 tags: [guides, authorization, dotnet, tutorials]
 description: "This article is entry one about authentication and authorization internals in .NET. We will overview all source code, common services, architecture and design to understand how it works. We will go through github source code of aspnetcore repostory and figure out how authentication works in .net"
 thumbnail: /assets/2023-01-08-dot-net-auth-internals-pt1-basics/logo.png
+thumbnailwide: /assets/2023-01-08-dot-net-auth-internals-pt1-basics/logo-wide.png
 ---
 
 * TOC

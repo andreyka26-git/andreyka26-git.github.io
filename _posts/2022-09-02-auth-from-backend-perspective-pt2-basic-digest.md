@@ -6,6 +6,7 @@ category: ["Auth from backend perspective"]
 tags: [guides, authorization, dotnet, tutorials]
 description: "In this article we will implement basic auth schemes: Basic Authorization and Digest Authorization using .NET and C#. On top of that I'll explain how and why they work, and I will cover pros and cons of them"
 thumbnail: /assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/logo.png
+thumbnailwide: /assets/2022-09-02-auth-from-backend-perspective-pt2-basic-digest/logo-wide.png
 ---
 
 * TOC

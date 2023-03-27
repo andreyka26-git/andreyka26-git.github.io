@@ -6,6 +6,7 @@ category: ["Authorization guides"]
 tags: [guides, authorization, dotnet, tutorials]
 description: "In this article we will do the basic authentication and authorization using Backend (.NET + C#) and Frontend (React client). We will use JWT for this. This authorization and authentication will be similar to Resource Owner Password Credentials in OAuth, but custom one"
 thumbnail: /assets/2022-09-06-jwt-auth-using-dot-net-and-react/logo.png
+thumbnailwide: /assets/2022-09-06-jwt-auth-using-dot-net-and-react/logo-wide.png
 ---
 
 * TOC

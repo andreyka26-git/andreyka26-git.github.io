@@ -6,6 +6,7 @@ category: ["Infrastructure"]
 tags: [infrastructure]
 description: "In this article we are going to configure passwordless ssh connection from your client machine to the linux server. This is step-by-step guide about how to change standard ssh connection using username and password to only username plus private/public ssh key pair."
 thumbnail: /assets/2023-03-09-how-to-add-ssh-key-for-passwordless-connection-in-ubuntu/logo.png
+thumbnailwide: /assets/2023-03-09-how-to-add-ssh-key-for-passwordless-connection-in-ubuntu/logo-wide.png
 ---
 
 * TOC

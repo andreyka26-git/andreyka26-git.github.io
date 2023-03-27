@@ -6,6 +6,7 @@ category: [".NET Auth Internals"]
 tags: [authorization]
 description: "In this article we are going to consider Google authentication and Google authorization in .NET. We will check all things that happen under hood. So we will go through the source code and check what is going on when we put .AddGoogle(). On top of that we will consider question about why AddGoogle cannot be without AddCookies"
 thumbnail: /assets/2023-01-10-dot-net-auth-internals-pt3-google/logo.png
+thumbnailwide: /assets/2023-01-10-dot-net-auth-internals-pt3-google/logo-wide.png
 ---
 
 * TOC

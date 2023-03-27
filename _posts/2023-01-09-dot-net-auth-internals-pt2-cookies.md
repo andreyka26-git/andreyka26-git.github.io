@@ -6,6 +6,7 @@ category: [".NET Auth Internals"]
 tags: [guides, authorization, dotnet, tutorials]
 description: "This article will show you cookie authentication handler internal for .NET Core. We will cover everything that going on under hood by looking into the source code."
 thumbnail: /assets/2023-01-09-dot-net-auth-internals-pt2-cookies/logo.png
+thumbnailwide: /assets/2023-01-09-dot-net-auth-internals-pt2-cookies/logo-wide.png
 ---
 
 * TOC

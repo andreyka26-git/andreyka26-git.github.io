@@ -6,6 +6,7 @@ category: ["Auth from backend perspective"]
 tags: [authorization]
 description: "In this article we are going to overview the most popular Authentication and Authorization schemes starting from Basic and Digest auth, finishing with OAuth and OpenId Connect. We will overview the general flow, how they work."
 thumbnail: /assets/2022-09-01-auth-from-backend-percpective-pt1-basics/logo.png
+thumbnailwide: /assets/2022-09-01-auth-from-backend-percpective-pt1-basics/logo-wide.png
 ---
 
 * TOC

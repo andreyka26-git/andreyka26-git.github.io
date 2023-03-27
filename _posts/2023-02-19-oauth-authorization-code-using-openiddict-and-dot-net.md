@@ -6,6 +6,7 @@ category: ["Authorization guides"]
 tags: [authorization]
 description: "In this article we are going to implement OAuth Authorization Code Grant, using .NET and OpenIddict library. We will comply with official RFC during implementation. Note, this article does not cover OpenId Connect implementationm only OAuth2 protocol implementation"
 thumbnail: /assets/2023-02-19-oauth-authorization-code-using-openiddict-and-dot-net/logo.png
+thumbnailwide: /assets/2023-02-19-oauth-authorization-code-using-openiddict-and-dot-net/logo-wide.png
 ---
 
 * TOC

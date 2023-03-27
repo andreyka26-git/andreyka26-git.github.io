@@ -6,6 +6,7 @@ category: [".NET Auth Internals"]
 tags: [authorization]
 description: "This article is focused on understanding .AddGoogle() and .AddCookies(), why we cannot use Google authorization and authentication without Cookies. Why we cannot rely on OAuth flow from Google and we need application Cookies. We will review answers from software engineers that develop .NET language. They are developers of Google Auth"
 thumbnail: /assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/logo.png
+thumbnailwide: /assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/logo-wide.png
 ---
 
 * TOC
