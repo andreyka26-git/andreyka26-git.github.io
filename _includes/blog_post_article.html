@@ -28,11 +28,13 @@
       {% unless forloop.last %}&nbsp;{% endunless %} {% endfor %}
     </div>
   </div>
+  {% if page.thumbnailwide %}
   <img
     class="card-img-top"
     src="{{site.url}}{{site.baseurl}}{{ page.thumbnailwide }}"
     alt="{{ post.title }}"
   />
+  {% endif %}
   <div class="card-body" itemprop="articleBody">
     {{ content }}
     <br />

@@ -6,6 +6,9 @@ description: >- # this means to ignore newlines until "baseurl:"
 url: "https://andreyka26.com" # the base hostname & protocol for your site, e.g. https://example.github.io
 baseurl: "" # the subpath of your site, e.g. /blog
 
+widedefault: "/assets/wide-default.png"
+squaredefault: "/assets/square-default.png"
+
 # Navigation
 urls:
     - text: Home
