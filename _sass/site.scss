@@ -220,6 +220,10 @@ header {
     }
 }
 
+.copyright {
+    padding-bottom: 40px;
+}
+
 /* bootstrap override */
 .container-fluid {
     padding: 0px !important;
@@ -508,30 +512,6 @@ header {
     bottom: 40px !important;
 }
 
-/* Disqus */
-#reactions .reaction-items .reaction-item .reaction-item__text, #reactions-promotion .reaction-items .reaction-item .reaction-item__text {
-    margin-left: 8px;
-    color: var(--main-text-color) !important;
-}
-
-#reactions, #reactions-promotion {
-    margin-bottom: 10px;
-    color:var(--main-text-color) !important;
-}
-
-/* Gallery */
-/* image-gallery */
-#imageGallery{
-    margin-top: 30px;
-    margin-bottom: 30px;
-}
-
-.lg-progress-bar .lg-progress {
-    background-color: #db980f !important;
-    height: 4px;
-    width: 0;
-}
-
 
 /* Homepage project cards*/
 
@@ -727,6 +707,7 @@ footer {
     padding: 20px;
     background-color: var(--main-background-color);
     color: var(--main-text-color);
+    margin-bottom: 15px;
 }
 
 @media (max-width: 1280px) {
