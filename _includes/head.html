@@ -127,10 +127,27 @@
   <script src="{{site.url}}{{site.baseurl}}/assets/js/on-scroll-progress.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
 
+  <script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="2ac8132d-3976-47d5-a66c-251c31625455" data-blockingmode="auto" type="text/javascript"></script>
+  <script id="CookieDeclaration" src="https://consent.cookiebot.com/2ac8132d-3976-47d5-a66c-251c31625455/cd.js" type="text/javascript" async></script>
+
+  <script type="text/javascript">
+
+    window.addEventListener('CookiebotOnAccept', function (e) {
+      console.log('CookiebotOnAccept');
+      console.log(Cookiebot.consent);
+    }, false);
+
+    window.addEventListener('CookiebotOnDialogInit', function (e) {
+      console.log('CookiebotOnDialogInit');
+    }, false);
+
+  </script>
+
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2684129210998981"
   crossorigin="anonymous"></script>
 
   <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.google_analytics }}"></script>
+  
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
