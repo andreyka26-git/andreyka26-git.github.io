@@ -127,6 +127,27 @@
   <script src="{{site.url}}{{site.baseurl}}/assets/js/on-scroll-progress.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
 
+  <!-- Default Google tag + Google Adsense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2684129210998981" crossorigin="anonymous"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.google_analytics }}"></script>
+  
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments) }
+
+    gtag('js', new Date());
+
+    gtag('consent', 'default', {
+      'ad_storage': 'denied',
+      'analytics_storage': 'denied'
+    });
+
+    gtag('config', '{{ site.google_analytics }}', {
+      'cookie_domain': 'auto'
+    });
+  </script>
+
+  <!-- Consent Cookies -->
   <script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="2ac8132d-3976-47d5-a66c-251c31625455" data-blockingmode="auto" type="text/javascript"></script>
   <script id="CookieDeclaration" src="https://consent.cookiebot.com/2ac8132d-3976-47d5-a66c-251c31625455/cd.js" type="text/javascript" async></script>
 
@@ -135,32 +156,49 @@
     window.addEventListener('CookiebotOnAccept', function (e) {
       console.log('CookiebotOnAccept');
       console.log(Cookiebot.consent);
+      console.log('consented' + Cookiebot.consented);
+      console.log('declined' + Cookiebot.declined);
+
+      if (Cookiebot.consent.marketing) {
+        gtag('consent', 'update', {
+          'ad_storage': 'granted'
+        });
+      }
+
+      if (Cookiebot.consent.statistics) {
+        gtag('consent', 'update', {
+          'analytics_storage': 'granted'
+        });
+      }
     }, false);
 
     window.addEventListener('CookiebotOnDialogInit', function (e) {
       console.log('CookiebotOnDialogInit');
+      console.log(Cookiebot.consent);
+      console.log('consented' + Cookiebot.consented);
+      console.log('declined' + Cookiebot.declined);
+
     }, false);
 
-  </script>
+    window.addEventListener('CookiebotOnDecline', function (e) {
+      console.log('CookiebotOnDecline');
+      console.log(Cookiebot.consent);
+      console.log('consented' + Cookiebot.consented);
+      console.log('declined' + Cookiebot.declined);
 
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2684129210998981"
-  crossorigin="anonymous"></script>
+      if (!Cookiebot.consent.marketing) {
+        gtag('consent', 'update', {
+          'ad_storage': 'denied'
+        });
+      }
 
-  <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.google_analytics }}"></script>
-  
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+      if (!Cookiebot.consent.statistics) {
+        gtag('consent', 'update', {
+          'analytics_storage': 'denied'
+        });
+      }
+    }, false);
 
-    // gtag('consent', 'default', {
-    //   'ad_storage': 'denied',
-    //   'analytics_storage': 'denied'
-    // });
-
-    gtag('config', '{{ site.google_analytics }}', {
-      'cookie_domain': 'auto'
-    });
   </script>
 
   <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
