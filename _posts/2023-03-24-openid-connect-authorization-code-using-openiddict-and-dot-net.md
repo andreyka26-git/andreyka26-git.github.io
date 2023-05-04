@@ -513,6 +513,6 @@ As you can see all the claims were added according to destinations and scope we 
 As you can see the response from user info contains exactly our claims.
 
 ## Conclusion
-In this article, we implemented OpenId Connect protocol using .NET and OpenIddict as a library. We also reviewed existing OpenIddict samples and their incompliance with OpenId Connect specification. In case you have anything to add to this guide, or you found some specfiication or any other violation - do not hesitate to contact me in [instagram](https://www.instagram.com/andreyka26_programmer/)/[telegram](https://t.me/programming_space)/[linkedin](https://www.linkedin.com/in/andrii-bui-a55b39166/).
+In this article, we implemented OpenId Connect protocol using .NET and OpenIddict as a library. We also reviewed existing OpenIddict samples and their incompliance with OpenId Connect specification. In case you have anything to add to this guide, or you found some specfiication or any other violation - do not hesitate to contact me in [instagram](https://www.instagram.com/andreyka26_se/)/[telegram](https://t.me/programming_space)/[linkedin](https://www.linkedin.com/in/andrii-bui-a55b39166/).
 
 Thank you for attention
