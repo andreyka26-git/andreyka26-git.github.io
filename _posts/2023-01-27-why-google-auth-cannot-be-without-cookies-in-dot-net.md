@@ -150,7 +150,7 @@ This is what I got:
 
 ## **Demo**
 
-Demo is run from [this repo](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/SimpleAuth/Cookie.Google.Server).
+Demo is run from [this repo](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/SimpleAuth/Cookie.Google.Server).
 
 This is simple .NET application with Razor Pages. We have added `Google` and `Cookies` to demonstrate how they work together [here](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/SimpleAuth/Google/Program.cs#L6).
 

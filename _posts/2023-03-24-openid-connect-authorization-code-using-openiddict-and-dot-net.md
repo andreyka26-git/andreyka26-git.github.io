@@ -62,7 +62,7 @@ During the implementation, I will explain all whats and whys according to offici
 
 Disclaimer: This is not an overview of the protocol but rather a quick and simple guide with documentation references and explanations. If you would like to have a protocol overview - you could check my [OAuth protocol overview](https://andreyka26.com/auth-from-backend-perspective-pt3-oauth-basics).
 
-The source code of the sample is located [here](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer).
+The source code of the sample is located [here](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer).
 
 <br>
 
@@ -80,8 +80,8 @@ The full sample is in this GitHub repository:
 
 
 
-* [Authorization Server implementation](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer)
-* [Resource Server implementation](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/OAuthAndOpenIdConnect/Oidc.OpenIddict.ResourceServer1)
+* [Authorization Server implementation](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer)
+* [Resource Server implementation](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/Oidc.OpenIddict.ResourceServer1)
 
 You could wonder whether we can implement OpenId Connect using Client-Server architecture with some fancy SPA frameworks like React / Angular.
 

@@ -331,7 +331,7 @@ GitHub API - is `Resource Server` that contains profile data I would like to hav
 
 GitHub itself - is `Authorization Server`. I mean not the whole GitHub, but you will see  Authorization requests that go to the GitHub domain.
 
-In this demo, I will demonstrate the Authorization Code flow with Github. you could see [Github source code](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/Custom/OAuth.Custom.Github.WebClient)
+In this demo, I will demonstrate the Authorization Code flow with Github. you could see [Github source code](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/Custom/OAuth.Custom.Github.WebClient)
 
 Steps of registering Client in Github are omitted - you easily can find them by googling.
 

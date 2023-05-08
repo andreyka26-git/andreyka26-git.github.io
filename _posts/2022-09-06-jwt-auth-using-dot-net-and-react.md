@@ -107,7 +107,7 @@ In the end, you should have postgres running on a particular port, for simplicit
 
 ### **API**
 
-[Source code](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/Custom/JwtAuth.Custom.BackendOnly.Server)
+[Source code](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/Custom/JwtAuth.Custom.BackendOnly.Server)
 
 
 #### **1. Create pure Web API project**
@@ -517,7 +517,7 @@ And as response you could see that in controller our auth middleware successfull
 
 ## **Frontend**
 
-[Source code](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/Custom/JwtAuth.Custom.BackendOnly.Client)
+[Source code](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/Custom/JwtAuth.Custom.BackendOnly.Client)
 
 This application does not cover referesh token behavior - it is explained in [this tutorial](https://andreyka26.com/handling-refreshing-token-on-multiple-requests-using-react).
 

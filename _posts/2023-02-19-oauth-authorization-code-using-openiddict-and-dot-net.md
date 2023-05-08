@@ -54,7 +54,7 @@ It will be possible to add somewhere `Sign in with …` button, like you might h
 
 You can read about the `OAuth` overview and how it works [here](https://andreyka26.com/auth-from-backend-perspective-pt3-oauth-basics), this article is a particular step-by-step guide about how to build actual implementation using particular instruments.
 
-The source code of the sample is located [here](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer).
+The source code of the sample is located [here](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer).
 
 <br>
 
