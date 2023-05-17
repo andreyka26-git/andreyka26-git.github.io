@@ -134,7 +134,7 @@ The OAuth flow guide is explained [here](https://andreyka26.com/oauth-authorizat
 ### **OpenId Connect part**
 
 
-#### **1. Change [AuthorizeEndpoint](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/Controllers/AuthorizationController.cs#L33)**
+#### **1. Change [AuthorizeEndpoint](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/Controllers/AuthorizationController.cs#L33)**
 
 ```cs
 [HttpGet("~/connect/authorize")]
@@ -252,7 +252,7 @@ I have even raised [StackOverflow question](https://stackoverflow.com/questions/
 
 <br>
 
-#### **2. Change [AuthorizationService](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/AuthorizationService.cs)**
+#### **2. Change [AuthorizationService](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/AuthorizationService.cs)**
 
 We will add destinations for identity token
 
@@ -282,7 +282,7 @@ Our behavior is simple, we add `name` and `email` claim to access token. If Iden
 
 <br>
 
-#### **3. Add oidc debugger to [ClientsSeeder](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/ClientsSeeder.cs)**
+#### **3. Add oidc debugger to [ClientsSeeder](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/ClientsSeeder.cs)**
 
 ```cs
 public async Task AddOidcDebuggerClient()
@@ -334,7 +334,7 @@ public async Task AddOidcDebuggerClient()
 }
 ```
 
-And call it during database setup in [Program.cs](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/Program.cs)
+And call it during database setup in [Program.cs](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/Program.cs)
 
 ```cs
 using (var scope = app.Services.CreateScope())
@@ -349,7 +349,7 @@ using (var scope = app.Services.CreateScope())
 
 <br>
 
-#### **4. Enable User Info endpoint in [Program.cs](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/Program.cs)**
+#### **4. Enable User Info endpoint in [Program.cs](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/Program.cs)**
 
 ```cs
 builder.Services.AddOpenIddict()
@@ -386,7 +386,7 @@ builder.Services.AddOpenIddict()
 
 <br>
 
-#### **5. Add User Info endpoint in [AuthorizeEndpoint](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/Controllers/AuthorizationController.cs)**
+#### **5. Add User Info endpoint in [AuthorizeEndpoint](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/Controllers/AuthorizationController.cs)**
 
 ```cs
 [HttpPost("~/connect/token")]

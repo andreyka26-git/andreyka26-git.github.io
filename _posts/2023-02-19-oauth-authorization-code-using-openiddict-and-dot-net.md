@@ -160,7 +160,7 @@ As you can see, we are going to use my favorite database called `Postgres`. You 
 
 <br>
 
-### **3. Add [Authorization Service](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/AuthorizationService.cs)**
+### **3. Add [Authorization Service](https://github.com/andreyka26-git/andreyka26-authorizations/blob/main/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/AuthorizationService.cs)**
 
 ```cs
 
@@ -228,7 +228,7 @@ It can extract parameters, check whether the user is authenticated and set Token
 
 <br>
 
-### **4. Add [global constants](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Consts.cs)**
+### **4. Add [global constants](https://github.com/andreyka26-git/andreyka26-authorizations/blob/main/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Consts.cs)**
 
 ```cs
 
@@ -245,7 +245,7 @@ public class Consts
 
 <br>
 
-### **5. Add [Authenticate page model](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Pages/Authenticate.cshtml.cs) and [html page](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Pages/Authenticate.cshtml)**
+### **5. Add [Authenticate page model](https://github.com/andreyka26-git/andreyka26-authorizations/blob/main/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Pages/Authenticate.cshtml.cs) and [html page](https://github.com/andreyka26-git/andreyka26-authorizations/blob/main/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Pages/Authenticate.cshtml)**
 
 ```cs
 
@@ -336,7 +336,7 @@ In our case let’s pretend that if the `email == Consts.Email` and `password ==
 
 <br>
 
-### **6. Add [Consent page model](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Pages/Consent.cshtml.cs) and [html page](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Pages/Consent.cshtml)**
+### **6. Add [Consent page model](https://github.com/andreyka26-git/andreyka26-authorizations/blob/main/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Pages/Consent.cshtml.cs) and [html page](https://github.com/andreyka26-git/andreyka26-authorizations/blob/main/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Pages/Consent.cshtml)**
 
 ```cs
 
@@ -408,7 +408,7 @@ Alternative solutions:
 
 <br>
 
-### **7. Add the [AuthorizationController](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Controllers/AuthorizationController.cs)**
+### **7. Add the [AuthorizationController](https://github.com/andreyka26-git/andreyka26-authorizations/blob/main/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Controllers/AuthorizationController.cs)**
 
 ```cs
 
@@ -609,7 +609,7 @@ The Logout endpoint is straightforward - we are signing out from `CookieAuthenti
 
 <br>
 
-### **8. Create [Clients and Resources DbSeeder](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/ClientsSeeder.cs)**
+### **8. Create [Clients and Resources DbSeeder](https://github.com/andreyka26-git/andreyka26-authorizations/blob/main/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/ClientsSeeder.cs)**
 
 ```cs
 
@@ -705,7 +705,7 @@ On top of that, it will create Resource Server as a scope with name `api1` and r
 
 <br>
 
-### **9. Register Services in [Program](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Program.cs)**
+### **9. Register Services in [Program](https://github.com/andreyka26-git/andreyka26-authorizations/blob/main/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Program.cs)**
 
 ```cs
 
@@ -812,7 +812,7 @@ Added Cors to allow Swagger to call `token` endpoint.
 
 <br>
 
-### **10. Use Registered services and Middlewares in [Program](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Program.cs)**
+### **10. Use Registered services and Middlewares in [Program](https://github.com/andreyka26-git/andreyka26-authorizations/blob/main/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Program.cs)**
 
 ```cs
 
@@ -857,9 +857,9 @@ It will create migration files:
 
 
 
-* [Designer file](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Migrations/20230220133625_Initial.Designer.cs)
-* [Migration file](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Migrations/20230220133625_Initial.cs)
-* [Snapshot file](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Migrations/ApplicationDbContextModelSnapshot.cs)
+* [Designer file](https://github.com/andreyka26-git/andreyka26-authorizations/blob/main/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Migrations/20230220133625_Initial.Designer.cs)
+* [Migration file](https://github.com/andreyka26-git/andreyka26-authorizations/blob/main/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Migrations/20230220133625_Initial.cs)
+* [Snapshot file](https://github.com/andreyka26-git/andreyka26-authorizations/blob/main/OAuthAndOpenIdConnect/OAuth.OpenIddict.AuthorizationServer/Migrations/ApplicationDbContextModelSnapshot.cs)
 
 These migrations will be applied in Seeder on `EnsureCreated` step.
 
@@ -890,7 +890,7 @@ OpenIddict.Validation.SystemNetHttp
 
 <br>
 
-### **2. Add [ResourceController](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.ResourceServer/Controllers/ResourceController.cs)**
+### **2. Add [ResourceController](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/OAuth.OpenIddict.ResourceServer/Controllers/ResourceController.cs)**
 
 ```cs
 
@@ -914,7 +914,7 @@ This endpoint is a simple one - to verify we have our user authenticated with al
 
 <br>
 
-### **3. Register and use services in [Program](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/OAuth.OpenIddict.ResourceServer/Program.cs)**
+### **3. Register and use services in [Program](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/OAuth.OpenIddict.ResourceServer/Program.cs)**
 
 ```cs
 
