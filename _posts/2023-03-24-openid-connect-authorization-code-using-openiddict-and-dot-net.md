@@ -62,7 +62,7 @@ During the implementation, I will explain all whats and whys according to offici
 
 Disclaimer: This is not an overview of the protocol but rather a quick and simple guide with documentation references and explanations. If you would like to have a protocol overview - you could check my [OAuth protocol overview](https://andreyka26.com/auth-from-backend-perspective-pt3-oauth-basics).
 
-The source code of the sample is located [here](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer).
+The source code of the sample is located [here](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer).
 
 <br>
 
@@ -80,8 +80,8 @@ The full sample is in this GitHub repository:
 
 
 
-* [Authorization Server implementation](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer)
-* [Resource Server implementation](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/OAuthAndOpenIdConnect/Oidc.OpenIddict.ResourceServer1)
+* [Authorization Server implementation](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer)
+* [Resource Server implementation](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/Oidc.OpenIddict.ResourceServer1)
 
 You could wonder whether we can implement OpenId Connect using Client-Server architecture with some fancy SPA frameworks like React / Angular.
 
@@ -134,7 +134,7 @@ The OAuth flow guide is explained [here](https://andreyka26.com/oauth-authorizat
 ### **OpenId Connect part**
 
 
-#### **1. Change [AuthorizeEndpoint](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/Controllers/AuthorizationController.cs#L33)**
+#### **1. Change [AuthorizeEndpoint](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/Controllers/AuthorizationController.cs#L33)**
 
 ```cs
 [HttpGet("~/connect/authorize")]
@@ -252,7 +252,7 @@ I have even raised [StackOverflow question](https://stackoverflow.com/questions/
 
 <br>
 
-#### **2. Change [AuthorizationService](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/AuthorizationService.cs)**
+#### **2. Change [AuthorizationService](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/AuthorizationService.cs)**
 
 We will add destinations for identity token
 
@@ -282,7 +282,7 @@ Our behavior is simple, we add `name` and `email` claim to access token. If Iden
 
 <br>
 
-#### **3. Add oidc debugger to [ClientsSeeder](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/ClientsSeeder.cs)**
+#### **3. Add oidc debugger to [ClientsSeeder](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/ClientsSeeder.cs)**
 
 ```cs
 public async Task AddOidcDebuggerClient()
@@ -334,7 +334,7 @@ public async Task AddOidcDebuggerClient()
 }
 ```
 
-And call it during database setup in [Program.cs](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/Program.cs)
+And call it during database setup in [Program.cs](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/Program.cs)
 
 ```cs
 using (var scope = app.Services.CreateScope())
@@ -349,7 +349,7 @@ using (var scope = app.Services.CreateScope())
 
 <br>
 
-#### **4. Enable User Info endpoint in [Program.cs](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/Program.cs)**
+#### **4. Enable User Info endpoint in [Program.cs](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/Program.cs)**
 
 ```cs
 builder.Services.AddOpenIddict()
@@ -386,7 +386,7 @@ builder.Services.AddOpenIddict()
 
 <br>
 
-#### **5. Add User Info endpoint in [AuthorizeEndpoint](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/Controllers/AuthorizationController.cs)**
+#### **5. Add User Info endpoint in [AuthorizeEndpoint](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/Oidc.OpenIddict.AuthorizationServer/Controllers/AuthorizationController.cs)**
 
 ```cs
 [HttpPost("~/connect/token")]
@@ -513,6 +513,6 @@ As you can see all the claims were added according to destinations and scope we 
 As you can see the response from user info contains exactly our claims.
 
 ## Conclusion
-In this article, we implemented OpenId Connect protocol using .NET and OpenIddict as a library. We also reviewed existing OpenIddict samples and their incompliance with OpenId Connect specification. In case you have anything to add to this guide, or you found some specfiication or any other violation - do not hesitate to contact me in [instagram](https://www.instagram.com/andreyka26_programmer/)/[telegram](https://t.me/programming_space)/[linkedin](https://www.linkedin.com/in/andrii-bui-a55b39166/).
+In this article, we implemented OpenId Connect protocol using .NET and OpenIddict as a library. We also reviewed existing OpenIddict samples and their incompliance with OpenId Connect specification. In case you have anything to add to this guide, or you found some specfiication or any other violation - do not hesitate to contact me in [instagram](https://www.instagram.com/andreyka26_se/)/[telegram](https://t.me/programming_space)/[linkedin](https://www.linkedin.com/in/andrii-bui-a55b39166/).
 
 Thank you for attention

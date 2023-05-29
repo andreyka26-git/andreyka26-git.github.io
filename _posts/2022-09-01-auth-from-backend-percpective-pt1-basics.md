@@ -54,7 +54,7 @@ This article should be useful for people who managed to get the RFC but didn’t
 
 Note: I am using official info like RFC or the documentation provided by specific tools, so you can check everything by yourself if you want to. 
 
-[Git repository with samples](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample) 
+[Git repository with samples](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main) 
 
 
 <br>

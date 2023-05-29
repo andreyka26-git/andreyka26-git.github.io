@@ -107,7 +107,7 @@ In the end, you should have postgres running on a particular port, for simplicit
 
 ### **API**
 
-[Source code](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/Custom/JwtAuth.Custom.BackendOnly.Server)
+[Source code](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/Custom/JwtAuth.Custom.BackendOnly.Server)
 
 
 #### **1. Create pure Web API project**
@@ -142,7 +142,7 @@ You can do that in `Properties` -> `launchSettings.json`
 
 `AuthContex.cs`
 
-[Source code](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/AuthContext.cs)
+[Source code](https://github.com/andreyka26-git/andreyka26-authorizations/blob/main/Custom/JwtAuth.Custom.BackendOnly.Server/AuthContext.cs)
 
 ```cs
 public class AuthContext : IdentityDbContext<IdentityUser>
@@ -165,7 +165,7 @@ Then patch settings
 
 `appsettings.json`
 
-[Source code](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/appsettings.json)
+[Source code](https://github.com/andreyka26-git/andreyka26-authorizations/blob/main/Custom/JwtAuth.Custom.BackendOnly.Server/appsettings.json)
 
 ```json
 {
@@ -181,7 +181,7 @@ Lets create another file for our default username and login
 
 `Consts.cs`
 
-[Source code](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/Consts.cs)
+[Source code](https://github.com/andreyka26-git/andreyka26-authorizations/blob/main/Custom/JwtAuth.Custom.BackendOnly.Server/Consts.cs)
 
 ```cs
 
@@ -199,7 +199,7 @@ public class Consts
 
 `Progam.cs`
 
-[Source code](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/Program.cs)
+[Source code](https://github.com/andreyka26-git/andreyka26-authorizations/blob/main/Custom/JwtAuth.Custom.BackendOnly.Server/Program.cs)
 
 Add swagger (with authentication for jwt)
 
@@ -328,7 +328,7 @@ On top of that we created seeding the database ot make it autocreate and created
 
 #### **4. Create Resource Controller**
 
-[Source code](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/Controllers/ResourcesController.cs)
+[Source code](https://github.com/andreyka26-git/andreyka26-authorizations/blob/main/Custom/JwtAuth.Custom.BackendOnly.Server/Controllers/ResourcesController.cs)
 
 This endpoint is our protected by authorization endpoint. It will user JWT to authorize the request.
 
@@ -380,7 +380,7 @@ public class AuthorizationResponse
 
 `AuthorizationController`
 
-[Source code](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/Custom/JwtAuth.Server/Controllers/AuthorizationController.cs)
+[Source code](https://github.com/andreyka26-git/andreyka26-authorizations/blob/main/Custom/JwtAuth.Custom.BackendOnly.Server/Controllers/AuthorizationController.cs)
 
 `AuthorizationController.GenerateAuthorizationToken`
 
@@ -517,7 +517,7 @@ And as response you could see that in controller our auth middleware successfull
 
 ## **Frontend**
 
-[Source code](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/Custom/JwtAuth.Custom.BackendOnly.Client)
+[Source code](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/Custom/JwtAuth.Custom.BackendOnly.Client)
 
 This application does not cover referesh token behavior - it is explained in [this tutorial](https://andreyka26.com/handling-refreshing-token-on-multiple-requests-using-react).
 

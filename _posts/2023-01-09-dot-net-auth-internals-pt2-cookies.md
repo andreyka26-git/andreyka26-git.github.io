@@ -193,7 +193,7 @@ Line 199: we try to refresh cookies' expiration if the remaining time is less th
 
 For the example purpose I’ve created a simple demo that could be found by following this link:
 
-[Demo source code](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/SimpleAuth/Cookie.BackendOnly)
+[Demo source code](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/SimpleAuth/Cookie.BackendOnly)
 
 It is a pure backend without anything unnecessary. You could use it through the swagger because cookies are set to domain.
 

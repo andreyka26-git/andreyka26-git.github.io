@@ -150,15 +150,15 @@ This is what I got:
 
 ## **Demo**
 
-Demo is run from [this repo](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/SimpleAuth/Cookie.Google.Server).
+Demo is run from [this repo](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/SimpleAuth/Cookie.Google.Server).
 
-This is simple .NET application with Razor Pages. We have added `Google` and `Cookies` to demonstrate how they work together [here](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/SimpleAuth/Google/Program.cs#L6).
+This is simple .NET application with Razor Pages. We have added `Google` and `Cookies` to demonstrate how they work together [here](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/SimpleAuth/Cookie.Google.Server/Program.cs#L6).
 
 
 [![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image12.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image12.png "image_tooltip"){:target="_blank"}
 
 
-We have 1 private endpoint that is under [Authorize] attribute [here](https://github.com/andreyka26-git/dot-net-samples/blob/main/AuthorizationSample/SimpleAuth/Google/Pages/Secret/Index.cshtml.cs#L8).
+We have 1 private endpoint that is under [Authorize] attribute [here](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/SimpleAuth/Cookie.Google.Server/Pages/Secret/Index.cshtml.cs#L8).
 
 
 [![alt_text](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image4.png "image_tooltip")](/assets/2023-01-27-why-google-auth-cannot-be-without-cookies-in-dot-net/image4.png "image_tooltip"){:target="_blank"}

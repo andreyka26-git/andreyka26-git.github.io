@@ -121,7 +121,7 @@ The expected behavior that we will try to achieve is the following:
 
 ### **Frontend**
 
-[Source code](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/Custom/JwtAuth.Custom.BackendOnly.Client)
+[Source code](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/Custom/JwtAuth.Custom.BackendOnly.Client)
 
 First, create simple React app by using
 
@@ -453,7 +453,7 @@ After setting new token we just retry original request with it. If the response 
 
 ### **Backend**
 
-[Source code](https://github.com/andreyka26-git/dot-net-samples/tree/main/AuthorizationSample/Custom/JwtAuth.Custom.BackendOnly.Server)
+[Source code](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/Custom/JwtAuth.Custom.BackendOnly.Server)
 
 I will show `getToken` and `refreshToken` methods.
 
