@@ -5,8 +5,8 @@ date: 2023-06-14 11:02:35 -0000
 category: ["Infrastructure"]
 tags: [docker, gitlab, commands, guide]
 description: "This article is just a bunch of useful commands for working with docker and different clouds, for example GitLab"
-thumbnail: /assets/2023-05-28-consistent-hashing-pt2-implementation/logo.png
-thumbnailwide: /assets/2023-05-28-consistent-hashing-pt2-implementation/logo-wide.png
+thumbnail: /assets/2023-06-14-docker-cheatsheet/logo.png
+thumbnailwide: /assets/2023-06-14-docker-cheatsheet/logo-wide.png
 ---
 <br>
 
@@ -55,11 +55,11 @@ This article contains different useful docker-related guides, commands, and tuto
 ## **Docker and Gitlab**
 
 
-### Locally build image, push/pull to Gitlab registry with authorization
+### **Locally build image, push/pull to Gitlab registry with authorization**
 
 Actual on 2023-06-15.
 
-Real life example, I have node js application, and I would like to build it locally using docker, and push it to the registry so my team can pull and run it. Or I can do that without building.
+Real-life example, I have node js application, and I would like to build it locally using docker and push it to the registry so my team can pull and run it. Or I can do that without building.
 
 For that you need:
 
@@ -70,7 +70,7 @@ For that you need:
 I used Personal access token approach (PAT).
 
 To generate Personal Access Token: 
-- `go to your profile` (click on avatar -> Edit Profile)
+- go to your profile: `click on avatar on avatar -> Edit Profile`
 - `go to Access Tokens`
 - `create new one`, personally I specified all the scopes, but I guess you need only `write_registry` and `read_registry`
 
@@ -85,9 +85,9 @@ docker login -u <your-user-name-or-email> -p <personal-access-token> registry.gi
 
 `<personal-access-token>` - the PAT that you have generated above
 
-`<your-group-name>` - the group when project is located, if you go from UI to container registry you can find it in the url `https://gitlab.com/<your-group-name>/<your-project-name>/container_registry`
+`<your-group-name>` - the group when project is located, if you go from UI to container registry you can find it in the url [https://gitlab.com/your-group-name/your-project-name/container_registry](https://gitlab.com/your-group-name/your-project-name/container_registry)
 
-`<your-project-name>` - the project name, if you go from UI to container registry you can find it in the url `https://gitlab.com/<your-group-name>/<your-project-name>/container_registry`
+`<your-project-name>` - the project name, if you go from UI to container registry you can find it in the url [https://gitlab.com/your-group-name/your-project-name/container_registry](https://gitlab.com/your-group-name/your-project-name/container_registry)
 
 <br>
 
@@ -109,10 +109,11 @@ docker push registry.gitlab.com/<your-group-name>/<your-project-name>/<image-nam
 
 After this step you can observer image is added to your registry in Gitlab UI.
 
+[![alt_text](/assets/2023-06-14-docker-cheatsheet/image1.png "image_tooltip")](/assets/2023-06-14-docker-cheatsheet/image1.png "image_tooltip"){:target="_blank"}
 
 #### **4. Pull image**
 
-Before pullilng images make sure your perform 1st step `1. Authenticate yourself in Gitlab registry`
+Before pullilng images make sure your perform [1st step](https://andreyka26.com/docker-cheatsheet#1-authenticate-yourself-in-gitlab-registry)
 
 ```
 docker pull registry.gitlab.com/<your-group-name>/<your-project-name>/<image-name>
