@@ -83,6 +83,14 @@ You should have an understanding of basic things in docker. It is better to lear
 
 This is a pretty convenient UI application for the Postgres database. But, as a true SE, we are too lazy to install it separately - so we will use the command line.
 
+However if you need perform a lot of operations and have good visualization of your data, here is docker command to do it:
+
+
+```
+docker run -p 5555:80 --name pgadmin -e PGADMIN_DEFAULT_EMAIL=root@gmail.com -e PGADMIN_DEFAULT_PASSWORD=root -d dpage/pgadmin4
+```
+
+This command will start latest pgadmin instance on port `5555`. To open it - go to any browser, navigate to `http://localhost:5555` or straight away to login page `http://localhost:5555/login?next=%2F`. Fill in email address with `root@gmail.com` and password with `root` and you will be logged to fancy PgAdmin UI.
 
 <br>
 
