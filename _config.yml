@@ -163,6 +163,7 @@ exclude:
   - assets/bower_components/font-awesome/advanced-options/use-with-node-js/fontawesome-common-types/README.md
   - assets/bower_components/ghosthunter/example/Index.html
   - assets/bower_components/masonry-layout/README.md
+  - readme.md
 
 
 destination: ./build
