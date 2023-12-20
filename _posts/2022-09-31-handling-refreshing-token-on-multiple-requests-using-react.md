@@ -636,7 +636,9 @@ I would like to say thank you to all my friends that are working as Frontend /Js
 
 Inspired by [https://github.com/Flyrell/axios-auth-refresh](https://github.com/Flyrell/axios-auth-refresh)
 
-Highly encouraged to leave your feedback regarding this solution in my social media.
+Also please check my other projects over here:
+[Symptom Diary](https://blog.symptom-diary.com), [pet4pet](https://pet-4-pet.com)
 
+Highly encouraged to leave your feedback regarding this solution in my social media.
 
 Thank you for your attention!
