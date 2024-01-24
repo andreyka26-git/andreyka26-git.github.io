@@ -521,6 +521,10 @@ Click Grant.
  
 After we granted consent - the Authorization Server redirected us to the callback page, where we, using `oidc-client-ts` function exchanged auth code for access_token. Then we called resources endpoint from Resource Server using this token, and rendered an answer from it on our App.js.
 
+## Security Consideration
+
+Please note, when you implement OAuth Authorization Code flow on SPA client like React - you are exposing your client_id and client_secret to the user, since it is in your source code. The north star solution is to use PKCE.
+
 
 ## **Conclusion**
 
