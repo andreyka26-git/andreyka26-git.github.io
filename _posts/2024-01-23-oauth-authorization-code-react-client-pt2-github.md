@@ -66,7 +66,7 @@ Note! Github has a bunch of problems that you need to fix, in case you would lik
 
 ### **OAuth core [entrypoint](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/OAuth.OpenIddict.WebClient)**
 
-The core of our React OAuth Client is already implemented [here](https://andreyka26.com/oauth-authorization-code-react-client-pt1-openIddict). We will just change configuration and some parts of the application. So just follow the article I referenced or clone [this part](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/OAuth.OpenIddict.WebClient) of the repo.
+The core of our React OAuth Client is already implemented [in this article](https://andreyka26.com/oauth-authorization-code-react-client-pt1-openIddict). We will just change configuration and some parts of the application. So just follow the article I referenced or clone [this part](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/OAuthAndOpenIdConnect/OAuth.OpenIddict.WebClient) of the repo.
 
 Once you have the OpenIddict integrated React client you could follow subsequent steps.
 
