@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "OAuth Authorization Code React client pt2: Github"
-date: 2024-01-02 11:02:35 -0000
+date: 2024-01-23 11:02:35 -0000
 category: ["Authorization guides"]
 tags: [authorization, react-client, react, oauth, github]
 description: "In this article we are going to create React client for Github OAuth Server. With this React client that runs in browser you will be able to authenticate authorize with Github and call Github API with obtained access token"
