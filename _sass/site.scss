@@ -128,7 +128,7 @@ ol, ul {
 body {
     background-color: var(--main-background-color) !important;
     color: var(--main-text-color) !important;
-    font-family: 'Quicksand', sans-serif !important;
+    // font-family: 'Quicksand', sans-serif !important;
     font-feature-settings: "kern"on;
     font-size: 1.1rem !important;
     font-variant-numeric: oldstyle-nums;
@@ -225,9 +225,6 @@ header {
     }
 }
 
-#markdown-toc {
-    font-size: 1.3rem;
-}
 
 .copyright {
     padding-bottom: 40px;
@@ -595,7 +592,6 @@ header {
     border-color: #303030;
     background: transparent;
 }
-
 
 #profile-card {
     text-align: center;
