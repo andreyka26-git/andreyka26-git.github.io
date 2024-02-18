@@ -79,7 +79,7 @@ Since we are going to have functions, we will follow [official documentation](ht
 The full source code is located in my [Github repository](https://github.com/andreyka26-git/firebase-docker-emulators).
 
 
-### **Add [functions/index.js](https://github.com/andreyka26-git/firebase-docker-emulators/blob/main/functions/index.js)**
+### **Add [functions/index.js](https://github.com/andreyka26-git/firebase-docker-emulators/blob/main/firebase-function/functions/index.js)**
 
 ```js
 const { onRequest } = require("firebase-functions/v2/https");
@@ -112,7 +112,7 @@ exports.handleRequest = onRequest(async (req, res) => {
 Here I created the simplest function possible that listens to http calls and writes to firestore data received from the query parameter. This function is more like a starting point to continue with functions development.
 
 
-### **Add [Dockerfile](https://github.com/andreyka26-git/firebase-docker-emulators/blob/main/Dockerfile)**
+### **Add [Dockerfile](https://github.com/andreyka26-git/firebase-docker-emulators/blob/main/firebase-function/Dockerfile)**
 
 ```docker
 FROM node:20-bullseye-slim
@@ -161,7 +161,7 @@ and grants execute permission to the file to be able to execute it later.
 `ENTRYPOINT ["./entrypoint.sh"]` - sets entrypoint for docker container to the file we have created above.
 
 
-### **Add [firebase.json](https://github.com/andreyka26-git/firebase-docker-emulators/blob/main/firebase.json)**
+### **Add [firebase.json](https://github.com/andreyka26-git/firebase-docker-emulators/blob/main/firebase-function/firebase.json)**
 
 ```
 {
@@ -204,7 +204,7 @@ and grants execute permission to the file to be able to execute it later.
 Besides that the important part of this config is `functions`. It will build functions code and make them available in the emulator. Without it, the functions emulator will show you that you don’t have actions and will not start.
 
 
-### **Add [.firebaserc](https://github.com/andreyka26-git/firebase-docker-emulators/blob/main/.firebaserc)**
+### **Add [.firebaserc](https://github.com/andreyka26-git/firebase-docker-emulators/blob/main/firebase-function/.firebaserc)**
 
 
 ```
@@ -222,7 +222,7 @@ Besides that the important part of this config is `functions`. It will build fun
 This is a firebase configuration file, here we just specify our project id. Most probably it is needed to get metadata. But it is required as well.
 
 
-### **Add [docker-compose.yml](https://github.com/andreyka26-git/firebase-docker-emulators/blob/main/docker-compose.yml)**
+### **Add [docker-compose.yml](https://github.com/andreyka26-git/firebase-docker-emulators/blob/main/firebase-function/docker-compose.yml)**
 
 ```yml
 version: '3'
