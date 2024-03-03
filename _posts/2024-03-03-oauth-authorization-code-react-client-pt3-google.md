@@ -243,3 +243,9 @@ You might try to access this endpoint with invalid token that will result in err
 ## **Conclusion**
 
 Our core implementation proved itself once more with Google OAuth. It turned out that Google has much less problems and OAuth/OIDC incompatibilities compared to Github. Here we proved that our client is very flexible and we can make it work with any OAuth/Identity provider including Google Open Id Connect/OAuth2.
+
+My Projects:
+
+Symptom Diary: [https://blog.symptom-diary.com/](https://blog.symptom-diary.com/)
+
+Pet4Pet: [https://pet-4-pet.com/](https://pet-4-pet.com/)
