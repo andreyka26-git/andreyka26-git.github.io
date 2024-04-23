@@ -4,6 +4,8 @@
 bundle exec jekyll serve
 
 jekyll build --verbose
+
+jekyll serve
 ```
 
 # Create new post
