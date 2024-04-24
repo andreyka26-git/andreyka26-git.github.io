@@ -195,3 +195,16 @@ However, it still has some problems:
 `Basic Auth` is pretty simple to implement but it has a lot of functionality and security lacks. `Digest Auth` is much more complicated but solves some of the problems that `Basic Auth` has, but still, it has some lack of functionality that regular applications would need for the Auth process.
 
 So in the next part, we will consider `OAuth` and `OpenId Connect` protocols that solved those problems.
+
+
+Please subscribe to my social media to not miss updates.: [Instagram](https://www.instagram.com/andreyka26_se), [Telegram](https://t.me/programming_space)
+
+I’m talking about life as a Software Engineer at Microsoft.
+
+<br>
+
+Besides that, my projects:
+
+Symptoms Diary: [https://blog.symptom-diary.com](https://blog.symptom-diary.com)
+
+Pet4Pet: [https://pet-4-pet.com](https://pet-4-pet.com)

@@ -186,3 +186,7 @@ sudo service ssh restart
 ```
 
 Then from Client you can connect to Server using `ssh admin@<your-ip>`
+
+<br>
+
+## **Follow up**

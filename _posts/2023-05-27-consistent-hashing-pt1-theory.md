@@ -460,6 +460,17 @@ I am not that big expert in Distributed Systems, so I might be wrong in my assum
 
 Thank you for your attention.
 
+Please subscribe to my social media to not miss updates.: [Instagram](https://www.instagram.com/andreyka26_se), [Telegram](https://t.me/programming_space)
+
+I’m talking about life as a Software Engineer at Microsoft.
+
+<br>
+
+Besides that, my projects:
+
+Symptoms Diary: [https://blog.symptom-diary.com](https://blog.symptom-diary.com)
+
+Pet4Pet: [https://pet-4-pet.com](https://pet-4-pet.com)
 
 <br>
 

@@ -939,6 +939,17 @@ Please feel free to leave feedback - I will correct the mistakes that you mentio
  
 And separate thanks for reviewing to my friends: [Oleh](https://www.linkedin.com/in/o%CE%BBeh-kyshkevych-84a029205/) and [Mykola](https://www.linkedin.com/in/mykola-zaiarnyi-71433316b/)
 
+Please subscribe to my social media to not miss updates.: [Instagram](https://www.instagram.com/andreyka26_se), [Telegram](https://t.me/programming_space)
+
+I’m talking about life as a Software Engineer at Microsoft.
+
+<br>
+
+Besides that, my projects:
+
+Symptoms Diary: [https://blog.symptom-diary.com](https://blog.symptom-diary.com)
+
+Pet4Pet: [https://pet-4-pet.com](https://pet-4-pet.com)
 
 <br>
 

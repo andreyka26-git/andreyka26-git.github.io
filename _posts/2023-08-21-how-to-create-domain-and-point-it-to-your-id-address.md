@@ -282,3 +282,18 @@ We can type our domain into the browser and see it loads my React application ho
 
 [![alt_text](/assets/2023-08-21-how-to-create-domain-and-point-it-to-your-id-address/image1.png "image_tooltip")](/assets/2023-08-21-how-to-create-domain-and-point-it-to-your-id-address/image1.png "image_tooltip"){:target="_blank"}
 
+<br>
+
+## **Follow up
+
+Please subscribe to my social media to not miss updates.: [Instagram](https://www.instagram.com/andreyka26_se), [Telegram](https://t.me/programming_space)
+
+I’m talking about life as a Software Engineer at Microsoft.
+
+<br>
+
+Besides that, my projects:
+
+Symptoms Diary: [https://blog.symptom-diary.com](https://blog.symptom-diary.com)
+
+Pet4Pet: [https://pet-4-pet.com](https://pet-4-pet.com)

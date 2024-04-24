@@ -1059,3 +1059,15 @@ In this article we implemented OAuth 2 protocol using .NET and OpenIddict as a l
 We only covered OAuth 2 according to official RFC documentation and specification. OpenId Connect implementation follow-up will be in the next article.
 
 Thank you for attention
+
+Please subscribe to my social media to not miss updates.: [Instagram](https://www.instagram.com/andreyka26_se), [Telegram](https://t.me/programming_space)
+
+I’m talking about life as a Software Engineer at Microsoft.
+
+<br>
+
+Besides that, my projects:
+
+Symptoms Diary: [https://blog.symptom-diary.com](https://blog.symptom-diary.com)
+
+Pet4Pet: [https://pet-4-pet.com](https://pet-4-pet.com)

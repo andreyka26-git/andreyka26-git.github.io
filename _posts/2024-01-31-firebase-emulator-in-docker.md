@@ -287,8 +287,14 @@ Http endpoints, database, storage, auth, etc.
  
 Thank you for your attention.
 
-My projects:
+Please subscribe to my social media to not miss updates.: [Instagram](https://www.instagram.com/andreyka26_se), [Telegram](https://t.me/programming_space)
 
-Symptom Diary: [https://blog.symptom-diary.com/](https://blog.symptom-diary.com/)
+I’m talking about life as a Software Engineer at Microsoft.
 
-Pet4Pet: [https://pet-4-pet.com/](https://pet-4-pet.com/)
+<br>
+
+Besides that, my projects:
+
+Symptoms Diary: [https://blog.symptom-diary.com](https://blog.symptom-diary.com)
+
+Pet4Pet: [https://pet-4-pet.com](https://pet-4-pet.com)

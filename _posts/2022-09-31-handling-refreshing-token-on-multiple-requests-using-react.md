@@ -642,3 +642,19 @@ Also please check my other projects over here:
 Highly encouraged to leave your feedback regarding this solution in my social media.
 
 Thank you for your attention!
+
+<br>
+
+## **Follow up**
+
+Please subscribe to my social media to not miss updates.: [Instagram](https://www.instagram.com/andreyka26_se), [Telegram](https://t.me/programming_space)
+
+I’m talking about life as a Software Engineer at Microsoft.
+
+<br>
+
+Besides that, my projects:
+
+Symptoms Diary: [https://blog.symptom-diary.com](https://blog.symptom-diary.com)
+
+Pet4Pet: [https://pet-4-pet.com](https://pet-4-pet.com)

@@ -212,3 +212,15 @@ So overall it is NOT allowed to use `.AddGoogle()` without `.AddCookies()` becau
 2. As stated in [this article](https://andreyka26.com/dot-net-auth-internals-pt3-google), Remote Auth handlers don’t have `.SignInAsync()` but each of those handlers calls `Context.SignInAsync()` [here](https://github.com/dotnet/aspnetcore/blob/4535ea1263e9a24ca8d37b7266797fe1563b8b12/src/Security/Authentication/Core/src/RemoteAuthenticationHandler.cs#L162) and rely on another Auth Scheme registered for signing principal in. Basically, the code will fail or enter indefinite recursion.
 
  To do so we need to write our own AuthorizationHandler with all supportive classes, and each time the user is not authorized - just emit OAuth flow.
+
+Please subscribe to my social media to not miss updates.: [Instagram](https://www.instagram.com/andreyka26_se), [Telegram](https://t.me/programming_space)
+
+I’m talking about life as a Software Engineer at Microsoft.
+
+<br>
+
+Besides that, my projects:
+
+Symptoms Diary: [https://blog.symptom-diary.com](https://blog.symptom-diary.com)
+
+Pet4Pet: [https://pet-4-pet.com](https://pet-4-pet.com)

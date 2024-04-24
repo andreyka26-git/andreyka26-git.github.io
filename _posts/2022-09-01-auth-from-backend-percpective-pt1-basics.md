@@ -215,3 +215,15 @@ Those act with JWT (access tokens) and maybe refresh tokens as OAuth does as wel
 There are [resources](https://www.iana.org/assignments/http-authschemes/http-authschemes.xhtml) where you can find all commonly used schemes and RFC documentation for each of them.
 
 In the next articles, we will consider all auth schemes we have discussed above.
+
+Please subscribe to my social media to not miss updates.: [Instagram](https://www.instagram.com/andreyka26_se), [Telegram](https://t.me/programming_space)
+
+I’m talking about life as a Software Engineer at Microsoft.
+
+<br>
+
+Besides that, my projects:
+
+Symptoms Diary: [https://blog.symptom-diary.com](https://blog.symptom-diary.com)
+
+Pet4Pet: [https://pet-4-pet.com](https://pet-4-pet.com)

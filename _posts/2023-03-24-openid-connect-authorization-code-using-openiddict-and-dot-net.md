@@ -516,3 +516,15 @@ As you can see the response from user info contains exactly our claims.
 In this article, we implemented OpenId Connect protocol using .NET and OpenIddict as a library. We also reviewed existing OpenIddict samples and their incompliance with OpenId Connect specification. In case you have anything to add to this guide, or you found some specfiication or any other violation - do not hesitate to contact me in [instagram](https://www.instagram.com/andreyka26_se/)/[telegram](https://t.me/programming_space)/[linkedin](https://www.linkedin.com/in/andrii-bui-a55b39166/).
 
 Thank you for attention
+
+Please subscribe to my social media to not miss updates.: [Instagram](https://www.instagram.com/andreyka26_se), [Telegram](https://t.me/programming_space)
+
+I’m talking about life as a Software Engineer at Microsoft.
+
+<br>
+
+Besides that, my projects:
+
+Symptoms Diary: [https://blog.symptom-diary.com](https://blog.symptom-diary.com)
+
+Pet4Pet: [https://pet-4-pet.com](https://pet-4-pet.com)

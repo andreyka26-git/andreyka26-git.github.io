@@ -313,3 +313,15 @@ This method just registers important middleware which does all work named `Authe
 ## **Follow up**
 
 These are the basic services that are used for different auth handlers. In the next articles - we will consider particular authentication handlers: [Cookie-based](https://andreyka26.com/dot-net-auth-internals-pt2-cookies), Jwt-based, [Google-based](https://andreyka26.com/dot-net-auth-internals-pt3-google), etc. They contain most of the magic inside.
+
+Please subscribe to my social media to not miss updates.: [Instagram](https://www.instagram.com/andreyka26_se), [Telegram](https://t.me/programming_space)
+
+I’m talking about life as a Software Engineer at Microsoft.
+
+<br>
+
+Besides that, my projects:
+
+Symptoms Diary: [https://blog.symptom-diary.com](https://blog.symptom-diary.com)
+
+Pet4Pet: [https://pet-4-pet.com](https://pet-4-pet.com)

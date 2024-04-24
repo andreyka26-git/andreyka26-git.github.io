@@ -708,3 +708,20 @@ In our case we can even see what is stored in our token because we don’t encry
 You can see our name and id claims we’ve created on token generation step in the backend. The same way you could add role and validate by role.
 
 Thank you for your attention. In the next part, we will consider how to add Google Auth to this setup. It turned out that it is not easy at all.
+
+<br>
+
+## **Follow up**
+
+
+Please subscribe to my social media to not miss updates.: [Instagram](https://www.instagram.com/andreyka26_se), [Telegram](https://t.me/programming_space)
+
+I’m talking about life as a Software Engineer at Microsoft.
+
+<br>
+
+Besides that, my projects:
+
+Symptoms Diary: [https://blog.symptom-diary.com](https://blog.symptom-diary.com)
+
+Pet4Pet: [https://pet-4-pet.com](https://pet-4-pet.com)

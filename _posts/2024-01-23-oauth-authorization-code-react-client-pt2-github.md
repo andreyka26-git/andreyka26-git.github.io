@@ -426,6 +426,14 @@ As you might see, the Github OAuth/OpenId Connect implementation misses a lot of
 
 As a result we were successfully authenticated to Github, obtained a token and called Github API to get all the public/private repos with the access token.
 
-Please feel free to check my projects:
-[Symptom Diary](https://blog.symptom-diary.com)
-[Pet 4 Pet](https://pet-4-pet.com)
+Please subscribe to my social media to not miss updates.: [Instagram](https://www.instagram.com/andreyka26_se), [Telegram](https://t.me/programming_space)
+
+I’m talking about life as a Software Engineer at Microsoft.
+
+<br>
+
+Besides that, my projects:
+
+Symptoms Diary: [https://blog.symptom-diary.com](https://blog.symptom-diary.com)
+
+Pet4Pet: [https://pet-4-pet.com](https://pet-4-pet.com)
