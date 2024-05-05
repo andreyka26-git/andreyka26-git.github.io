@@ -264,6 +264,11 @@ header {
     color: var(--bold-color) !important;
 }
 
+.tech-blog {
+    font-size: 0.75rem;
+    margin-left: 1rem;
+}
+
 .navbar-dark .navbar-brand {
     color: #ff7601 !important;
 }
@@ -798,6 +803,11 @@ footer {
         padding-right: 0px;
     }
 
+    .tech-blog {
+        font-size: 0.75rem;
+        margin-left: 0rem !important;
+    }
+    
     .navbar-brand {
         display: inline-block;
         padding-top: .3125rem;
@@ -876,6 +886,11 @@ footer {
           padding-left:  0px;
           padding-right: 0px;
       }
+
+      .tech-blog {
+        font-size: 0.75rem;
+        margin-left: 0rem !important;
+    }
 
       .navbar-brand {
           display: inline-block;
