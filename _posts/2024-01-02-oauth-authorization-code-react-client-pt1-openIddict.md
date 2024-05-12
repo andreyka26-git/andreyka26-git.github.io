@@ -533,7 +533,7 @@ In this article - we have set up a simple React client that works with any compl
 Kudos to my friend who helped me with writing React Client, reviewed my code and suggested tech improvements: [https://www.linkedin.com/in/svirgunvolodia/](https://www.linkedin.com/in/svirgunvolodia/)
 
  
-On top of that - please check our startups if you are interested: [Symptom Diary](https://blog.symptom-diary.com/), [Pet4Pet](https://pet-4-pet.com/).
+On top of that - please check our startups if you are interested: [Symptom Diary](https://symptom-diary.com/), [Pet4Pet](https://pet-4-pet.com/).
 
 Please subscribe to my social media to not miss updates.: [Instagram](https://www.instagram.com/andreyka26_se), [Telegram](https://t.me/programming_space)
 
@@ -543,6 +543,6 @@ I’m talking about life as a Software Engineer at Microsoft.
 
 Besides that, my projects:
 
-Symptoms Diary: [https://blog.symptom-diary.com](https://blog.symptom-diary.com)
+Symptoms Diary: [https://symptom-diary.com](https://symptom-diary.com)
 
 Pet4Pet: [https://pet-4-pet.com](https://pet-4-pet.com)

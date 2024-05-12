@@ -295,6 +295,6 @@ I’m talking about life as a Software Engineer at Microsoft.
 
 Besides that, my projects:
 
-Symptoms Diary: [https://blog.symptom-diary.com](https://blog.symptom-diary.com)
+Symptoms Diary: [https://symptom-diary.com](https://symptom-diary.com)
 
 Pet4Pet: [https://pet-4-pet.com](https://pet-4-pet.com)
