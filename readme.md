@@ -30,7 +30,17 @@ images/
 
 ```
 (!\[alt_text\]\((.+)\))
+or
+(!\[Untitled\]\((.+)\))
+
 [$1]($2){:target="_blank"}
+```
+
+## Regex for new line before header
+
+```
+(#+ \*\*.+\*\*)
+
 ```
 
 ## Regex for changing heading to bold
