@@ -158,8 +158,7 @@ It is pretty simple nginx.conf file, just regular configurations, and in the las
 
 `conf.d/symptoms-dev.conf`
 
-```
-
+```conf
 #frontend dev env
 server {
     listen 80;
@@ -176,27 +175,27 @@ server {
     }
 }
 
-server {
-    listen 443 ssl;
 
-    server_name symptom-diary.com;
+#server {
+#    listen 443 ssl;
 
-    ssl_certificate /etc/letsencrypt/live/symptom-diary.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/symptom-diary.com/privkey.pem;
+#    server_name symptom-diary.com;
 
-    location / {
+#    ssl_certificate /etc/letsencrypt/live/symptom-diary.com/fullchain.pem;
+#    ssl_certificate_key /etc/letsencrypt/live/symptom-diary.com/privkey.pem;
+
+#    location / {
         #this needed to resolve host by docker dns, othervise 'set $upstream will' not work
-        resolver 127.0.0.11 valid=10s;
+#        resolver 127.0.0.11 valid=10s;
 
         #this variable needed to not fail nginx if any of the containers is down
-        set $upstream http://symptom-tracker-dev:3000;
+#        set $upstream http://symptom-tracker-dev:3000;
 
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header Host $host;
-        proxy_pass $upstream;
-    }
-}
-
+#        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#        proxy_set_header Host $host;
+#        proxy_pass $upstream;
+#    }
+#}
 ```
 
 This is subconfiguration for my react application for demo purpose.
@@ -205,8 +204,8 @@ It has 2 parts:
 
 
 
-* The first part is for unsecured http connection that listens to 80th port of our domain `symptom-diary.com`. It just redirects the request to https connection on 443d port.
-* The second part is specifying secured https connection with SSL/TLS protocols, it directs request to our application docker container `symptom-tracker-dev` on `3000` internal docker port.
+* The first part is for unsecured http connection that listens to 80th port of our domain `symptom-diary.com`. The main purpose for this block is to allow certbot authenticate throught the challenge request. Other than that It just redirects the request to https connection on 443d port.
+* The second part is specifying secured https connection with SSL/TLS protocols, it directs request to our application docker container `symptom-tracker-dev` on `3000` internal docker port. Until we have SSL certificates created by certbot it is unusable.
 
 The SSL certificates are ensured by 
 
@@ -215,7 +214,7 @@ ssl_certificate /etc/letsencrypt/live/symptom-diary.com/fullchain.pem;
 ssl_certificate_key /etc/letsencrypt/live/symptom-diary.com/privkey.pem;
 ```
 
-But now there is no `fullchain.pem` and `privkey.pem` files, let’s generate them.
+But now there is no `fullchain.pem` and `privkey.pem` files, let’s generate them. That's why the second part is commented. Now we need to generate certificates and uncomment the SSL part (second one) of configuration
 
 
 ## **Generate certificates**
