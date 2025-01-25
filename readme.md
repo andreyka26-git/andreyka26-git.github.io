@@ -36,12 +36,6 @@ or
 [$1]($2){:target="_blank"}
 ```
 
-## Regex for new line before header
-
-```
-(#+ \*\*.+\*\*)
-
-```
 
 ## Regex for changing heading to bold
 
@@ -49,6 +43,18 @@ or
 (#+) (.+)
 $1 **$2**
 ```
+
+## Regex for new line before header
+
+```
+(#+ \*\*.+\*\*)
+
+
+<br>
+
+$1
+```
+
 
 ## Regex to fix markdown symbols
 

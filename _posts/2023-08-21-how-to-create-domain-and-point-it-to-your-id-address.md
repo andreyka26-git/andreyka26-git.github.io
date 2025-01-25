@@ -284,7 +284,7 @@ We can type our domain into the browser and see it loads my React application ho
 
 <br>
 
-## **Follow up
+## **Follow up**
 
 Please subscribe to my social media to not miss updates.: [Instagram](https://www.instagram.com/andreyka26_se), [Telegram](https://t.me/programming_space)
 
