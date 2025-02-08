@@ -11,54 +11,54 @@ squaredefault: "/assets/square-default.png"
 
 # Navigation
 urls:
-    - text: About
-      url: /about
-    - text: Blog
-      url: /blog
-    - text: Categories
-      url: /categories
-    - text: Privacy Policy
-      url: /privacy-policy
-    - text: Terms of Use
-      url: /terms-of-use
+  - text: About
+    url: /about
+  - text: Blog
+    url: /blog
+  - text: Categories
+    url: /categories
+  - text: Privacy Policy
+    url: /privacy-policy
+  - text: Terms of Use
+    url: /terms-of-use
 
 # Edit Author details (For multi authors check _data/authors.yml)
 author_logo: profile.png
 author: Andrii Bui
-author_bio: Hi, my name is Andrii. I'm Software Engineer at Microsoft with 5 years of experience. 
+author_bio: Hi, my name is Andrii. I'm Software Engineer at Microsoft with 7 years of experience.
 author_location: Ukraine
-typewrite-text: Explore Architecture, Domain-Driven Design, Authorization, CI-CD.
+typewrite-text: Explore Leetcode and FAANG interview prep, Architecture, Authorization, DevOps, Infra.
 hero_cover_img: sample_cover.jpg # replace this for changing homepage cover (eg. try cover.jpeg). Image should be in /assets/img
 
 # Experiences
 author_work_experiences:
-            - company_name: Microsoft
-              company_logo: microsoft.png
-              company_url: https://microsoft.com
-              designation: Software Engineer
-              description: I am acting as Software Engineer working on Backend services for M365
-              visibility: true
-            - company_name: Epam Systems
-              company_logo: epam.png
-              company_url: https://www.epam.com
-              designation: Senior Software Engineer
-              description: Developing project with Oil domain(the project is under NDA). The system is a search service that searches through a lot of external and internal systems and services(REST API, SOAP, SQL Server, Cognitive Search). Playing the key software engineer role on the backend side, designing and implementing software architecture, improve performance, provide security compliance. Also developing and maintaining Java Solution which works with active directory and Kafka acting as an ETL job.
-              visibility: true
-            - company_name: Eleks
-              company_logo: eleks.png
-              company_url: https://www.eleks.com
-              designation: Middle Software Engineer
-              description: Developing new features, designing application architecture, and maintaining current behavior on 2C2P (https://www.2c2p.com/). The system is a payment gateway between different payment providers. Playing the role as a key developer on the project delegated to me along with the QA team.
-              visibility: true
-            - company_name: Magnise
-              company_logo: magnise.jfif
-              company_url: https://magnise.com
-              designation: Junior Software Engineer
-              description: Developing the news monitoring system Alphateka (https://alphateka.com). The system monitors social networks, online news, TV, and Radio. It provides quick articles/posts querying with sentiment and clustering analysis. It is able to build analytical charts on the data and notify about different alerts. Playing the role as a backend developer along with 2 frontend developers, 3 backend developers, PM, QA.
-              visibility: true
+  - company_name: Microsoft
+    company_logo: microsoft.png
+    company_url: https://microsoft.com
+    designation: Software Engineer
+    description: I am acting as Software Engineer working on Backend services for M365
+    visibility: true
+  - company_name: Epam Systems
+    company_logo: epam.png
+    company_url: https://www.epam.com
+    designation: Senior Software Engineer
+    description: Developing project with Oil domain(the project is under NDA). The system is a search service that searches through a lot of external and internal systems and services(REST API, SOAP, SQL Server, Cognitive Search). Playing the key software engineer role on the backend side, designing and implementing software architecture, improve performance, provide security compliance. Also developing and maintaining Java Solution which works with active directory and Kafka acting as an ETL job.
+    visibility: true
+  - company_name: Eleks
+    company_logo: eleks.png
+    company_url: https://www.eleks.com
+    designation: Middle Software Engineer
+    description: Developing new features, designing application architecture, and maintaining current behavior on 2C2P (https://www.2c2p.com/). The system is a payment gateway between different payment providers. Playing the role as a key developer on the project delegated to me along with the QA team.
+    visibility: true
+  - company_name: Magnise
+    company_logo: magnise.jfif
+    company_url: https://magnise.com
+    designation: Junior Software Engineer
+    description: Developing the news monitoring system Alphateka (https://alphateka.com). The system monitors social networks, online news, TV, and Radio. It provides quick articles/posts querying with sentiment and clustering analysis. It is able to build analytical charts on the data and notify about different alerts. Playing the role as a backend developer along with 2 frontend developers, 3 backend developers, PM, QA.
+    visibility: true
 
 # social links
-github_username:  andreyka26-git
+github_username: andreyka26-git
 facebook_username: profile.php?id=100017215509428
 linkedin_username: andrii-bui-a55b39166
 instagram_username: andreyka26_se
@@ -103,9 +103,8 @@ collections:
     output: false
 
 defaults:
-  -
-    scope:
-      path: 'assets/**'
+  - scope:
+      path: "assets/**"
     values:
       sitemap: false
 
@@ -115,7 +114,6 @@ plugins:
   - jekyll-gist
   - jekyll-seo-tag
   - jekyll-sitemap
-
 
 # Exclude from processing.
 # The following items will not be processed, by default.
@@ -164,6 +162,5 @@ exclude:
   - assets/bower_components/ghosthunter/example/Index.html
   - assets/bower_components/masonry-layout/README.md
   - readme.md
-
 
 destination: ./build
