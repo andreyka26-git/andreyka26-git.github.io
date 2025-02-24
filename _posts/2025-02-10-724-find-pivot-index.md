@@ -5,10 +5,13 @@ date: 2025-02-09 11:02:35 -0000
 category: ["Leetcode"]
 tags: [leetcode, array_string]
 description: "I'm a Software Engineer at Microsoft. In this article, we will review, solve, and analyze LeetCode questions. Today, we are tackling an medium problem called '724. Find Pivot Index'. We will solve it with brute force solution O(n^2) & O(1) and sliding window solution O(n) & O(n)"
-thumbnail: /assets/2025-02-09-1493-longest-subarray-of-1s-after-deleting-one-element/logo.png
-thumbnailwide: /assets/2025-02-09-1493-longest-subarray-of-1s-after-deleting-one-element/logo-wide.png
+thumbnail: /assets/2025-02-10-724-find-pivot-index/logo.png
+thumbnailwide: /assets/2025-02-10-724-find-pivot-index/logo-wide.png
 ---
 
+
+* TOC
+{:toc}
 
 
 <br>
@@ -155,8 +158,46 @@ var pivotIndex = function(nums) {
 };
 ```
 
-Note there is O(1) solution, could you implement it??
 
 **Runtime Complexity**: O(3n) => O(n), we iterate twice for prefix and suffix + traversing for the actual algo
 
 **Space Complexity**:  O(2n) => O(n) as we are storing O(n) for prefix and O(n) for suffix
+
+
+<br>
+
+## **Prefix Suffix Sum solution O(n) & O(n)**
+
+Can we do it in constant space? The answer is yes - we can. Instead of keeping prefix and suffix sums, we derive them on the fly by using variables.
+
+First we are calculating total sum in 1 traversal.
+
+Then we keep 2 variables: `currentSum` which is our "prefix" and `totalSum` which becomes our suffix, as we keep substracting numbers from it as we move forward.
+
+
+```js
+var pivotIndex = function(nums) {
+    let totalSum = 0
+    for (let num of nums) {
+        totalSum += num
+    }
+
+    let currentSum = 0
+    
+    for (let i = 0; i < nums.length; i++) {
+        totalSum -= nums[i]
+
+        if (currentSum === totalSum) {
+            return i
+        }
+        
+        currentSum += nums[i]
+    }
+    return -1
+};
+```
+
+**Runtime Complexity**: O(2n) => O(n), we iterate twice: first time to calculate total sum, and second to get the answer
+
+**Space Complexity**:  O(1) => as we are using 2 extra variables
+

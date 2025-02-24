@@ -10,6 +10,9 @@ thumbnailwide: /assets/2025-02-09-1004-max-consecutive-ones-3/logo-wide.png
 ---
 
 
+* TOC
+{:toc}
+
 
 <br>
 

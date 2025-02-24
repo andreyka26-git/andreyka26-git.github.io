@@ -9,6 +9,9 @@ thumbnail: /assets/2025-02-09-1493-longest-subarray-of-1s-after-deleting-one-ele
 thumbnailwide: /assets/2025-02-09-1493-longest-subarray-of-1s-after-deleting-one-element/logo-wide.png
 ---
 
+* TOC
+{:toc}
+
 <br>
 
 ## **Why you may want to read this note**
