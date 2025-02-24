@@ -166,7 +166,7 @@ var pivotIndex = function(nums) {
 
 <br>
 
-## **Prefix Suffix Sum solution O(n) & O(n)**
+## **2 Variables solution O(n) & O(1)**
 
 Can we do it in constant space? The answer is yes - we can. Instead of keeping prefix and suffix sums, we derive them on the fly by using variables.
 
