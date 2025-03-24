@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "1431. Kids With the Greatest Number of Candies"
-date: 2025-02-04 11:02:35 -0000
+date: 2025-01-04 11:02:35 -0000
 category: ["Leetcode"]
 tags: [leetcode, array_string]
 description: "I'm a Software Engineer at Microsoft. In this article, we will review, solve, and analyze LeetCode questions. Today, we are tackling an easy problem called '1431. Kids With the Greatest Number of Candies'. We will solve it and then analyze their time and space complexity."

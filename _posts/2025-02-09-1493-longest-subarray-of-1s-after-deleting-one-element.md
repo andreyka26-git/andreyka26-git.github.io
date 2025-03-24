@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "1493. Longest Subarray of 1's After Deleting One Element"
-date: 2025-02-09 11:02:35 -0000
+date: 2024-10-09 11:02:35 -0000
 category: ["Leetcode"]
 tags: [leetcode, array_string]
 description: "I'm a Software Engineer at Microsoft. In this article, we will review, solve, and analyze LeetCode questions. Today, we are tackling an medium problem called '1493. Longest Subarray of 1's After Deleting One Element'. We will solve it with brute force solution O(n^2) & O(1) and sliding window solution O(n) & O(1)"

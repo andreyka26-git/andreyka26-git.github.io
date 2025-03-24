@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "1456. Maximum Number of Vowels in a Substring of Given Length"
-date: 2025-02-09 11:02:35 -0000
+date: 2022-01-09 11:02:35 -0000
 category: ["Leetcode"]
 tags: [leetcode, array_string]
 description: "I'm a Software Engineer at Microsoft. In this article, we will review, solve, and analyze LeetCode questions. Today, we are tackling an medium problem called '1456. Maximum Number of Vowels in a Substring of Given Length'. We will solve it with sliding window solution O(n) & O(1)"
