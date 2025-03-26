@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "238. Product of Array Except Self"
-date: 2025-02-07 11:02:35 -0000
+date: 2025-03-07 11:02:35 -0000
 category: ["Leetcode"]
 tags: [leetcode, array_string]
 description: "I'm a Software Engineer at Microsoft. In this article, we will review, solve, and analyze LeetCode questions. Today, we are tackling an medium problem called '238. Product of Array Except Self'. We will solve it with brute force O(n^2) and O(n), then with optimized O(n) and O(n) solution. As a bonus we are going to solve it with O(n) and O(1) complexity."

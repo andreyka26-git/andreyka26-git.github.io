@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "151. Reverse Words in a String"
-date: 2025-02-06 11:02:35 -0000
+date: 2023-09-06 11:02:35 -0000
 category: ["Leetcode"]
 tags: [leetcode, array_string]
 description: "I'm a Software Engineer at Microsoft. In this article, we will review, solve, and analyze LeetCode questions. Today, we are tackling an medium problem called '151. Reverse Words in a String'. We will solve it with brute force O(n) and O(n), then with optimized O(n) and O(1). We will also analyze their time and space complexity."

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "1071. Greatest Common Divisor of Strings"
-date: 2025-02-03 11:02:35 -0000
+date: 2023-04-03 11:02:35 -0000
 category: ["Leetcode"]
 tags: [leetcode, array_string]
 description: "I'm a Software Engineer at Microsoft. In this article, we will review, solve, and analyze LeetCode questions. Today, we are tackling an easy problem called '1071. Greatest Common Divisor of Strings'. We will solve it using different approaches: brute force and an optimized solution, and then analyze their time and space complexity."
