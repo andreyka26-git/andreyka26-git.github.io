@@ -104,73 +104,45 @@ First: create a simple .NET API. It will have 2 endpoints.
 For issuing JWT - we are using a standard approach: create claims, get the private key and sign them. Then we return 200 OK with JWT in Cookies.
 
 ```cs
-
         [HttpPost("customcookie/login")]
-
         public async Task<IActionResult> LoginAsync([FromBody] LoginDto req)
-
         {
-
             var user = await BackendOnly.User.AuthenticateUser(req.UserName, req.Password);
-
             if (user == null)
-
             {
-
                 return BadRequest("Cannot authenticate user");
-
             }
 
             var claims = new List<Claim>
-
             {
-
                 new Claim(ClaimTypes.Name, user.Email),
-
                 new Claim("FullName", user.FullName),
-
                 new Claim(ClaimTypes.Role, "Administrator"),
-
             };
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Key));
-
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-
                 issuer: JwtIssuer,
-
                 audience: JwtAudience,
-
                 claims: claims,
-
                 expires: DateTime.Now.AddHours(1),
-
                 signingCredentials: credentials
-
             );
 
             var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
             Response.Cookies.Append("myAuthCookie", tokenString, new CookieOptions
-
             {
-
                 HttpOnly = true,
-
                 Secure = true,
-
                 SameSite = SameSiteMode.Strict,
-
                 Expires = DateTime.Now.AddHours(1)
-
             });
 
             return Ok();
-
         }
-
 ```
 
 
@@ -183,85 +155,48 @@ For issuing JWT - we are using a standard approach: create claims, get the priva
 To validate the JWT, we are validating the signature of JWT that we got from Cookies.
 
 ```cs
-
         [HttpGet("auth/validate")]
-
         public IActionResult ValidateToken()
-
         {
-
             if (!Request.Cookies.TryGetValue("myAuthCookie", out var tokenString))
-
             {
-
                 return Unauthorized();
-
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();
 
             var validationParameters = new TokenValidationParameters
-
             {
-
                 ValidateIssuer = true,
-
                 ValidateAudience = true,
-
                 ValidateLifetime = true,
-
                 ValidateIssuerSigningKey = true,
-
                 ValidIssuer = JwtIssuer,
-
                 ValidAudience = JwtAudience,
-
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Key))
-
             };
 
             try
-
             {
-
                 var principal = tokenHandler.ValidateToken(tokenString, validationParameters, out var validatedToken);
-
                 var claims = principal.Claims.Select(c => new
-
                 {
-
                     Type = c.Type,
-
                     Value = c.Value
-
                 });
 
                 return Ok(new
-
                 {
-
                     Message = "Token is valid",
-
                     Claims = claims
-
                 });
-
             }
-
             catch
-
             {
-
                 return Unauthorized();
-
             }
-
         }
-
 ```
-
-
-
 
 <br>
 
@@ -273,33 +208,20 @@ Make sure you added Swagger in DI registration:
 ```cs
 
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerGen(o =>
-
 {
-
     o.SwaggerDoc("v1", new OpenApiInfo
-
     {
-
         Version = "v1",
-
         Title = "Auth sample",
-
         Description = "For auth use andreyka26_ as login and Mypass1* as password"
-
     });
-
 });
 
 app.UseSwagger();
-
 app.UseSwaggerUI();
 
 ```
-
-
-
 
 <br>
 
