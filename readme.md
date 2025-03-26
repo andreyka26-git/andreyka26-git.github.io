@@ -10,6 +10,9 @@ jekyll serve
 
 # Create new post
 
+## Generate .md
+
+
 ## Agenda
 
 1. Check '\' does not exist

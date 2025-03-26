@@ -4,10 +4,11 @@ const path = require("path");
 // Define variables
 const date =
   new Date().toISOString().replace(/T/, " ").replace(/\..+/, "") + " -0000";
-const title = "Consistent Hashing pt2: Implementation";
-const category = "Leetcode";
-const tags = "[leetcode, array_string]";
-const description = "Consistent Hashing pt2: Implementation Description";
+const title = "Cookies Are Stateless!";
+const category = "Auth from backend perspective";
+const tags = "[auth, authorization]";
+const description =
+  "Cookies are stateless? Yes, same as JWT. I got tired to see how people compare these two. Cookies is just delivery mechanism, you as a dev make it stateful or stateless. In this article I will demonstrate why Cookies are stateless same way as JWT.";
 const nameofarticle = `${date.slice(0, 10)}-${title
   .toLowerCase()
   .replace(/\s+/g, "-")

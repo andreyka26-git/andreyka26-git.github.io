@@ -1,10 +1,21 @@
-<!-- You have some errors, warnings, or alerts. If you are using reckless mode, turn it off to see useful information and inline alerts.
-* ERRORs: 0
-* WARNINGs: 0
-* ALERTS: 5 -->
+---
+layout: post
+title: "Cookies Are Stateless!"
+date: 2025-03-25 17:14:06 -0000
+category: Auth from backend perspective
+tags: [auth, authorization]
+description: "Cookies are stateless? Yes, same as JWT. I got tired to see how people compare these two. Cookies is just delivery mechanism, you as a dev make it stateful or stateless. In this article I will demonstrate why Cookies are stateless same way as JWT."
+thumbnail: /assets/2025-03-26-cookies-are-stateless/logo.png
+thumbnailwide: /assets/2025-03-26-cookies-are-stateless/logo-wide.png
+---
+
+* TOC
+{:toc}
 
 
-## Why you may want to read the article
+<br>
+
+## **Why you may want to read the article**
 
 I have seen people comparing Cookies and JWT million times. Usually, people claim that Cookies are a stateful authentication mechanism, while JWT is stateless.
 
@@ -13,7 +24,11 @@ First, this is completely incorrect - **Cookies and authentication using Cookies
 Second, comparing JWT and Cookies is flawed from the start, as they are two entirely different concepts.
 
 
-## What is Cookie
+
+
+<br>
+
+## **What is Cookie**
 
 In short, cookies are a mechanism for transferring pieces of information between the server and the client over the HTTP protocol, along with other mechanisms such as query parameters, the body, headers, etc.
 
@@ -24,7 +39,7 @@ Traditionally, cookies are initiated by the server in the sense that the server 
 The flow is the following:
 
 
-![alt_text](images/image1.png "image_tooltip")
+[![alt_text](/assets/2025-03-26-cookies-are-stateless/image3.png "image_tooltip")](/assets/2025-03-26-cookies-are-stateless/image3.png "image_tooltip"){:target="_blank"}
 
 
 1. Browser does not have cookies for this origin (for simplicity assume origin=domain).
@@ -34,7 +49,11 @@ The flow is the following:
 3. Cookies appear to be saved for this origin (domain), and now will be subsequently sent on each request to the server.
 
 
-## Stateful authentication
+
+
+<br>
+
+## **Stateful authentication**
 
 There are a few methods for saving authentication information so that the user is not prompted to log in again. One of these methods is using a session ID. The flow is as follows
 
@@ -47,7 +66,11 @@ There are a few methods for saving authentication information so that the user i
 In this way, the authentication is stateful, as the session  is stored on the server, the browser only sends the id of the session. It means that if you kill the server or erase the database - all users will be signed out, however the browser sends the same requests with the same session id.
 
 
-## Why Cookie is not stateful
+
+
+<br>
+
+## **Why Cookie is not stateful**
 
 As you can see, if you choose a stateful authentication method, it doesn't matter whether you use cookies, headers, or the body — it’s still stateful.
 
@@ -58,17 +81,25 @@ To make it stateless, stop using session-based authentication. As an alternative
 Note: You should still be aware of the peculiarities of cookies, such as the fact that they are per origin (domain). This could cause issues if you're trying to integrate a React Single Page Application with an authorization server.
 
 
-## Demo: JWT with Cookies (stateless cookies auth)
+
+
+<br>
+
+## **Demo: JWT with Cookies (stateless cookies auth)**
 
 In this demo we will create a .NET auth server. It will issue JWT and validate JWT via cookies. As a client we are going to use Swagger.
 
 The full repo with a demo can be found in my [Github](https://github.com/andreyka26-git/andreyka26-authorizations/tree/main/SimpleAuth/Cookie.BackendOnly).
 
-First: create a simple .NET API. It will have 2 endpoints. \
+First: create a simple .NET API. It will have 2 endpoints. 
 
 
 
-### Issue JWT via cookies
+
+
+<br>
+
+### **Issue JWT via cookies**
 
 For issuing JWT - we are using a standard approach: create claims, get the private key and sign them. Then we return 200 OK with JWT in Cookies.
 
@@ -76,7 +107,7 @@ For issuing JWT - we are using a standard approach: create claims, get the priva
 
         [HttpPost("customcookie/login")]
 
-        public async Task&lt;IActionResult> LoginAsync([FromBody] LoginDto req)
+        public async Task<IActionResult> LoginAsync([FromBody] LoginDto req)
 
         {
 
@@ -90,7 +121,7 @@ For issuing JWT - we are using a standard approach: create claims, get the priva
 
             }
 
-            var claims = new List&lt;Claim>
+            var claims = new List<Claim>
 
             {
 
@@ -143,7 +174,11 @@ For issuing JWT - we are using a standard approach: create claims, get the priva
 ```
 
 
-### Validate JWT via cookies
+
+
+<br>
+
+### **Validate JWT via cookies**
 
 To validate the JWT, we are validating the signature of JWT that we got from Cookies.
 
@@ -226,9 +261,13 @@ To validate the JWT, we are validating the signature of JWT that we got from Coo
 ```
 
 
-### Add Swagger for client
 
-Make sure you added Swagger in DI registration: \
+
+<br>
+
+### **Add Swagger for client**
+
+Make sure you added Swagger in DI registration: 
 
 
 ```cs
@@ -260,29 +299,34 @@ app.UseSwaggerUI();
 ```
 
 
-### Demo
 
-First, we call validate endpoint to make sure we are not authenticated, as we don’t have cookies set. \
 
-![alt_text](images/image2.png "image_tooltip")
+<br>
+
+### **Demo**
+
+First, we call validate endpoint to make sure we are not authenticated, as we don’t have cookies set. 
+
+[![alt_text](/assets/2025-03-26-cookies-are-stateless/image2.png "image_tooltip")](/assets/2025-03-26-cookies-are-stateless/image2.png "image_tooltip"){:target="_blank"}
 
 
 Then let’s authenticate. In my case I’m checking 1 hardcoded login+pass pair.
 
 
-![alt_text](images/image3.png "image_tooltip")
+[![alt_text](/assets/2025-03-26-cookies-are-stateless/image5.png "image_tooltip")](/assets/2025-03-26-cookies-are-stateless/image5.png "image_tooltip"){:target="_blank"}
 
 
 We can see that our cookie was set in the browser.
 
 
-![alt_text](images/image4.png "image_tooltip")
+[![alt_text](/assets/2025-03-26-cookies-are-stateless/image4.png "image_tooltip")](/assets/2025-03-26-cookies-are-stateless/image4.png "image_tooltip"){:target="_blank"}
 
 
 Now our validate endpoint will show us claims in the token, that is from Cookie.
 
 
-![alt_text](images/image5.png "image_tooltip")
+[![alt_text](/assets/2025-03-26-cookies-are-stateless/image1.png "image_tooltip")](/assets/2025-03-26-cookies-are-stateless/image1.png "image_tooltip"){:target="_blank"}
 
 
 Now, this is a completely stateless approach, as our JWT is self contained, and all servers that know the correct private key - are able to validate it. It means that we can easily scale our servers, respawn or kill them.
+
