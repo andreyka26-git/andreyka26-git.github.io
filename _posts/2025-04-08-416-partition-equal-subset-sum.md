@@ -58,6 +58,16 @@ Output: false
 Explanation: The array cannot be partitioned into equal sum subsets.
 
 
+## How to approach this problem
+
+I'm just a regular person, so I cannot come up with the optimized solution straight away. So I'm doing this approach:
+1) I'm solving with "any" bruteforce
+2) I'm make it up to fit the DP function (returns value, accepts parameters)
+3) Top down dp approach (just putting cache)
+4) Bottom up dp approach
+5) Possible optimization of dp space complexity
+
+Let's do it 1 by 1.
 
 
 <br>
