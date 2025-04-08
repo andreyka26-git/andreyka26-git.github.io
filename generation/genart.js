@@ -4,11 +4,11 @@ const path = require("path");
 // Define variables
 const date =
   new Date().toISOString().replace(/T/, " ").replace(/\..+/, "") + " -0000";
-const title = "Cookies Are Stateless!";
-const category = "Auth from backend perspective";
-const tags = "[auth, authorization]";
+const title = "416. Partition Equal Subset Sum";
+const category = "Leetcode";
+const tags = "[leetcode, dp]";
 const description =
-  "Cookies are stateless? Yes, same as JWT. I got tired to see how people compare these two. Cookies is just delivery mechanism, you as a dev make it stateful or stateless. In this article I will demonstrate why Cookies are stateless same way as JWT.";
+  "I'm a Software Engineer at Microsoft. In this article, we will review, solve, and analyze LeetCode questions. Today, we are tackling an medium problem called '416. Partition Equal Subset Sum'. We will solve it with multiple possible solutions starting from bruteforce, then following up with top down and bottom up dynamic programming solution, and then with knapsack solution";
 const nameofarticle = `${date.slice(0, 10)}-${title
   .toLowerCase()
   .replace(/\s+/g, "-")
