@@ -4,11 +4,11 @@ const path = require("path");
 // Define variables
 const date =
   new Date().toISOString().replace(/T/, " ").replace(/\..+/, "") + " -0000";
-const title = "Cookies Are Stateless!";
+const title = "Never use JWT auth like that";
 const category = "Auth from backend perspective";
 const tags = "[auth, authorization]";
 const description =
-  "Cookies are stateless? Yes, same as JWT. I got tired to see how people compare these two. Cookies is just delivery mechanism, you as a dev make it stateful or stateless. In this article I will demonstrate why Cookies are stateless same way as JWT.";
+  "I have seen people advicing to implement JWT auth, using frontend client (react, flutter, vue, etc) and backend where client sends email + password to backend and receives JWT. This flow is bad, and should not be used in production, instead you need to implement OAuth or OIDC protocols. Today I will explain why";
 const nameofarticle = `${date.slice(0, 10)}-${title
   .toLowerCase()
   .replace(/\s+/g, "-")
