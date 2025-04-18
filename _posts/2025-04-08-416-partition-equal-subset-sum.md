@@ -1,16 +1,25 @@
-<!-- Copy and paste the converted output. -->
+---
+layout: post
+title: "416. Partition Equal Subset Sum"
+date: 2025-04-07 10:34:03 -0000
+category: Leetcode
+tags: [leetcode, dp]
+description: "I'm a Software Engineer at Microsoft. In this article, we will review, solve, and analyze LeetCode questions. Today, we are tackling an medium problem called '416. Partition Equal Subset Sum'. We will solve it with multiple possible solutions starting from bruteforce, then following up with top down and bottom up dynamic programming solution, and then with knapsack solution"
+thumbnail: /assets/2025-04-08-416-partition-equal-subset-sum/logo.png
+thumbnailwide: /assets/2025-04-08-416-partition-equal-subset-sum/logo-wide.png
+---
 
-<!-- You have some errors, warnings, or alerts. If you are using reckless mode, turn it off to see useful information and inline alerts.
-* ERRORs: 0
-* WARNINGs: 0
-* ALERTS: 1 -->
+* TOC
+{:toc}
 
 
-## Why you may want to read this note
+<br>
 
-As a Software Engineer at Microsoft I didn’t do LeetCode interview questions for a long time already. Now I’m refreshing my skills in algorithm questions and these set of articles are for myself in future and for whoever is solving it right now. \
- \
-We are going to discuss the thinking process, insights, worse/better approaches, complexity analysis \
+## **Why you may want to read this note**
+
+As a Software Engineer at Microsoft I didn’t do LeetCode interview questions for a long time already. Now I’m refreshing my skills in algorithm questions and these set of articles are for myself in future and for whoever is solving it right now. 
+ 
+We are going to discuss the thinking process, insights, worse/better approaches, complexity analysis 
 
 
 The list: [LeetCode-75](https://leetcode.com/studyplan/leetcode-75/) 
@@ -18,10 +27,14 @@ The list: [LeetCode-75](https://leetcode.com/studyplan/leetcode-75/)
 The problem: [416. Partition Equal Subset Sum](https://leetcode.com/problems/partition-equal-subset-sum/description/?envType=daily-question&envId=2025-04-07)
 
 
-## Problem
+Today, we especially are focusing on the thinking process and how the one could come up with optimized dp solution from the bruteforce.
+
+<br>
+
+## **Problem**
 
 
-![alt_text](images/image1.png "image_tooltip")
+[![alt_text](/assets/2025-04-08-416-partition-equal-subset-sum/image1.png "image_tooltip")](/assets/2025-04-08-416-partition-equal-subset-sum/image1.png "image_tooltip"){:target="_blank"}
 
 
 Given an integer array nums, return true if you can partition the array into two subsets such that the sum of the elements in both subsets is equal or false otherwise.
@@ -45,17 +58,27 @@ Output: false
 Explanation: The array cannot be partitioned into equal sum subsets.
 
 
-## Brute force 1 O(2^n) O(n)
+## How to approach this problem
+
+I'm just a regular person, so I cannot come up with the optimized solution straight away. So I'm doing this approach:
+- I'm solving with "any" bruteforce
+- I'm make it up to fit the DP function (returns value, accepts parameters)
+- Top down dp approach (just putting cache)
+- Bottom up dp approach
+- Possible optimization of dp space complexity
+
+Let's do it 1 by 1.
+
+
+<br>
+
+## **Brute force 1 O(2^n) O(n)**
 
 Initially we can do a brute force solution. We maintain 2 sums, and try to add the current index either to the first sum or to the second. If in the end we got sums equal to each other - we return true, otherwise - false.
 
 ```js
-
-
-```
 var canPartition = function(nums) {
     let len = nums.length
-
 
     let firstSum = 0
     let secondSum = 0
@@ -84,22 +107,20 @@ var canPartition = function(nums) {
 };
 ```
 
-
-```
-
 **Runtime Complexity**: O(2^n) as we are spawning 2 more function calls per function
 
 **Space Complexity**:  O(n) as we are doing n recursive calls at 1 time at most
 
 
-## Brute force 2 O(2^n) O(n)
+
+
+<br>
+
+## **Brute force 2 O(2^n) O(n)**
 
 We could think about it in terms of math, and conclude that we don’t have to maintain 2 sums. We just need to find a subset that will be equal to sum / 2, since in the end we should be having 2 sums: `sum / 2 + sum / 2 = sum`.
 
 ```js
-
-
-```
 var canPartition = function(nums) {
     let len = nums.length
     let sum = 0
@@ -136,15 +157,15 @@ var canPartition = function(nums) {
 };
 ```
 
-
-```
-
 **Runtime Complexity**: O(2^n) as we are spawning 2 more function calls per function
 
 **Space Complexity**:  O(n) as we are doing n recursive calls at 1 time at most
 
 
-## Brute force 3 O(2^n) O(n)
+
+<br>
+
+## **Brute force 3 O(2^n) O(n)**
 
 We cannot change this problem to a Dynamic programming problem, as it maintains the state per decision tree. Instead, we should move it to parameters.
 
@@ -153,9 +174,6 @@ We now should ask ourselves a question, how can we split this problem into subpr
 In our case we can split it to the following subproblem: given index `ind`, and target sum `targetSum`  - can we find a subset that will be equal to `targetSum`?
 
 ```js
-
-
-```
 var canPartition = function(nums) {
     let len = nums.length
 
@@ -191,9 +209,6 @@ var canPartition = function(nums) {
 };
 ```
 
-
-```
-
 In terms of complexity it is exactly the same. But now we formed our recursive function to the state that can leverage caching, so DP.
 
 **Runtime Complexity**: O(2^n) as we are spawning 2 more function calls per function
@@ -201,14 +216,15 @@ In terms of complexity it is exactly the same. But now we formed our recursive f
 **Space Complexity**:  O(n) as we are doing n recursive calls at 1 time at most
 
 
-## Top Down DP O(n * target) O( n * target)
+
+
+<br>
+
+## **Top Down DP O(n * target) O( n * target)**
 
 Now let’s just add memoization to previous solution
 
 ```js
-
-
-```
 var canPartition = function(nums) {
     let len = nums.length
     let dp = new Array(len)
@@ -251,53 +267,42 @@ var canPartition = function(nums) {
 };
 ```
 
-
-```
-
 **Runtime Complexity**: O(n * target) as we are trying every index, and we might have any value as target from 0 to target
 
 **Space Complexity**:  O(n * target) as the size of cache
 
 
-## Bottom Up DP O(n * target) O(n * target)
+
+
+<br>
+
+## **Bottom Up DP O(n * target) O(n * target)**
 
 ```js
-
-
-```
 var canPartition = function(nums) {
     let sum = nums.reduce((acc, num) => acc + num, 0);
 
-
-    // If sum is odd, we can't partition into equal subsets
     if (sum % 2 !== 0) {
         return false;
     }
 
-
     let target = sum / 2;
     let n = nums.length;
 
-
-    // Initialize 2D DP table
     // dp[i][j] = true if we can make sum j using elements from nums[0...i]
     let dp = new Array(n);
     for (let i = 0; i < n; i++) {
         dp[i] = new Array(target + 1).fill(false);
-        dp[i][0] = true; // Empty subset can always make sum of 0
+        dp[i][0] = true;
     }
 
 
-    // Handle the first element separately
     if (nums[0] <= target) {
         dp[0][nums[0]] = true;
     }
 
-
-    // Fill the DP table bottom-up
     for (let i = 1; i < n; i++) {
         for (let j = 1; j <= target; j++) {
-            // Either include the current element or exclude it
             if (j < nums[i]) {
                 dp[i][j] = dp[i-1][j];  // Can't include current element
             } else {
@@ -311,24 +316,20 @@ var canPartition = function(nums) {
 };
 ```
 
-
-```
-
 **Runtime Complexity**: O(n * target) as we are trying every index, and we might have any value as target from 0 to target
 
 **Space Complexity**:  O(n * target) as the size of cache
 
 
-## Efficient Solution O(n *target) O(n *target)
+<br>
+
+## **Efficient Solution O(n *target) O(n *target)**
 
 Another optimization would be to calculate all possible sums that we can get and put all of them into a set. Then just try to find the target in the set.
 
 Besides that, we can improve performance by using math. If our sum is not divisible by 2 - then we return false straight away.
 
 ```js
-
-
-```
 var canPartition = function(nums) {
     let len = nums.length
     let target = 0
@@ -364,15 +365,14 @@ var canPartition = function(nums) {
 };
 ```
 
-
-```
-
 **Runtime Complexity**: O(n * target) as we are trying every index, and we might have any value as target from 0 to target
 
 **Space Complexity**:  O(n * target) as the size of cache
 
 
-## Knapsack DP O(target) O(target)
+<br>
+
+## **Knapsack DP O(target) O(target)**
 
 There is a knapsack solution to this as well, as optimization to the solution above
 
@@ -383,9 +383,6 @@ If dp[i] == true  - then  sum `i` can be made in this subset.
 If dp[i] == false - then we cannot make sum `i` out of this subset.
 
 ```js
-
-
-```
 var canPartition = function(nums) {
     let len = nums.length
     let target = 0
@@ -415,13 +412,7 @@ var canPartition = function(nums) {
 };
 ```
 
-
-```
-
 Keep in mind that the order from target to `curr` is very important here, to omit duplicates: `let cand = target; cand >= curr; cand--`, for example, take a look at this one:
-
-```
-
 
 ```
 dp = [true, false, false, false, false, false, false]  // Initialize dp
@@ -452,5 +443,11 @@ for (let cand = 6; cand >= 3; cand--) {
 // Final dp = [true, false, false, true, false, false, false]
 ```
 
+**Runtime Complexity**: O(n * target) as we are trying every index, and we might have any value as target from 0 to target
 
-```
+**Space Complexity**:  O(target) as the size of dp
+
+## **Conclusion**
+
+So that was it, usually this is how I sequentially approaching this kind of problems, as it was never the case I could jump to the most optimized solution straight away. Hope the thinking process and article itself was useful.
+

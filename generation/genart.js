@@ -4,11 +4,11 @@ const path = require("path");
 // Define variables
 const date =
   new Date().toISOString().replace(/T/, " ").replace(/\..+/, "") + " -0000";
-const title = "Never use JWT auth like that";
-const category = "Auth from backend perspective";
-const tags = "[auth, authorization]";
+const title = "416. Partition Equal Subset Sum";
+const category = "Leetcode";
+const tags = "[leetcode, dp]";
 const description =
-  "I have seen people advicing to implement JWT auth, using frontend client (react, flutter, vue, etc) and backend where client sends email + password to backend and receives JWT. This flow is bad, and should not be used in production, instead you need to implement OAuth or OIDC protocols. Today I will explain why";
+  "I'm a Software Engineer at Microsoft. In this article, we will review, solve, and analyze LeetCode questions. Today, we are tackling an medium problem called '416. Partition Equal Subset Sum'. We will solve it with multiple possible solutions starting from bruteforce, then following up with top down and bottom up dynamic programming solution, and then with knapsack solution";
 const nameofarticle = `${date.slice(0, 10)}-${title
   .toLowerCase()
   .replace(/\s+/g, "-")
