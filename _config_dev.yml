@@ -1,0 +1,46 @@
+# Development configuration overrides
+# This file extends _config.yml for faster local development
+
+# Performance optimizations for development
+incremental: true
+profile: true
+limit_posts: 5  # Only build the latest 5 posts during development
+
+# Disable time-consuming plugins during development
+plugins:
+  - jekyll-paginate
+  # Disabled for faster builds:
+  # - jekyll-gist
+  # - jekyll-seo-tag
+  # - jekyll-sitemap
+
+# Don't build sitemap and feed during development
+plugins: []
+
+# Development-specific settings
+url: "http://localhost:4000"
+show_drafts: true
+unpublished: true
+
+# Faster processing
+liquid:
+  error_mode: warn
+  strict_filters: false
+  strict_variables: false
+
+# Exclude even more during development  
+exclude:
+  - .sass-cache/
+  - .jekyll-cache/
+  - gemfiles/
+  - Gemfile
+  - Gemfile.lock
+  - node_modules/
+  - vendor/
+  - assets/bower_components/**/README.md
+  - assets/bower_components/**/LICENSE*
+  - assets/bower_components/**/CHANGELOG*
+  - assets/bower_components/**/package.json
+  - assets/bower_components/**/bower.json
+  - readme.md
+  - README.md

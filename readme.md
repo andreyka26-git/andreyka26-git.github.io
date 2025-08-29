@@ -1,5 +1,24 @@
 # Commands
 
+## OPTIMIZED DEVELOPMENT COMMANDS (Use these for faster builds!)
+
+### Fast Development Build (Recommended - ~30-60 seconds)
+```
+bundle exec jekyll serve --config _config.yml,_config_dev.yml --incremental
+```
+
+### Ultra Fast Build (Only latest 3 posts - ~15-30 seconds) 
+```
+bundle exec jekyll serve --config _config.yml,_config_dev.yml --incremental --limit_posts 3
+```
+
+### Standard Development Build (All posts - slower but complete)
+```
+bundle exec jekyll serve --incremental
+```
+
+## ORIGINAL COMMANDS (Slower)
+
 ```
 bundle exec jekyll serve
 
@@ -7,6 +26,19 @@ jekyll build --verbose
 
 jekyll serve
 ```
+
+## PRODUCTION/FULL BUILD COMMANDS
+
+### Production Build (Full build for testing)
+```
+bundle exec jekyll build
+```
+
+### Clean and rebuild everything
+```
+bundle exec jekyll clean && bundle exec jekyll serve --config _config.yml,_config_dev.yml --incremental
+```
+
 
 # Create new post
 

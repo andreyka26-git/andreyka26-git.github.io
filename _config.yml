@@ -27,8 +27,8 @@ author_logo: profile.png
 author: Andrii Bui
 author_bio: Hi, my name is Andrii. I'm Software Engineer at Microsoft with 7 years of experience.
 author_location: Ukraine
-typewrite-text: Explore Leetcode and FAANG interview prep, Architecture, Authorization, DevOps, Infra.
-hero_cover_img: sample_cover.jpg # replace this for changing homepage cover (eg. try cover.jpeg). Image should be in /assets/img
+typewrite-text: Master Leetcode & FAANG Interviews | Software Architecture | Authorization & Security | DevOps & Infrastructure
+hero_cover_img: sample_cover.png # replace this for changing homepage cover (eg. try cover.jpeg). Image should be in /assets/img
 
 # Experiences
 author_work_experiences:
@@ -114,6 +114,14 @@ plugins:
   - jekyll-gist
   - jekyll-seo-tag
   - jekyll-sitemap
+
+# Performance optimizations
+incremental: true
+profile: true
+liquid:
+  error_mode: warn
+  strict_filters: false
+  strict_variables: false
 
 # Exclude from processing.
 # The following items will not be processed, by default.
