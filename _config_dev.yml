@@ -37,10 +37,22 @@ exclude:
   - Gemfile.lock
   - node_modules/
   - vendor/
-  - assets/bower_components/**/README.md
-  - assets/bower_components/**/LICENSE*
-  - assets/bower_components/**/CHANGELOG*
-  - assets/bower_components/**/package.json
-  - assets/bower_components/**/bower.json
   - readme.md
   - README.md
+  # Exclude all documentation and changelog files from bower_components
+  - assets/bower_components/**/*.md
+  - assets/bower_components/**/*.txt
+  - assets/bower_components/**/README*
+  - assets/bower_components/**/CHANGELOG*
+  - assets/bower_components/**/changelog*
+  - assets/bower_components/**/ChangeLog*
+  - assets/bower_components/**/LICENSE*
+  - assets/bower_components/**/CONTRIBUTING*
+  - assets/bower_components/**/example/
+  - assets/bower_components/**/examples/
+  - assets/bower_components/**/test/
+  - assets/bower_components/**/tests/
+  - assets/bower_components/**/docs/
+  - assets/bower_components/**/doc/
+  - assets/bower_components/**/package.json
+  - assets/bower_components/**/bower.json
