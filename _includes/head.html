@@ -20,7 +20,14 @@
   <meta content="{{ site.title }}" property="og:site_name" />
   {% if page.noindex %}
   <meta name="robots" content="noindex" />
-  {% endif %} {% if page.title %}
+  {% endif %}
+  
+  <!-- Block AI training and crawling -->
+  <meta name="robots" content="noai, noimageai" />
+  <meta name="googlebot" content="noai, noimageai" />
+  <meta name="bingbot" content="noai, noimageai" />
+  
+  {% if page.title %}
   <meta content="{{ page.title }}" property="og:title" />
   <meta content="article" property="og:type" />
   {% else %}
