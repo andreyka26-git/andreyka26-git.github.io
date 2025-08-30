@@ -65,6 +65,20 @@ instagram_username: andreyka26_se
 telegram_username: programming_space
 youtube_username: "@andreyka26_se"
 
+# Giscus comments
+giscus:
+  repo: "andreyka26-git/andreyka26-git.github.io"
+  repo_id: "R_kgDOIz7kpw"
+  category: "Q&A"
+  category_id: "DIC_kwDOIz7kp84CuwJu"
+  mapping: "url"
+  strict: "0"
+  reactions_enabled: "1"
+  emit_metadata: "0"
+  input_position: "top"
+  theme: "gruvbox"
+  lang: "en"
+
 # syntax highlighter
 markdown: kramdown
 highlighter: rouge
