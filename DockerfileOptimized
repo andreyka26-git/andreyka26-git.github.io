@@ -1,0 +1,20 @@
+FROM jekyll/jekyll:4.2.2
+
+WORKDIR /srv/jekyll
+
+# Copy project files
+COPY . .
+
+# Install dependencies
+RUN bundle install
+
+# Expose Jekyll port
+EXPOSE 4000
+
+# Custom serve command
+CMD ["jekyll", "serve", \
+     "--host", "0.0.0.0", \
+     "--livereload", \
+     "--config", "_config.yml,_config_dev.yml", \
+     "--incremental", \
+     "--limit_posts", "3"]
