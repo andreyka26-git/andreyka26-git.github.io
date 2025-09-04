@@ -1,31 +1,91 @@
 <div id="mc_embed_shell" class="popup-overlay">
+    <!-- Mailchimp CSS -->
     <link href="//cdn-images.mailchimp.com/embedcode/classic-061523.css" rel="stylesheet" type="text/css">
+    <!-- Popup CSS -->
     <style type="text/css">
         .popup-overlay {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             background: rgba(0, 0, 0, 0.7);
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            overflow: hidden;
+        }
+
+        /* Override Mailchimp's default styles */
+        #mc_embed_signup form {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        #mc_embed_signup .button {
+            background-color: var(--link-color) !important;
+            color: white !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 8px 12px !important;
+            height: 37px !important;
+            font-size: 14px !important;
+            line-height: normal !important;
+            border-radius: 4px !important;
+            min-width: unset !important;
+        }
+
+        #mc_embed_signup input.email {
+            height: 37px !important;
+            margin-bottom: 10px !important;
+        }
+
+        /* Override Mailchimp's default styles */
+        #mc_embed_signup form {
+            margin: 0;
+            padding: 0;
+        }
+
+        #mc_embed_signup .button {
+            background-color: var(--link-color) !important;
+            color: white !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 8px 12px !important;
+            height: 37px !important;
+            font-size: 14px !important;
+            line-height: normal !important;
+            border-radius: 4px !important;
+        }
+
+        #mc_embed_signup input.email {
+            height: 37px !important;
+            margin-bottom: 10px !important;
         }
 
         #mc_embed_signup {
             background: var(--main-background-color);
             color: var(--main-text-color);
-            clear: left;
             font: 14px Helvetica, Arial, sans-serif;
             width: 100%;
             max-width: 500px;
-            margin: 20px;
             padding: 25px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             position: relative;
+            margin: 0 auto; /* Center the popup */
+        }
+
+        /* Hide text outside the popup */
+        #mc_embed_signup ~ * {
+            display: none !important;
+        }
+
+        #mc_embed_signup .mc-field-group {
+            margin: 0 auto;
+            max-width: 100%;
+            padding-bottom: 3%;
         }
 
         #mc_embed_signup .mc-field-group input {
@@ -34,6 +94,8 @@
             border: 1px solid var(--light-border-color);
             border-radius: 4px;
             padding: 8px 12px;
+            width: 100%;
+            display: block;
         }
 
         #mc_embed_signup .button {
@@ -41,9 +103,14 @@
             color: white;
             border: none;
             border-radius: 4px;
-            padding: 10px 20px;
+            padding: 8px 12px;
             cursor: pointer;
             transition: opacity 0.2s;
+            width: 100%;
+            display: block;
+            margin: 0 auto;
+            height: auto;
+            font-size: 14px;
         }
 
         #mc_embed_signup .button:hover {
@@ -53,6 +120,33 @@
         #mc_embed_signup h2 {
             color: var(--bold-color);
             margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #mc_embed_signup #mc_embed_signup_scroll {
+            text-align: center;
+        }
+
+        #mc_embed_signup #mc-embedded-subscribe {
+            background-color: var(--link-color) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 4px !important;
+            padding: 8px 12px !important;
+            cursor: pointer !important;
+            transition: opacity 0.2s !important;
+            width: 100% !important;
+            display: block !important;
+            margin: 15px 0 0 0 !important;
+            height: 37px !important;
+            min-height: 37px !important;
+            font-size: 14px !important;
+            line-height: 1 !important;
+            min-width: unset !important;
+        }
+
+        #mc_embed_signup #mc-embedded-subscribe:hover {
+            opacity: 0.9 !important;
         }
 
         .close-popup {
@@ -70,105 +164,103 @@
             border-radius: 50%;
             background: var(--card-background-color);
             border: 1px solid var(--light-border-color);
+            line-height: 0;
         }
 
         .close-popup:hover {
             background: var(--light-border-color);
         }
 
+        /* Hide Mailchimp branding for popup */
+        #mc_embed_signup .foot {
+            display: none;
+        }
+
+                .subscription-success-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--link-color);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            animation: fadeIn 0.3s ease-out;
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+            min-width: 200px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -40%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
         @media (max-width: 600px) {
             #mc_embed_signup {
+                width: calc(100% - 30px);
                 margin: 15px;
                 padding: 20px;
             }
+            
+            .subscription-success-message {
+                top: auto;
+                bottom: 20px;
+                right: 20px;
+                left: 20px;
+                text-align: center;
+            }
         }
     </style>
-<div id="mc_embed_signup">
-    <div class="close-popup" onclick="closePopup()">×</div>
-    <form action="https://andreyka26.us1.list-manage.com/subscribe/post?u=e889eb816967538b43439d50b&amp;id=2b6b505e1d&amp;f_id=0009c9e1f0" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank">
-        <div id="mc_embed_signup_scroll">
-            <h2>Subscribe to Our Newsletter</h2>
-            <p style="margin-bottom: 20px; color: var(--main-text-color);">Get notified about new articles and tutorials!</p>
-            <div class="indicates-required"><span class="asterisk">*</span> indicates required</div>
-            <div class="mc-field-group"><label for="mce-EMAIL">Email Address <span class="asterisk">*</span></label><input type="email" name="EMAIL" class="required email" id="mce-EMAIL" required="" value=""></div>
-        <div id="mce-responses" class="clear foot">
-            <div class="response" id="mce-error-response" style="display: none;"></div>
-            <div class="response" id="mce-success-response" style="display: none;"></div>
-        </div>
-    <div aria-hidden="true" style="position: absolute; left: -5000px;">
-        /* real people should not fill this in and expect good things - do not remove this or risk form bot signups */
-        <input type="text" name="b_e889eb816967538b43439d50b_2b6b505e1d" tabindex="-1" value="">
-    </div>
-        <div class="optionalParent">
-            <div class="clear foot">
-                <input type="submit" name="subscribe" id="mc-embedded-subscribe" class="button" value="Subscribe">
-                <p style="margin: 0px auto;"><a href="http://eepurl.com/jmCaPc" title="Mailchimp - email marketing made easy and fun"><span style="display: inline-block; background-color: transparent; border-radius: 4px;"><img class="refferal_badge" src="https://digitalasset.intuit.com/render/content/dam/intuit/mc-fe/en_us/images/intuit-mc-rewards-text-dark.svg" alt="Intuit Mailchimp" style="width: 220px; height: 40px; display: flex; padding: 2px 0px; justify-content: center; align-items: center;"></span></a></p>
+    <div id="mc_embed_signup">
+        <div class="close-popup">×</div>
+        <form action="https://andreyka26.us1.list-manage.com/subscribe/post?u=e889eb816967538b43439d50b&amp;id=2b6b505e1d&amp;f_id=0009c9e1f0" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank">
+            <div id="mc_embed_signup_scroll">
+                <h2>Subscribe to Our Newsletter</h2>
+                <p style="margin-bottom: 20px; color: var(--main-text-color);">Get notified about new articles and tutorials!</p>
+                <div class="indicates-required"><span class="asterisk">*</span> indicates required</div>
+                <div class="mc-field-group"><label for="mce-EMAIL">Email Address <span class="asterisk">*</span></label><input type="email" name="EMAIL" class="required email" id="mce-EMAIL" required="" value=""></div>
+                <div id="mce-responses" class="clear foot">
+                    <div class="response" id="mce-error-response" style="display: none;"></div>
+                    <div class="response" id="mce-success-response" style="display: none;"></div>
+                </div>
+                <div aria-hidden="true" style="position: absolute; left: -5000px;">
+                    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups -->
+                    <input type="text" name="b_e889eb816967538b43439d50b_2b6b505e1d" tabindex="-1" value="">
+                </div>
+                <input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button">
             </div>
-        </div>
+        </form>
     </div>
-</form>
-</div>
-<script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';fnames[3]='ADDRESS';ftypes[3]='address';fnames[4]='PHONE';ftypes[4]='phone';fnames[5]='BIRTHDAY';ftypes[5]='birthday';fnames[6]='COMPANY';ftypes[6]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script>
 
-<script type="text/javascript">
-    // Check if user has already seen the popup
-    // Configuration
-    const config = {
-        popupInterval: 10000, // Show popup every 10 seconds
-        scrollTrigger: 50, // Show popup at 50% scroll
-        cookieExpiry: 7 // Cookie expires in 7 days
-    };
+    <!-- Mailchimp validation script -->
+    <script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script>
+    
+    <!-- Mailchimp form initialization -->
+    <script type="text/javascript">
+        (function($) {
+            window.fnames = new Array(); 
+            window.ftypes = new Array();
+            fnames[0]='EMAIL';ftypes[0]='email';
+            fnames[1]='FNAME';ftypes[1]='text';
+            fnames[2]='LNAME';ftypes[2]='text';
+            fnames[3]='ADDRESS';ftypes[3]='address';
+            fnames[4]='PHONE';ftypes[4]='phone';
+            fnames[5]='BIRTHDAY';ftypes[5]='birthday';
+            fnames[6]='COMPANY';ftypes[6]='text';
+        }(jQuery));
+        var $mcj = jQuery.noConflict(true);
+    </script>
 
-    function getLastPopupTime() {
-        return parseInt(localStorage.getItem('lastMailchimpPopupTime')) || 0;
-    }
-
-    function setLastPopupTime() {
-        localStorage.setItem('lastMailchimpPopupTime', Date.now());
-    }
-
-    function hasSeenPopupRecently() {
-        const lastPopupTime = getLastPopupTime();
-        return (Date.now() - lastPopupTime) < config.popupInterval;
-    }
-
-    function showPopup() {
-        if (!hasSeenPopupRecently()) {
-            document.getElementById('mc_embed_shell').style.display = 'flex';
-            setLastPopupTime();
-        }
-    }
-
-    // Close popup
-    function closePopup() {
-        document.getElementById('mc_embed_shell').style.display = 'none';
-    }
-
-    // Initialize popup behavior
-    document.addEventListener('DOMContentLoaded', function() {
-        // Show popup periodically
-        setInterval(showPopup, config.popupInterval);
-
-        // Show popup on scroll
-        if (document.querySelector('.blog-post')) {
-            window.addEventListener('scroll', function() {
-                const article = document.querySelector('.blog-post');
-                const articleHeight = article.offsetHeight;
-                const scrollPosition = window.scrollY + window.innerHeight;
-                const scrollPercentage = (scrollPosition / (articleHeight + article.offsetTop)) * 100;
-
-                if (scrollPercentage > config.scrollTrigger) {
-                    showPopup();
-                }
-            });
-        }
-    });
-
-    // Close popup when clicking outside
-    document.getElementById('mc_embed_shell').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closePopup();
-        }
-    });
-</script>
+    <!-- Popup initialization script -->
+    <script type="text/javascript" src="/assets/js/mailchimp-popup.js" defer></script>
 </div>
