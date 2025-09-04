@@ -1,0 +1,174 @@
+<div id="mc_embed_shell" class="popup-overlay">
+    <link href="//cdn-images.mailchimp.com/embedcode/classic-061523.css" rel="stylesheet" type="text/css">
+    <style type="text/css">
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #mc_embed_signup {
+            background: var(--main-background-color);
+            color: var(--main-text-color);
+            clear: left;
+            font: 14px Helvetica, Arial, sans-serif;
+            width: 100%;
+            max-width: 500px;
+            margin: 20px;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        #mc_embed_signup .mc-field-group input {
+            background-color: var(--card-background-color);
+            color: var(--main-text-color);
+            border: 1px solid var(--light-border-color);
+            border-radius: 4px;
+            padding: 8px 12px;
+        }
+
+        #mc_embed_signup .button {
+            background-color: var(--link-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        #mc_embed_signup .button:hover {
+            opacity: 0.9;
+        }
+
+        #mc_embed_signup h2 {
+            color: var(--bold-color);
+            margin-bottom: 20px;
+        }
+
+        .close-popup {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 24px;
+            color: var(--main-text-color);
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--card-background-color);
+            border: 1px solid var(--light-border-color);
+        }
+
+        .close-popup:hover {
+            background: var(--light-border-color);
+        }
+
+        @media (max-width: 600px) {
+            #mc_embed_signup {
+                margin: 15px;
+                padding: 20px;
+            }
+        }
+    </style>
+<div id="mc_embed_signup">
+    <div class="close-popup" onclick="closePopup()">×</div>
+    <form action="https://andreyka26.us1.list-manage.com/subscribe/post?u=e889eb816967538b43439d50b&amp;id=2b6b505e1d&amp;f_id=0009c9e1f0" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank">
+        <div id="mc_embed_signup_scroll">
+            <h2>Subscribe to Our Newsletter</h2>
+            <p style="margin-bottom: 20px; color: var(--main-text-color);">Get notified about new articles and tutorials!</p>
+            <div class="indicates-required"><span class="asterisk">*</span> indicates required</div>
+            <div class="mc-field-group"><label for="mce-EMAIL">Email Address <span class="asterisk">*</span></label><input type="email" name="EMAIL" class="required email" id="mce-EMAIL" required="" value=""></div>
+        <div id="mce-responses" class="clear foot">
+            <div class="response" id="mce-error-response" style="display: none;"></div>
+            <div class="response" id="mce-success-response" style="display: none;"></div>
+        </div>
+    <div aria-hidden="true" style="position: absolute; left: -5000px;">
+        /* real people should not fill this in and expect good things - do not remove this or risk form bot signups */
+        <input type="text" name="b_e889eb816967538b43439d50b_2b6b505e1d" tabindex="-1" value="">
+    </div>
+        <div class="optionalParent">
+            <div class="clear foot">
+                <input type="submit" name="subscribe" id="mc-embedded-subscribe" class="button" value="Subscribe">
+                <p style="margin: 0px auto;"><a href="http://eepurl.com/jmCaPc" title="Mailchimp - email marketing made easy and fun"><span style="display: inline-block; background-color: transparent; border-radius: 4px;"><img class="refferal_badge" src="https://digitalasset.intuit.com/render/content/dam/intuit/mc-fe/en_us/images/intuit-mc-rewards-text-dark.svg" alt="Intuit Mailchimp" style="width: 220px; height: 40px; display: flex; padding: 2px 0px; justify-content: center; align-items: center;"></span></a></p>
+            </div>
+        </div>
+    </div>
+</form>
+</div>
+<script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';fnames[3]='ADDRESS';ftypes[3]='address';fnames[4]='PHONE';ftypes[4]='phone';fnames[5]='BIRTHDAY';ftypes[5]='birthday';fnames[6]='COMPANY';ftypes[6]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script>
+
+<script type="text/javascript">
+    // Check if user has already seen the popup
+    // Configuration
+    const config = {
+        popupInterval: 10000, // Show popup every 10 seconds
+        scrollTrigger: 50, // Show popup at 50% scroll
+        cookieExpiry: 7 // Cookie expires in 7 days
+    };
+
+    function getLastPopupTime() {
+        return parseInt(localStorage.getItem('lastMailchimpPopupTime')) || 0;
+    }
+
+    function setLastPopupTime() {
+        localStorage.setItem('lastMailchimpPopupTime', Date.now());
+    }
+
+    function hasSeenPopupRecently() {
+        const lastPopupTime = getLastPopupTime();
+        return (Date.now() - lastPopupTime) < config.popupInterval;
+    }
+
+    function showPopup() {
+        if (!hasSeenPopupRecently()) {
+            document.getElementById('mc_embed_shell').style.display = 'flex';
+            setLastPopupTime();
+        }
+    }
+
+    // Close popup
+    function closePopup() {
+        document.getElementById('mc_embed_shell').style.display = 'none';
+    }
+
+    // Initialize popup behavior
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show popup periodically
+        setInterval(showPopup, config.popupInterval);
+
+        // Show popup on scroll
+        if (document.querySelector('.blog-post')) {
+            window.addEventListener('scroll', function() {
+                const article = document.querySelector('.blog-post');
+                const articleHeight = article.offsetHeight;
+                const scrollPosition = window.scrollY + window.innerHeight;
+                const scrollPercentage = (scrollPosition / (articleHeight + article.offsetTop)) * 100;
+
+                if (scrollPercentage > config.scrollTrigger) {
+                    showPopup();
+                }
+            });
+        }
+    });
+
+    // Close popup when clicking outside
+    document.getElementById('mc_embed_shell').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closePopup();
+        }
+    });
+</script>
+</div>
