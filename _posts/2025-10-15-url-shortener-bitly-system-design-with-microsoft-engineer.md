@@ -332,7 +332,7 @@ The sequence number is 1 by default. It is only required in the cases, when the 
 There is only one drawback in this solution. Since our number is at max 2 ^ 64, we cannot fit it into a 62 ^ 7 Short URL value, and in this case we would need to use 11 characters instead of 7.
 
 ```
-62 ^ 7   =                     3 521 614 606 208
+62 ^ 7   =          3 521 614 606 208
 
 2 ^ 64   = 18 446 744 073 709 600 000
 
