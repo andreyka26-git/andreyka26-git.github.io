@@ -17,7 +17,7 @@ thumbnailwide: /assets/2025-10-15-url-shortener-bitly-system-design-with-microso
 
 ## **Introduction**
 
-URL shortener is one of the most classic and simplest system design problems, yet there are so many incorrect solutions on the internet that I can’t stay silent any longer. I’m a Software Engineer at Microsoft, working on high-load distributed systems that handle millions of requests per second - so today, we’re going to build a URL shortener together, properly.
+URL shortener is one of the most classic and simplest system design problems, yet there are so many incorrect solutions on the internet that I can’t stay silent any longer so today, we’re going to build a URL shortener together, properly.
 
 PoC source code: [andreyka26-distributed-systems](https://github.com/andreyka26-git/andreyka26-distributed-systems/tree/main/UrlShortener)
 
@@ -336,7 +336,7 @@ There is only one drawback in this solution. Since our number is at max 2 ^ 64, 
 
 2 ^ 64   = 18 446 744 073 709 600 000
 
-62 ^ 11 = 52 036 560 683 837 100 000
+62 ^ 11  = 52 036 560 683 837 100 000
 ```
 
 Actually we don’t need all 64 bits, 42 bits would be perfectly fine for 2 trillion URLs 
