@@ -4,11 +4,11 @@ const path = require("path");
 // Define variables
 const date =
   new Date().toISOString().replace(/T/, " ").replace(/\..+/, "") + " -0000";
-const title = "416. Partition Equal Subset Sum";
-const category = "Leetcode";
-const tags = "[leetcode, dp]";
+const title = "Url Shortener (Bitly) System Design with Microsoft Engineer";
+const category = "System Design";
+const tags = "[system_design, architecture]";
 const description =
-  "I'm a Software Engineer at Microsoft. In this article, we will review, solve, and analyze LeetCode questions. Today, we are tackling an medium problem called '416. Partition Equal Subset Sum'. We will solve it with multiple possible solutions starting from bruteforce, then following up with top down and bottom up dynamic programming solution, and then with knapsack solution";
+  "Learn how to design a scalable, highly available URL shortener capable of handling billions of requests per day. Explore functional and non-functional requirements, Base62 encoding, Snowflake ID generation, sharding strategies, and system design best practices for high-load distributed systems.";
 const nameofarticle = `${date.slice(0, 10)}-${title
   .toLowerCase()
   .replace(/\s+/g, "-")
