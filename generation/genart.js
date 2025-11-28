@@ -4,11 +4,11 @@ const path = require("path");
 // Define variables
 const date =
   new Date().toISOString().replace(/T/, " ").replace(/\..+/, "") + " -0000";
-const title = "Url Shortener (Bitly) System Design with Microsoft Engineer";
-const category = "System Design";
-const tags = "[system_design, architecture]";
+const title = "This phishing site HIDES requests in Network tab";
+const category = "Infrastructure";
+const tags = "[infrastructure, security, reverseengineering]";
 const description =
-  "Learn how to design a scalable, highly available URL shortener capable of handling billions of requests per day. Explore functional and non-functional requirements, Base62 encoding, Snowflake ID generation, sharding strategies, and system design best practices for high-load distributed systems.";
+  "How malicious web page can hide requests in the Network tab, making it difficult to detect malicious activity, using WebWorker and SharedWorker. In general: how we can hide XHR requests from the Network tab in dev tools.";
 const nameofarticle = `${date.slice(0, 10)}-${title
   .toLowerCase()
   .replace(/\s+/g, "-")

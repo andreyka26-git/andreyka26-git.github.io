@@ -1,10 +1,22 @@
-<!-- You have some errors, warnings, or alerts. If you are using reckless mode, turn it off to see useful information and inline alerts.
-* ERRORs: 0
-* WARNINGs: 0
-* ALERTS: 12 -->
+---
+layout: post
+title: "This phishing site HIDES requests in Network tab"
+date: 2025-11-27 18:10:48 -0000
+category: Infrastructure
+tags: [infrastructure, security, reverseengineering]
+description: "How malicious web page can hide requests in the Network tab, making it difficult to detect malicious activity, using WebWorker and SharedWorker. In general: how we can hide XHR requests from the Network tab in dev tools."
+thumbnail: /assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/logo.png
+thumbnailwide: /assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/logo-wide.png
+---
+
+* TOC
+{:toc}
 
 
-## How they tried to hack my Telegram
+
+<br>
+
+## **How they tried to hack my Telegram**
 
 Recently I received a phishing attack on my telegram account. 
 
@@ -24,12 +36,16 @@ To my surprise, these hackers did a great job, because you literally cannot see 
 I have made an investigation, and confirmed THEY ACTUALLY CAN HIDE REQUESTS FROM NETWORK TAB OF YOUR BROWSER.
 
 
-## How it works
+
+
+<br>
+
+## **How it works**
 
 Here we’re going to go over what is happening. I deobfuscated all the .js using multiple tools, so you wouldn’t see the same code in the browser as shown here unless you deobfuscate it as well.
 
- \
-If you would like to check it, I’ve pasted the malicious link below. \
+ 
+If you would like to check it, I’ve pasted the malicious link below. 
 
 
 DO NOT FOLLOW THE LINK BELOW, IT IS MALICIOUS, ONLY FOR LEARNING PURPOSE. DON’T ENTER YOUR DATA ON THE SITE UNDER THE LINK BELOW:
@@ -37,16 +53,24 @@ DO NOT FOLLOW THE LINK BELOW, IT IS MALICIOUS, ONLY FOR LEARNING PURPOSE. DON’
 [https://population.anyiloy.top/X](https://population.anyiloy.top/X)
 
 
-### STEP 1: Following the link
+
+
+<br>
+
+### **STEP 1: Following the link**
 
 As I said, step one is to follow the malicious link. They try to mask it as a native Telegram link, but it isn’t.
 
 
-![alt_text](images/image1.png "image_tooltip")
+[![alt_text](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image7.png "image_tooltip")](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image7.png "image_tooltip"){:target="_blank"}
 
 
 
-### STEP 2: Fake main page
+
+
+<br>
+
+### **STEP 2: Fake main page**
 
 They made it a two-step process: 
 
@@ -58,15 +82,19 @@ They made it a two-step process:
 This is probably done for availability purposes, because once I blocked the second link, they quickly switched the domain to a different one.
 
 
-![alt_text](images/image2.png "image_tooltip")
+[![alt_text](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image5.png "image_tooltip")](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image5.png "image_tooltip"){:target="_blank"}
 
 
 
-![alt_text](images/image3.png "image_tooltip")
+[![alt_text](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image9.png "image_tooltip")](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image9.png "image_tooltip"){:target="_blank"}
 
 
 
-### STEP 3: Phone number page - telegram-page(pnbZeA4).html
+
+
+<br>
+
+### **STEP 3: Phone number page - telegram-page(gX9ZOEx).html**
 
 From now on, all the pages will have random checksum/hash/signature attached. Probably this is how they track unique visits to the site. Every single time you visit it, these values are different.
 
@@ -75,45 +103,57 @@ I will be giving the human readable namings to make it simpler.
 The phone number page is what loads when you click the “Vote” button, let’s call it `telegram-page(gX9ZOEx).html`. This is where all magic starts.
 
 
-![alt_text](images/image4.png "image_tooltip")
+[![alt_text](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image12.png "image_tooltip")](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image12.png "image_tooltip"){:target="_blank"}
 
 
 It renders html + css, and loads a bunch of other .js files as dependencies including this one: `telegram-client-preloader(4iner3xmme45).js`.
 
- \
+ 
 
-![alt_text](images/image5.png "image_tooltip")
+[![alt_text](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image1.png "image_tooltip")](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image1.png "image_tooltip"){:target="_blank"}
 
 
 
-### STEP 4: Preloader - telegram-client-preloader(4iner3xmme45).js
+
+
+<br>
+
+### **STEP 4: Preloader - telegram-client-preloader(4iner3xmme45).js**
 
 This guy loads bunch of other .js files, including this one: `telegram-client-loader(6nstwounklid).js`
 
 
-![alt_text](images/image6.png "image_tooltip")
+[![alt_text](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image3.png "image_tooltip")](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image3.png "image_tooltip"){:target="_blank"}
 
 
 
-### STEP 5: MAGIC - Loader - telegram-client-loader(6nstwounklid).js
+
+
+<br>
+
+### **STEP 5: MAGIC - Loader - telegram-client-loader(6nstwounklid).js**
 
 In its turn the “loader” is doing all the magic. It creates a SharedWorker, which is a browser concept that can execute JS in a separate thread and has PubSub communication with the main thread.
 
 This Shared Worker is executing Telegram Client code, that is doing all authorization, sends phone number, sends OTP, etc.
 
 
-![alt_text](images/image7.png "image_tooltip")
+[![alt_text](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image4.png "image_tooltip")](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image4.png "image_tooltip"){:target="_blank"}
 
 
 That way the Shared Worker’s requests are not visible in Network Tabs.
 
 
-### STEP 6: Telegram client - telegram-client(12amy0wzez63).js
+
+
+<br>
+
+### **STEP 6: Telegram client - telegram-client(12amy0wzez63).js**
 
 The code that does communication with telegram
 
 
-![alt_text](images/image8.png "image_tooltip")
+[![alt_text](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image11.png "image_tooltip")](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image11.png "image_tooltip"){:target="_blank"}
 
 
 To see the opened socket with Telegram Client, you need to do extra steps:
@@ -128,23 +168,27 @@ To see the opened socket with Telegram Client, you need to do extra steps:
 In our case, we have 5 workers, and only one of them is the one we are talking about, and it holds the socket connection. Since it is a telegram API, all the data is encrypted.
 
 
-![alt_text](images/image9.png "image_tooltip")
+[![alt_text](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image2.png "image_tooltip")](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image2.png "image_tooltip"){:target="_blank"}
 
 
 You won’t see this socket connection in the main tab, nor will you see any XHR or WebRTC requests.
 
- \
+ 
 
-![alt_text](images/image10.png "image_tooltip")
-
-
-
-![alt_text](images/image11.png "image_tooltip")
- \
+[![alt_text](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image10.png "image_tooltip")](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image10.png "image_tooltip"){:target="_blank"}
 
 
 
-## POC to Reproduce
+[![alt_text](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image8.png "image_tooltip")](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image8.png "image_tooltip"){:target="_blank"}
+ 
+
+
+
+
+
+<br>
+
+## **POC to Reproduce**
 
 I have created the POC in my [github repository](https://github.com/andreyka26-git/andreyka26-misc) that reproduces the behavior:
 
@@ -155,12 +199,17 @@ I have created the POC in my [github repository](https://github.com/andreyka26-g
 * both loader.js and client.js are sending http requests every 3 seconds
 
 
-![alt_text](images/image12.png "image_tooltip")
+[![alt_text](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image6.png "image_tooltip")](/assets/2025-11-28-this-phishing-site-hides-requests-in-network-tab/image6.png "image_tooltip"){:target="_blank"}
 
 
 
-## Conclusion
+
+
+<br>
+
+## **Conclusion**
 
 To summarize: it is actually possible to hide a request from the Network tab using a WebWorker, so sometimes you won’t even see what happened or how your data ended up in a hacker’s hands.
 
 Please don’t forget to subscribe to the email digest, as in the next article I will show you how to take action against phishing attackers.
+
