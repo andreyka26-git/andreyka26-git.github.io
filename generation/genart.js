@@ -4,11 +4,11 @@ const path = require("path");
 // Define variables
 const date =
   new Date().toISOString().replace(/T/, " ").replace(/\..+/, "") + " -0000";
-const title = "This phishing site HIDES requests in Network tab";
-const category = "Infrastructure";
-const tags = "[infrastructure, security, reverseengineering]";
+const title = "Payment Gateway (Stripe) System Design with Microsoft Engineer";
+const category = "System Design";
+const tags = "[system_design, architecture]";
 const description =
-  "How malicious web page can hide requests in the Network tab, making it difficult to detect malicious activity, using WebWorker and SharedWorker. In general: how we can hide XHR requests from the Network tab in dev tools.";
+  "In this article I will show how to do a system design of a scalable, highly available payment gateway aka Stripe. Read this guide before your system design interview. Explore and recall system design principles: replication (Raft, leader-leader, leaderless), sharding, consistent hashing, eventual consistency during this design.";
 const nameofarticle = `${date.slice(0, 10)}-${title
   .toLowerCase()
   .replace(/\s+/g, "-")
