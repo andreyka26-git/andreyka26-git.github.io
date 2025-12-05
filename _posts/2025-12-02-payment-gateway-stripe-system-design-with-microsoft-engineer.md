@@ -32,7 +32,7 @@ We are going to design a full lifecycle starting from card details submitted by 
 
 Note, that this system design requires a bit of domain knowledge about how payments, card networks and banks are working - you can find a very short section about it below.
 
-
+Recorded mock for Stripe System Design can be found [here](https://www.youtube.com/watch?v=-5laXGtKInU).
 
 
 <br>
