@@ -722,6 +722,6 @@ I’m talking about life as a Software Engineer at Microsoft.
 
 Besides that, my projects:
 
-Symptoms Diary: [https://symptom-diary.com](https://symptom-diary.com)
+Symptoms Diary: [https://syncsymptom.com](https://syncsymptom.com)
 
 Pet4Pet: [https://pet-4-pet.com](https://pet-4-pet.com)

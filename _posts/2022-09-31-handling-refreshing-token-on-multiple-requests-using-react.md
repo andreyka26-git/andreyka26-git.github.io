@@ -637,7 +637,7 @@ I would like to say thank you to all my friends that are working as Frontend /Js
 Inspired by [https://github.com/Flyrell/axios-auth-refresh](https://github.com/Flyrell/axios-auth-refresh)
 
 Also please check my other projects over here:
-[Symptom Diary](https://symptom-diary.com), [pet4pet](https://pet-4-pet.com)
+[SyncSymptom](https://syncsymptom.com), [pet4pet](https://pet-4-pet.com)
 
 Highly encouraged to leave your feedback regarding this solution in my social media.
 
@@ -655,6 +655,6 @@ I’m talking about life as a Software Engineer at Microsoft.
 
 Besides that, my projects:
 
-Symptoms Diary: [https://symptom-diary.com](https://symptom-diary.com)
+Symptoms Diary: [https://syncsymptom.com](https://syncsymptom.com)
 
 Pet4Pet: [https://pet-4-pet.com](https://pet-4-pet.com)

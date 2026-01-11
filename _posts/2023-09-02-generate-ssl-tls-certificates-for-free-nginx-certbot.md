@@ -163,7 +163,7 @@ It is pretty simple nginx.conf file, just regular configurations, and in the las
 server {
     listen 80;
 
-    server_name symptom-diary.com;
+    server_name syncsymptom.com;
 
     location /.well-known/acme-challenge/ {
         root /var/www/certbot;
@@ -171,7 +171,7 @@ server {
 
     location / {
         proxy_set_header Host $host;
-        return 301 https://symptom-diary.com$request_uri;
+        return 301 https://syncsymptom.com$request_uri;
     }
 }
 
@@ -179,10 +179,10 @@ server {
 #server {
 #    listen 443 ssl;
 
-#    server_name symptom-diary.com;
+#    server_name syncsymptom.com;
 
-#    ssl_certificate /etc/letsencrypt/live/symptom-diary.com/fullchain.pem;
-#    ssl_certificate_key /etc/letsencrypt/live/symptom-diary.com/privkey.pem;
+#    ssl_certificate /etc/letsencrypt/live/syncsymptom.com/fullchain.pem;
+#    ssl_certificate_key /etc/letsencrypt/live/syncsymptom.com/privkey.pem;
 
 #    location / {
         #this needed to resolve host by docker dns, othervise 'set $upstream will' not work
@@ -204,14 +204,14 @@ It has 2 parts:
 
 
 
-* The first part is for unsecured http connection that listens to 80th port of our domain `symptom-diary.com`. The main purpose for this block is to allow certbot authenticate throught the challenge request. Other than that It just redirects the request to https connection on 443d port.
+* The first part is for unsecured http connection that listens to 80th port of our domain `syncsymptom.com`. The main purpose for this block is to allow certbot authenticate throught the challenge request. Other than that It just redirects the request to https connection on 443d port.
 * The second part is specifying secured https connection with SSL/TLS protocols, it directs request to our application docker container `symptom-tracker-dev` on `3000` internal docker port. Until we have SSL certificates created by certbot it is unusable.
 
 The SSL certificates are ensured by 
 
 ```
-ssl_certificate /etc/letsencrypt/live/symptom-diary.com/fullchain.pem;
-ssl_certificate_key /etc/letsencrypt/live/symptom-diary.com/privkey.pem;
+ssl_certificate /etc/letsencrypt/live/syncsymptom.com/fullchain.pem;
+ssl_certificate_key /etc/letsencrypt/live/syncsymptom.com/privkey.pem;
 ```
 
 But now there is no `fullchain.pem` and `privkey.pem` files, let’s generate them. That's why the second part is commented. Now we need to generate certificates and uncomment the SSL part (second one) of configuration
@@ -226,7 +226,7 @@ Note, that I’m generating the certificates also for 2 subdomains: `dev` and `b
 Run
 
 ```
-docker-compose run --rm certbot certonly --webroot --webroot-path /var/www/certbot/ -d symptom-diary.com -d dev.symptom-diary.com -d blog.symptom-diary.com
+docker-compose run --rm certbot certonly --webroot --webroot-path /var/www/certbot/ -d syncsymptom.com -d dev.syncsymptom.com -d blog.syncsymptom.com
 ```
 
 You will see this output:
@@ -242,7 +242,7 @@ Take a look into certificate expiration, by that time - you need to renew the ce
 
 ## **Demo**
 
-Now let’s go and try to access our application by domain name `symptom-diary.com`
+Now let’s go and try to access our application by domain name `syncsymptom.com`
 
 
 [![alt_text](/assets/2023-09-02-generate-ssl-tls-certificates-for-free-nginx-certbot/image1.png "image_tooltip")](/assets/2023-09-02-generate-ssl-tls-certificates-for-free-nginx-certbot/image1.png "image_tooltip"){:target="_blank"}
@@ -266,6 +266,6 @@ I’m talking about life as a Software Engineer at Microsoft.
 
 Besides that, my projects:
 
-Symptoms Diary: [https://symptom-diary.com](https://symptom-diary.com)
+Symptoms Diary: [https://syncsymptom.com](https://syncsymptom.com)
 
 Pet4Pet: [https://pet-4-pet.com](https://pet-4-pet.com)

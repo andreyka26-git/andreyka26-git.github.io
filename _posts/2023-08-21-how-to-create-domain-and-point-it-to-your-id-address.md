@@ -52,7 +52,7 @@ This article will be about buying domain and configuring this domain to point to
 
 ## **Presetup**
 
-I have an Ubuntu server, and hosted web application there. I want that each time the user enters my domain name (symptom-diary.com) my React page is loaded in the user’s browser.
+I have an Ubuntu server, and hosted web application there. I want that each time the user enters my domain name (syncsymptom.com) my React page is loaded in the user’s browser.
 
 To do that, we will
 
@@ -231,7 +231,7 @@ This nginx.conf does not have anything special as well, only basic configuration
 
 server {
     listen 80;
-    server_name symptom-diary.com;
+    server_name syncsymptom.com;
 
     location /.well-known/acme-challenge/ {
         root /var/www/certbot;
@@ -239,7 +239,7 @@ server {
 
     location / {
         proxy_set_header Host $host;
-        return 301 https://symptom-diary.com$request_uri;
+        return 301 https://syncsymptom.com$request_uri;
     }
 }
 
@@ -247,10 +247,10 @@ server {
 
     listen 443 ssl;
 
-    server_name symptom-diary.com;
+    server_name syncsymptom.com;
 
-    ssl_certificate /etc/letsencrypt/live/symptom-diary.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/symptom-diary.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/syncsymptom.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/syncsymptom.com/privkey.pem;
 
     location / {
         #this needed to resolve host by docker dns, othervise 'set $upstream will' not work
@@ -268,11 +268,11 @@ server {
 
 This configuration is designed for a secured connection with HTTPS (TLS/SSL) under the 443d port and unsecured with the 80th port.
 
-For secured port - you would need to put your .pem files to `/etc/letsencrypt/live/symptom-diary.com/fullchain.pem;` and `/etc/letsencrypt/live/symptom-diary.com/privkey.pem;`.
+For secured port - you would need to put your .pem files to `/etc/letsencrypt/live/syncsymptom.com/fullchain.pem;` and `/etc/letsencrypt/live/syncsymptom.com/privkey.pem;`.
 
 The first chunk of configuration is listening to our bought domain under the 80th port and redirecting the request from http to https (443d port).
 
-The second chunk of configuration is listening to the 443d port of our domain (`symptom-diary.com`) and directing the request to the docker container with `symptom-tracker-dev` name and `3000` port (default React port).
+The second chunk of configuration is listening to the 443d port of our domain (`syncsymptom.com`) and directing the request to the docker container with `symptom-tracker-dev` name and `3000` port (default React port).
 
 
 ## **Demo**
@@ -294,6 +294,6 @@ I’m talking about life as a Software Engineer at Microsoft.
 
 Besides that, my projects:
 
-Symptoms Diary: [https://symptom-diary.com](https://symptom-diary.com)
+Symptoms Diary: [https://syncsymptom.com](https://syncsymptom.com)
 
 Pet4Pet: [https://pet-4-pet.com](https://pet-4-pet.com)
