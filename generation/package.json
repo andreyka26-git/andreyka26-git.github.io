@@ -1,0 +1,12 @@
+{
+  "name": "jekyll-article-generation",
+  "private": true,
+  "description": "Generate Jekyll blog posts from Google Docs export (zip + markdown)",
+  "scripts": {
+    "generate": "node generate-article.js",
+    "build-post": "node build-post.js"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16"
+  }
+}

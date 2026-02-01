@@ -1,402 +1,243 @@
-<!-- Copy and paste the converted output. -->
-
 <!-- You have some errors, warnings, or alerts. If you are using reckless mode, turn it off to see useful information and inline alerts.
 * ERRORs: 0
 * WARNINGs: 0
-* ALERTS: 13 -->
+* ALERTS: 12 -->
 
 
-## Introduction
+# **What this article is about**
 
-Payment Gateway system design is pretty similar to Bank system design, with a lot of problems and complexities in common. The goal of the system is to allow businesses to make money out of goods/services by processing payments for them. 
+This is not a success story, because I didn’t pass the Amazon interview.
 
-We are going to design a full lifecycle starting from card details submitted by the customer ending with sending money to the merchant.
+This is a story about my Amazon interview experience and why I didn’t like it compared to other FAANG companies. Besides that, I will answer questions like: **what exactly they asked, what were the coding tasks, what was system design question**.
 
-Note, that this system design requires a bit of domain knowledge about how payments, card networks and banks are working - you can find a very short section about it below.
-
-
-## Domain Background
-
-As I was mentioning for this system design you will need a bit of background knowledge about payment processing, card networks and banks.
-
-Stripe is not a bank. It is an intermediary that helps move money from customer cards to merchant bank accounts.
-
-Why are people using Stripe and not implementing their own payment processing? Because in order to store and process card details, payments, and integrate with Card Networks and banks you will need to acquire tons of licenses, which is both time consuming and very expensive. Besides that  you will pay huge fines if you don’t follow high standards.
+In general, this article is about my experience: what interviews were, what was hard, what was not, how I prepared, and how much luck matters.
 
 
-### Terminology
+# **Start - Amazon offer**
 
-**Merchant’s Customer** - our skip customers who want to buy goods / services.
-
-**Merchant** - our direct customer that sells some goods or services
-
-**Stripe** - us, Payment Gateway acts as the payment gateway and payment processor
-
-**Acquiring bank** - Stripe’s (receiving) bank
-
-**Card network** - Card payments processor, e.g. Visa, Mastercard, etc.
-
-**Issuing bank** - the skip customer’s bank. It issued a card the customer is paying with.
-
-**Payout** - settling money from Stripe bank to Merchant’s bank.
-
-**Ledger** - is a financial record system that tracks all transactions as paired entries - a debit and a credit (e.g., acc1 -$100; acc2 +$100). This two-sided format ensures every movement of money is balanced and traceable. It’s a legal requirement for payment processors, and all entries together should sum to zero.
-
-
-### Flow
-
-In general, flow looks like that:
-
-1. The customer wants to pay with a card, so the merchant creates Payment (payment intent) in Stripe.
-
-2. Stripe sends the request to Card Network (Visa, MasterCard), as we are working with card details, not bank accounts.
-
-3. Card Network transfers money from the customer's bank (issuing bank) to Stripe’s bank (acquiring bank).
-
-4. Stripe records transaction in internal ledger, and charges the fee for money transfer
-
-5. Stripe performs payment from its bank ( to merchant’s bank account (payout)
-
-Money transfer from customer to Stripe’s bank is performed using 3 steps:
-
-
-
-* authorization transaction, which locks money on customer’s account, performs fraud check, etc
-* capture request, idempotent request that actually confirms authorized transaction. It means money must be moved from sender to receiver
-* settlement - is the final stage when the bank is moving money from one account to another account.
-
-You can think about it as follows:
-
-
-
-* authorization is operation in SQL transaction
-* capturing is transaction’s commit
-* settlement is replicating this commit to the follower node.
-
-Resources:
-
-
-
-* [Stripe: debit card payment](https://stripe.com/gb/resources/more/how-do-debit-card-payments-work-here-is-what-businesses-need-to-know)
-* [Stripe: credit card payment](https://stripe.com/en-cz/resources/more/how-do-credit-card-networks-work)
-* [Stripe: authorisation, capturing and settlement](https://stripe.com/en-cz/resources/more/credit-card-payment-authorization-and-transaction-settlement-process#what-is-capturing-and-settlement)
-
-
-### Reconciliation
-
-Once per couple of days banks are comparing their Ledger logs between each other to detect inconsistencies and rollback or rollout some of the transactions. That’s because banks communicate between each other asynchronously, and this is the only way to keep the state consistent.
-
-Stripe, as payment processor, should perform regular reconciliation as well, especially in case of payouts to synchronize money between internal ledger’s transactions and merchant banks.
-
-
-## Requirements
-
-As always, we are following our plan:
-
-
-
-* define functional and non-functional requirements
-* satisfy functional requirements
-* satisfy non-functional requirements
-* follow ups
-
-
-### Functional Requirements
-
-
-
-* Merchant is able to register itself and webhook
-* Customers are able to pay for merchant’s goods/services
-* Merchant receives webhooks about its payment
-* Merchant is getting money for goods/services on its bank account via Payout mechanism
-* Ensure no double charge for the same item of good/service
-* Audit - all transactions are stored in Ledger (legal requirement)
-
-
-### Non-Functional Requirements
-
-
-
-* High Traffic:
-    * 500 M payment requests per day => 5787 rps => **10k rps** on peaks
-    * 5B ledger events (change of transaction/payment state) per day => 57870 => **100k rps** on peaks
-    * **2M merchants**
-* CAP, availability vs consistency:
-    * as **highly available** as possible
-    * **Strong consistency** (linearizability) for payment processing (no double charge)
-    * **Eventual consistency** for merchant’s related data, and ledger data
-    * **No data loss **for ledger entries
-* Correctness: 
-    * debit and credit add up to zero
-    * merchant receives webhook with “at least once” guarantee, retrying 30 days.
-* Spikes: uneven per season (black Friday), and per merchant
-
-
-## Satisfy Functional Requirements
-
-Let’s try to design a system for a couple of users on a single machine just to make sure it will work and satisfy Functional requirements, then follow up with Non Functional requirements.
+One day, on September 6, I received this message on LinkedIn.
 
 
 ![alt_text](images/image1.png "image_tooltip")
 
 
+I agreed to an interview. At that time, Amazon interview process had three stages:
 
-### Merchant is able to register itself and webhook
 
-We can trivially satisfy this with simple API and storage. One endpoint that receives Merchant related information and stores it in a storage. In the real world it will be different types of data, e.g. webhook details, goods, logos, names, payment methods, etc. For security reasons we add api keys/secrets for API endpoints + signature for webhook validation.
+
+1. Online coding tasks without interviewer
+2. 1-hour interview with one interviewer
+3. Final round with 5 interviews, 1 hour each
 
 
 ![alt_text](images/image2.png "image_tooltip")
 
 
 
-### Customers are able to pay for merchant’s goods/services
+# **Interviewing at Amazon**
 
-There is a sequence of steps needed to be performed to move money from customer to merchant’s bank.
+From the moment I understood that I will interview at Amazon, I started grinding LeetCode, because it is my weakest part in interviews (at least I thought so). It was not going great, but slowly improving.
 
-Step 1. The customer goes to the page of payment details, expressing willingness to pay. This action sends a request to our Payment API
+All interviews were online because of the COVID.
 
-Step 2. API creates a payment entity with status “new”, merchant/goods related information. It will be used for deduplication later.
-
-Step 3. The customer initiates payment by filling in card details and pressing the “Pay”. The client should encrypt data and send it along with the payment id created earlier.
-
-Step 4. Payment API sends “Authorization” request to Card Network with customer’s card details. This step might include interactive flow and prompt customers to enter code, or confirm from the app. That flow will work on redirections the same way as OAuth.
-
-Step 5. API saves the result of the Authorization transaction with “auth_id” to the database and updates status to “authorized”. Authorization id is a deduplication mechanism on Card Networks (see later).
-
-Step 6. Payment API sends a “Capture” request to Card Network to move authorized money initialized by merchant, background job or within the same request straight away.
-
-Step 7. The server saves “Captured” status to the payment in storage.
-
-Step 8. Later on, the payout to merchants is happening via a background job that sends a batch of payments to the Merchant’s bank.
-
-During step 1 -  step 7 inclusively, two extra steps are done every time: 
+Now about the first stage.
 
 
+# **First stage (done)**
 
-* sending an event to Merchant’s webhook.
-* store transaction/event to Audit storage
+At HackerRank I got 2 tasks, I solved only one. Important note: for each task I had to **explain the solution**.
 
-
-### Merchant receives webhooks about its payment
-
-As shown in the diagram webhook to Merchant’s API is sent on every payment update or event.
+Sorry for bad screenshots, I was afraid Amazon could detect screenshots 😅 Next ones are better.
 
 
-### Merchant is getting money for goods/services on its bank account via Payout mechanism
-
-At step 8, the money is transferred from Stripe's account to Merchant’s account via payout. Every now and then we collect all successful payments and transfer them to the merchant's bank by batch (with retries and reconciliation).
+### First problem
 
 
 ![alt_text](images/image3.png "image_tooltip")
 
 
 
-### Ensure no double charge for the same item of good/service
+### Second problem
 
-Two step card payment (auth, capture) is helping here a lot. On our side, as we have unique payment ids, double charge can happen only in case of concurrent requests / retries from the client.
-
-We will use Optimistic concurrency with Compare-and-swap (CAS) for that. When customer clicked “Pay” (POST /payment/:id) first we set status of the payment to “Authorizing” \
-
-
-```sql \
-UPDATE payments SET status = ‘authorizing’ WHERE id = $id AND status = ‘new’
-
-```
-
-Only in case of success (rows affected > 0) - we proceed to sending “Auth” requests to Card Network. This way if 2 concurrent threads try to call this endpoint for the same payment ID (client is retrying / concurrency issue) - only one of them will proceed with actually “Authorizing” and locking the customer's money.
-
-When we got response from Card Network, we update payments again
-
-```sql \
-UPDATE payments SET status = ‘authorized’ auth_id = $auth_id WHERE id = $id AND status = ‘authorizing’
-
-```
-
-Capturing then is idempotent on the Card Network side, so we can send multiple “capture” requests for the same auth_id and be on the safe side.
-
-
-### Audit - all transactions are stored in Ledger
-
-As shown in the diagram we are writing a ledger entry to Audit Storage on every payment update or event.
+I didn’t solve it, brute force timed out, I needed dynamic programming.
 
 
 ![alt_text](images/image4.png "image_tooltip")
 
 
 
-### Drawbacks
+# **Second stage (first try)**
 
-Current architecture will work in a happy path and low traffic, but it has a lot of flawns:
-
-
-
-* How to handle payouts failures? What if the bank acknowledged it but the background job died before saving it to the database? How in general ensure the bank has the same payouts as our internal storage?
-* How to guarantee webhook delivery to merchants if the merchant API is down for one day?
-* What to do if API died before sending transaction data to Audit storage? In that case we violate the law by not having full ledger logs.
-* Scalability / Availability issues are still there. We cannot afford more than a few thousands payments per second, and we cannot failover in case some component stopped working.
-
-Don’t worry all of these points are covered in the section below.
-
-
-## Satisfy Non-Functional Requirements
-
-Now that our system works on a couple of users and a couple of machines, let’s make it Stripe’s size.
+I thought if I didn’t solve all the tasks - I'd be rejected. But then I got this email.
 
 
 ![alt_text](images/image5.png "image_tooltip")
 
 
+I was surprised but happy.
 
-### Introduce Kafka for side effects
+After some time, they scheduled a second stage: 1-hour interview. I googled and understood Amazon loves **Leadership Principles** questions. So I learned all the principles, prepared examples from my small experience (3 years), and continued grinding LeetCode.
 
-Before deep diving into non functional requirements I would like to add one pattern that will ease our life. You can see that when customer pays money we have a lot of side effects:
+Interview day came (early October). We started talking, the interviewer explained the interview, and I realized I prepared for **completely wrong things**.
+
+The interview was about **behavioral questions, Linux, and networking**. \
+I've been a Windows user since I was 4 years old. My Linux experience was minimal, only some on-prem stuff for pet projects. Networking knowledge - only theoretical from books.
+
+I didn’t record interview, but wrote down some questions:
 
 
 
-* sending webhook to merchant
-* save payment update to audit log
-* it might be more, e.g. notifications, some derived storages, etc
+* How to delete a file in Linux?
+* You deleted a file but disk space is not freed, what to do?
+* You see there is no internet on the machine, what to do?
+* How to find the biggest file in Linux?
+* How to pipe output from one command to another?
+* The disk is full on the server, how to troubleshoot?
+* In one region latency increased, others are fine, how to fix and troubleshoot?
 
-These operations are independent and can be randomly failed, delayed.
+Behavioral question I remember: \
+**Tell me about a situation when you had an uncomfortable task and how you overcame it.**
 
-Therefore let’s introduce a well known pattern: message broker with multiple workers per side effect.
+After a few days, I got a rejection email.
 
 
 ![alt_text](images/image6.png "image_tooltip")
 
 
-
-### Correctness
-
-To guarantee at least one delivery to a Merchant's Webhook we need to store information about webhook delivery, as workers can randomly die, merchant API might be down for hours/days, etc.
-
-Since we cannot lose data for our Audit requirements, we are using the same mechanism here as well with “at least once” semantics (basically retry infinitely).
+But then I got another email.
 
 
 ![alt_text](images/image7.png "image_tooltip")
 
 
-
-### High Traffic & Scalability
-
-A typical strategy for scaling traffic is to distribute the load as evenly as possible between the machines. It applies for both storage and compute.
+Of course I agreed. My top career ambition is to be in FAANG.
 
 
-#### Payment API
+# **Second stage (second try, done)**
 
-Since stateless - trivially scaled with adding more instances in multiple regions/geos along with loadbalancers.
+This time interview was mostly behavioral questions like: \
+“Tell me about a situation when you had a conflict with a colleague and how you resolved it and what impact it had on the project.”
+
+I exaggerate, but in all interviews there were like **40-50 behavioral questions** (see stage 3). For me, it’s too much.
+
+Luckily, feedback was positive and I moved to stage 3.
+
+
+# **Preparation - LeetCode, books**
+
+I won’t write much here, because nobody cares how a rejected guy prepared \
+More details are in my Microsoft/Google/Snowflake interview article.
+
+Shortly: I solved **114 LeetCode problems** and even recorded this moment.
+
+I read **“System Design Interview”** (didn’t like it much) and reread **“Designing Data-Intensive Applications”** by Kleppmann (as always, amazing).
+
+
+# **Third stage (reject)**
+
+Amazon gives final round feedback by phone, which surprised me. I’ll describe all 5 interviews based on feedback analysis.
+
+
+## 1 System design
+
+The first interview was system design. I liked it. Not many behavioral questions (3-4), task was reasonable, interviewer was nice.
+
+Later I found him on LinkedIn: 14 years at IBM and many years at Amazon. It was an honor to interview with him, especially on system design.
+
+Task: design a **notification system** that sends notifications when requested by external services.
+
+My solution (not perfect but meets requirements):
 
 
 ![alt_text](images/image8.png "image_tooltip")
 
 
-
-#### Payment Storage
-
-Since our load is write heavy mostly - we are applying sharding along with consistent/rendezvous hashing for rebalancing. The key would be payment id for even distribution of the records, as merchants are hotspotted and can overload single instances (if they are too big). \
+Later from feedback I understood that my system design was **better than expected**. But good news ended there.
 
 
-However, you might say that it will create scatter/gather load on our shards for Merchant’s dashboard, and you will be right, this is a scalability bottleneck.
+## 2 Coding
+
+5-6 behavioral questions and trivial task: \
+**find files with specific extension and size.**
+
+Problem: I had no idea how to get file size from code, never did it before. I didn’t understand what the interviewer expected.
+
+My solution:
+
+
 ![alt_text](images/image9.png "image_tooltip")
- Another problem here, that if we shard by payment id, how is our coordinator/client going to know where a specific merchant’s data is located?
-
-The best approach here would be to use derived data and sync the payments data to another storage that is optimized for querying, aggregation and will be sharded by merchant id. Let’s name such storage “Merchant Storage”, and move all merchant related data along with payments needed for the merchant dashboard there.
 
 
-#### Merchant Storage
+Actually, I should assume there are system calls returning file/directory objects. But they said the solution was OK.
 
-As discussed above - we are sharding it by merchant id because we want to retrieve merchant related data. For rebalancing - well known consistent/rendezvous hashing. For too hot merchants - we can isolate them and handle them separately as per “celebrity problem”.
+
+## 3 Behavioral
+
+Yes, full hour of questions like: \
+“Tell me about a situation when you had conflict and how you solved it and what impact it had.”
+
+They ask **8-13 questions per hour**.
+
+I had 3 years of experience and ~10 prepared stories for leadership principles. I quickly ran out of stories and started reusing the same stories from different angles. It was annoying. Too much focus on this, in my opinion.
+
+But feedback was OK.
+
+
+## 4 Coding (or how I an Irish guy r*ped me)
+
+From the start, the interviewer was not happy. I asked “how are you”, and got answer like: \
+“as usual, no time for anything, but okay”.
+
+The first question was an OOP task for Amazon lockers. Frankly I don’t know this concept in real life, there were no Amazon lockers in Ukraine back then. I didn’t understand the requirements and asked clarifying questions for ~20 minutes.
 
 
 ![alt_text](images/image10.png "image_tooltip")
 
 
+By his tone, I felt he was doing his work in parallel. Probably the “rejection” decision was made during the first 10 minutes already.
 
-#### Audit Storage
+After 20 minutes he stopped me: **“unfortunately we ran out of time”**. Then 3-4 behavioral questions.
 
-We don’t know how this database is going to be queried, so it is not easy to come up with a universal sharding strategy here. Let’s add sharding by payment, same as our Payment Storage. This will be enough to prove that it will scale well. If the intention is to query it by some ranges, run aggregations - then something more advanced should be done as a sharding strategy.
-
-
-#### PaymentEvents Queue
-
-Kafka is trivially getting sharded (partitioned)  by payment id for ordering within the same payment.
-
-
-#### Workers, background job
-
-The workers are trivially scaled together with kafka partitions as they are stateless computes.
-
-
-#### Retry/Job Storage
-
-The storage can be sharded by job id trivially as well. Background jobs might query the job by “type” field from multiple shards. We will just apply an index on top of it.
-
-
-### CAP, availability vs consistency
-
-For sure we want our Stripe to never be down. This section covers high availability of our components.
-
-
-#### Payment API
-
-Already solved by scaling (replication), as it is stateless.
-
-
-#### Payment Storage
-
-First of all, we are not allowed to lose payment data, so we cannot use Leader-Follower replication.
-
-We have to provide a  linearizability consistency guarantee here, because we process the payments and we are relying on their “freshness”. Without recency guarantee we will be doing unnecessary operations to Card Network.
-
-So the call here is Consensus based replication (Raft, Paxos).
-
-
+Then, 20 minutes before the end, he gave another coding problem.
 
 
 ![alt_text](images/image11.png "image_tooltip")
 
 
+Later I found out it was similar to LeetCode, but harder. \
+Attaching the [discussion on the Leetcode](https://leetcode.com/discuss/post/545748/amazon-subsidiary-phone-concatenated-wor-uajg/) created by a guy who got exactly the same problem, and [variation of the problem on the Leetcode](https://leetcode.com/problems/concatenated-words/description/).
 
-#### Merchant Storage
-
-This is fully eventually consistent storage, as it is not critical if payment info will appear 1-2 hours later than it actually happened. Therefore the natural solution for availability is Leader-Follower async replication. The only problem here is possible data loss. I believe we can pursue the Product people that it is okay to lose data for the merchant dashboard. If not - then we can do the same consensus algorithm as above, or Leader-Leader/Leaderless.
-
-Anyway the actual payment is based on Audit storage, not Merchant storage.
-
-
-#### Audit Storage
-
-Leader-Follower replication is not feasible here, because we have legal requirements to not lose data in this storage. However we don’t have to be linearizable either, cause we only syncing data into one place, meaning we are eventually consistent.
-
-The solution here is Leaderless or Leader-Leader replication. We can afford it because we won’t have concurrency on the same PaymentUpdate object/row, and we don’t make decisions based on its data.
+ \
+I had 20 minutes left. I panicked and couldn't solve it.
 
 
 ![alt_text](images/image12.png "image_tooltip")
 
 
+This is what I wrote (wrong solution). He asked for complexity, but interrupted again with **“unfortunately we ran out of time”**.
 
-#### Payment Events Queue
-
-We can easily add more replicas to kafka with quorum to not lose data and be highly available.
-
-
-#### Workers, background job
-
-Can easily be replicated as Payment API, since stateless. We have  at least once delivery - we are good to go and to not worry about double processing.
+Honestly, if this was expected, I’m not on that level to solve it in 20 minutes with clarifying, coding, and complexity analysis.
 
 
-![alt_text](images/image13.png "image_tooltip")
+## 5 Behavioral
+
+Very nice person. The first half was relaxed, like chatting. In the second half he drilled into details so deeply that I felt like murder suspect and he is a detective.
+
+Leadership principles questions are exhausting. I’m fine with them, but not so many.
 
 
+# **Feedback**
 
-#### Retry/Job Storage
-
-Since we have “at least once” guarantee here. We cannot lose the data in this storage. However, with background job semantics we also don’t need linearizability. Therefore here we can use either leaderless or leader-leader.
+Feedback was given by phone, no proof. Short version:
 
 
-## Conclusion
+    You are a great guy, exceeded expectations in system design, but coding was very bad. So no, come back in 12 months.
 
-I hope you find this system design useful, please share your thoughts on the decisions made here in the comment section or in my social media. \
- \
-Don’t forget to subscribe to not miss next system design problems.
+
+# **Conclusions**
+
+I read a lot about Amazon interview loops. People say luck matters a lot. Looks like I was unlucky, but I got experience.
+
+Everything here I also told in my video, if you don’t want to read.
+
+Thanks for reading, waiting for feedback!
