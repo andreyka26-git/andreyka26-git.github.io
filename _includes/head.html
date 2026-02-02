@@ -22,6 +22,46 @@
   <meta name="robots" content="noindex" />
   {% endif %}
   
+  <!-- Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval'
+      https://code.jquery.com
+      https://cdnjs.cloudflare.com
+      https://consent.cookiebot.com
+      https://giscus.app
+      https://platform.twitter.com
+      https://connect.facebook.net
+      https://www.googletagmanager.com
+      https://pagead2.googlesyndication.com
+      https://cdn-images.mailchimp.com
+      https://s3.amazonaws.com;
+    style-src 'self' 'unsafe-inline'
+      https://fonts.googleapis.com
+      https://cdnjs.cloudflare.com
+      https://cdn-images.mailchimp.com;
+    font-src 'self'
+      https://fonts.gstatic.com
+      data:;
+    img-src 'self' data: https: http:;
+    connect-src 'self'
+      https://giscus.app
+      https://*.list-manage.com
+      https://www.google-analytics.com
+      https://consent.cookiebot.com;
+    frame-src 'self'
+      https://giscus.app
+      https://www.facebook.com
+      https://platform.twitter.com;
+    media-src 'self';
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self'
+      https://*.list-manage.com;
+    frame-ancestors 'none';
+    upgrade-insecure-requests;
+  ">
+  
   <!-- Block AI training and crawling -->
   <meta name="robots" content="noai, noimageai" />
   <meta name="googlebot" content="noai, noimageai" />
@@ -127,12 +167,16 @@
   <script src="{{site.url}}{{site.baseurl}}/assets/bower_components/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script src="{{site.url}}{{site.baseurl}}/assets/bower_components/jquery-mousewheel/jquery.mousewheel.min.js"></script>
   <script src="{{site.url}}{{site.baseurl}}/assets/bower_components/ghosthunter/dist/jquery.ghostHunter.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/picturefill/3.0.2/picturefill.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/picturefill/3.0.2/picturefill.min.js" 
+    integrity="sha384-d3p0BBSQX1vUGM8SW1JQsVfE9EqChWpKhOYZjQkBM1fZ8pJDIcGG6RJPqZ8G4Rnn" 
+    crossorigin="anonymous"></script>
   <script src="{{site.url}}{{site.baseurl}}/assets/bower_components/nanobar/nanobar.min.js"></script>
   <script src="{{site.url}}{{site.baseurl}}/assets/bower_components/typewrite/dist/typewrite.min.js"></script>
   <script src="{{site.url}}{{site.baseurl}}/assets/js/search.js"></script>
   <script src="{{site.url}}{{site.baseurl}}/assets/js/on-scroll-progress.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js" 
+    integrity="sha384-Xf0CGOleHyOB3uDlE1CKn8fXEqbMSisCLu/SYyQHQJiJW6WEqnsMKi92wjFjxQIo" 
+    crossorigin="anonymous"></script>
 
   <!-- Default Google tag + Google Adsense -->
   <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2684129210998981" crossorigin="anonymous"></script> -->
