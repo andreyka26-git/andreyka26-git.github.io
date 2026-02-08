@@ -3,295 +3,380 @@
 <!-- You have some errors, warnings, or alerts. If you are using reckless mode, turn it off to see useful information and inline alerts.
 * ERRORs: 0
 * WARNINGs: 0
-* ALERTS: 15 -->
+* ALERTS: 10 -->
 
 
-# **What this article is about**
+## What this article about
 
-This is a continuation of my FAANG adventures. The previous article was about my Amazon interview experience: [https://live.andreyka26.com/interview-experience-at-aws-in-2021](https://live.andreyka26.com/interview-experience-at-aws-in-2021)
+This is a continuation of the System Design series, where I’m doing very deep and detailed solutions for the most popular problems that are asked in FAANGs companies. \
+[Previous system design](https://andreyka26.com/payment-gateway-stripe-system-design-with-microsoft-engineer) was about designing Stripe - payment processing platform for businesses.
 
-Today we are talking about how Microsoft lied to me, its interview experience, what they asked me, how many stages, what is the offer process, and what was the location in the offer. We will do an interview experience comparison between AWS and Microsoft.
-
-By the way, all interviews are online now, no onsite interviews due to Covid as well.
+Today we are designing [Ticketmaster](https://www.ticketmaster.com/), one of the hardest system design problems because of many reasons, starting with popular events (celebrity problem), where you need to handle millions of requests per event and  ending with correctness of payments and ticket assignments.
 
 
-# **LinkedIn message**
+## Requirements
+
+We are following the same structure for each system design:
+
+
+
+* Define functional and non-functional requirements
+* Satisfy functional requirement for couple of users and single server
+* Satisfy non-functional requirements
+* Follow ups & infra cost if needed/asked
+
+
+### Functional Requirements
+
+If you think through how Ticketmaster is done they have simple requirements:
+
+
+
+* create event
+* search for an event
+* book a ticket / seat
+* avoid double booking (2 persons had the same ticket/seat)
+
+To simplify our domain will consist of events like concerts, standups etc, and we will work with exclusive seats instead of “area” e.g. golden circle, fan zone, etc. Why? because it is harder than handling, and the zone's handling can be derived from handling specific seats easily.
+
+To avoid confusion we treat “ticket” and “seat” as the same concepts here, something that users can buy and should exclusively own until the event is over.
+
+
+### Non-Functional Requirements
+
+Typically interviewers make requirements in the way that a single machine cannot handle it thus making you think about scalability, consistency and availability with all the tradeoffs between them.
+
+For Ticketmaster we have:
+
+
+
+* High load: 
+    * 30-50M MAU (monthly active users) on average according to [official statistics](https://business.ticketmaster.com/ticketing-straight-to-your-app/?utm_source=chatgpt.com)
+    * 7-10M DAU (Daily active users) typically you can take 10-20% of MAU
+* Availability, ofc, we want as high as possible, depending on consistency reqs.
+* Consistency:
+    * Strong consistency for booking the ticket to prevent double booking
+    * Eventual consistency for everything else: searching events, creating events, analytics
+* Spikes: 3.5B total requests for popular events => 100-300k rps (Taylor Swift).
+
+
+## Satisfy Functional Requirements
+
+Now, focus on a single machine, few users just to show that system overall works.
+
+
+### Create Event
+
+Imagine I’m Lady Gaga, or rather her manager and I want to create an event in some city.
 
 
 ![alt_text](images/image1.png "image_tooltip")
 
 
-On November 4th, 2021, I got a message on LinkedIn. At that time, I was actively preparing for the final round at Amazon, so of course I agreed.
+Let’s keep things simple. We define simple RESTful stateless service and some storage (postgres for example).
 
-After that, I had a call with a recruiter. He gave general information, and said (remember): the  **interview is for the company** (not a specific project), for **multiple locations **(with a possibility to choose).
+The manager has some ui where he can input the event information and tickets information, e.g. how many tickets/seats, how much for each of them.
 
 
-# **First stage - online coding tasks again**
+### Search for an event
 
-I received a Codility test (similar to LeetCode), with 3 tasks to solve in a limited time. Unlike Amazon, I didn’t need to explain my solutions.
+For searching we don’t need to add anything else, just a GET endpoint that accepts a bunch of query parameters and applies them as “WHERE” clauses in the database.
+
+
+### Book a ticket / seat
+
+Let’s draw User experience for this feature:
+
+
+
+* User looks for event via search
+* User clicks on it and comes to the “Arena” page, where he can select the suitable seat
+* Then user is redirected to “payment” page, where payment is secured
+
+We are going to use a third party payment processor, for example Stripe that we have already designed (we gonna be the merchant).
+
+To achieve this user flow - we need to add one additional endpoint for GET event details, that will show arena and seats and one more to let users pay and confirm the booking this way.
 
 
 ![alt_text](images/image2.png "image_tooltip")
 
 
-All tasks were easy and medium level.
+Please note that this is a very bad approach, as we can have double booking.
 
 
-### First problem
+### Avoid double booking (2 persons had the same ticket/seat)
+
+This is a very interesting concurrency problem. It is possible to have double booking at the moment.
+
+The scenario:
 
 
-### 
+
+* there is event1
+* user1 saw seat5 in state “free” and  clicked on it to complete the payment
+* user2 saw seat5 in state “free” and clicked on it to complete the payment
+* user1 paid successfully -> webhook handler updates seat5 to be owned by user1 now.
+* user2 paid successfully -> webhook handler overrides seat 5 to be owned by user2 now.
+* Result: user1 and user2 paid for ticket, but only user2 is assigned, user1 is pissed.
+
+You have probably seen that when you select a seat on Ticketmaster - you are getting a 10 minutes timer to complete the payment. Let me explain what is going on and why this happens.
+
+
+#### Fix on Stripe side
+
+There might be a way to prevent this problem by using deduplication mechanism on Stripe side, in case we can form the same eventid-seatid payment_intend_id so that Stripe does not charge user2 as user1 has already paid. But this means severe coupling and relying on third party and bad user experience.
+
+
+#### Leverage storage (optimistic concurrency / locking)
+
+Whenever you hear someone needs “exclusive access” to something - it almost always means Distributed Lock in System Design, but we have only 2 users it is overkill for now. Instead - we can add guards on our database.
+
+How? Checking database before doing payment is not enough
+
+
 ![alt_text](images/image3.png "image_tooltip")
- \
+
+
+Typically you are using locking when something needs exclusive access (one at a time). In databases you have two ways of doing that:
 
 
 
-### Second problem
+* **pessimistic locking**: SELECT FOR UPDATE -> UPDATE within the same transaction
+* **optimistic locking**: READ row -> UPDATE WHERE r == row, can be 2 different transactions.
 
+The tradeoff is already written in Martin Kleppmann’s book: \
 
 ![alt_text](images/image4.png "image_tooltip")
- \
 
 
+tl;rd - if you have a lot of concurrent operations fighting for the same resource - use **pessimistic concurrency**, if you have just a couple of or only edge cases - use **optimistic concurrency**.
 
-### Third Problem
+For sure it won’t help if we have only 2 states for the seat (**free, booked**), because we are updating from “**free**” to “**booked**” only after the user paid, which is too late, money is gone.
+
+Therefore we are introducing a new state “**locked**” or “**selected**” that expresses the state when the user clicked on the seat but has not booked yet. Later on, when payment succeeds we update the status from “**locked**” to “**booked**”.
+
+```sql
+
+
+```
+-- we see status of the seat5 now free, so we straight away lock it using optimistic concurrency
+
+SELECT * FROM seats WHERE id = 'seat5';
+  -- depending on isolation level, this will either fail or return "rows_affected = 0". In both cases you know there is somebody else who has locked or booked the seat already
+UPDATE seats SET status = 'locked' WHERE status = 'free'
+```
+
+
+```
+
+This way double booking is not possible. However, the user might lock the seat and go for a walk for 3 hours. In that case we will run a background job to automatically reset the “lock” state after 10 minutes of inactivity, so let me introduce “updated_at” to our Seats entity.
+
+Apart from solving this problem we also improved user experience. Now user doesn’t have to fill in payment information just to see that seat was occupied long time ago, it will see it right away he clicked on the seat.
 
 
 ![alt_text](images/image5.png "image_tooltip")
 
 
-Honestly, I don’t remember exactly how I solved them, but I managed to solve them all.
+
+## Satisfy non-functional requirements
+
+Now given the working system - let’s scale it to millions of users.
+
+
+### High load
+
+As we mentioned we might have 30-50M MAU => 7-10 DAU (daily active users). It is not that big actually. 10M / 24*60*60 = 115 users per second. Let’s even add peak hours: 115 * 5 = 575. Let’s also add the fact that single user’s action can trigger multiple requests, 575 * 5 = **2875 rps at most**.
+
+Believe me, really well vertically scaled Postgres can handle it no problem. Let’s add “semi” popular events, marketing spikes etc -> and we might have something like 3-5k rps, and this is when it is better to scale. \
+ \
+Again, we don’t talk about celebrity problems, it is not possible to solve it with scaling.
+
+
+#### Scale APIs / workers
+
+APIs are stateless -> infinitely scalable, just spawn a lot of instances.
 
 
 ![alt_text](images/image6.png "image_tooltip")
 
 
-A few days later, I was invited to the final round that consisted of 4 interviews.
+
+#### Scale Storage
+
+Storage is stateful - meaning we must be careful with scaling. A typical approach is to scale horizontally -> Sharding.
+
+Hard to say what to use for scaling as we have different kind of loads:
+
+
+
+* we have search traffic that is not binded to specific events
+* we have read traffic for specific events (checking arena, details)
+* we have write traffic for specific seats
+
+Options to shard by: events, seats. The answer here is to decouple storage first and scale it independently, because we will have different ratios of load for different types of operations.
+
+**Step 1: decouple storage**.
+
+We can put general information about the event to some fulltext search optimized storage that has a lot of indices to speed up the search and filtering
+
+Now we can put event details with seats to the simple reads/simple writes storage.
+
+**Step 2. Shard storage**.
+
+For **Search Storage** we don’t have parameters to share on - so we will replicate data as it handles read heavy traffic.
+
+For **Events Storage** we shard by events for different reasons: 
+
+
+
+* we might want to allow user to select 2-3 seats at the same time for payment, we will need extremely hard coordination if we shard by seat in that case
+* it is much faster to read the whole seat map in single request to single node on read request.
 
 
 ![alt_text](images/image7.png "image_tooltip")
 
 
-
-# **Second stage - interview loop**
-
-As I said, there were 4 interviews in a row. Each was 45 minutes + 15 minutes break. The total process took 4 hours.
+For rebalancing we can use either of three approaches:
 
 
-## First interview (OOP)
 
-I needed to design a system that can switch between elements in an imaginary client. I never had such tasks before and didn’t prepare for them, so my solution was like this:
+* consistent hashing (needs coordination)
+* rendezvous hashing (stateless but needs more operations)
+* hashslot reshuffling (redis approach, needs coordination as well)
 
+**Step 3. Use Distributed Lock**.
 
-    *Sorry, there was a solution here, but for some reasons I have to remove it.*
+In the case of a semi-popular event we will have a lot of “locking” and later “unlocking” if the users changed their mind. Besides that booking and locking the seat are conceptually different - so we might apply Distributed Locking pattern. Another benefit here is in the case of RedLock - we can remove the background job that resets the “locked” state after 10 mins of inactivity.
 
-During the interview, they guided me to better ideas, for example, to use Command pattern instead of Strategy, etc. The interviewer was in a good mood, and I liked it.
+This way we create a Redis instance, sharded by seats (can be by event as well, does not matter).
 
-By the way, there were no behavioral questions in this interview.
-
-
-## Second interview
-
-Even now I don’t fully understand what this interview was about 😅 \
-At one point, I wrote code, explained what was wrong with it. Then I explained how I would test it.
+The flow works like this now:
 
 
-    *Sorry, there was a solution here, but I had to remove it.*
 
-Then there were SOLID questions, like:
+* user tries to acquire a lock with SET NX “seatid”. It will write to the redis “seatid” key only if it does not exist. The key is set to expire in 10 minutes automatically via TTL mechanism.
+* in case the user got the successful lock - he/she proceeds with payment and saves the result to postgres database.
 
-There is an interface with 10 methods:
+Please note that we need to enable “fsync” for every write to redis. Concurrency is not the issue, because Redis is one threaded.
 
+If you are patient with details you will notice that there is an edge case now, if we have concurrent payment and locking in 9:59 TTL. It can be solved by prolonging TTL upon user’s operation and playing with longer TTL.
 
-```
-IInt {
-  M1,
-  M2,
-  ...
-  M10
-}
-```
-
-
-Two classes implement it:
-
-
-```
-Class A : IInt {
-  M1 { behavior },
-  ...
-  M10 { behavior }
-}
-
-Class B : IInt {
-  M1 { behavior },
-  ...
-  M9() {},
-  M10() {}
-}
-```
-
-
-The second class doesn’t need methods 9 and 10. What is wrong here and how to fix it?
-
-Behavioral questions were quite detailed about my experience, and a classic question: **why I want to work at Microsoft**.
-
-I also liked this interview. No pressure. We finished 15 minutes earlier and had time to chat for another 30 minutes.
-
-
-## Third interview (algorithms)
-
-Actually, I was lucky. I got the same LeetCode problem that I had solved before. They didn’t even change the input.
-
-For fun, I’ll let you find this problem and post a link in the comments. If you are lazy - ask me in any social network, I’ll send it.
-
-
+	
 ![alt_text](images/image8.png "image_tooltip")
 
 
-It was a **group anagrams** problem. Anagrams are words that are equal after sorting.
-
-And yes, I cheated a bit. After bad Amazon algorithm experience, I didn’t say that I saw this problem before. But honestly, I didn’t remember the solution. I started writing and understood it wouldn't work, so I solved it again “from scratch”.
-
-I solved it in two ways: **O(n * m log m)** and **O(n * m)**.
+Now, given a single event is not very popular - we can scale infinitely as we isolate event related information by sharding. But if we have too popular an event, like Taylor Swift - we are done. All requests will go to the same shard for Taylor’s event and it will be down the whole time. We will talk about a solution later.
 
 
-    *Sorry, solution removed.*
+### Availability and Consistency
 
-Behavioral questions:
-
-
-
-* The most difficult task I did
-* How I handle situations when team opinions differ
-* And this one I didn’t answer well because I didn’t fully understand it: \
-**“situation when someone was mistreated at the workplace”**
-
-I liked this interview, but the behavioral questions were strange. The interviewer looked nervous, like he was afraid of me 😅 But still friendly.
+The general availability pattern is replication. Apis are already solved, let’s talk about storages.
 
 
-## Fourth interview (system design)
+#### Distributed lock high availability
 
-We had a system that sends file events (created, updated, deleted). There is content for create/update in these events
+We need strong consistency and no data loss requirement, otherwise we will not be able to guarantee no double booking.
 
-Requirements I wrote down:
+For this reason we **CANNOT do**:
+
+
+
+* leader-follower async replication, prone to data loss on leader election
+* leader-follower sync replication, no high availability as we cannot lose replica
+* leaderless, due to data loss on conflicts/concurrency (last write win problem)
+* leaderful, due to data loss on conflicts and not being strongly consistent
+
+How do we approach this? The answer is simple:
+
+
+
+* either we say that according to CAP theorem we cannot be highly available
+* or we apply heavy RAFT consensus and then we can lose up to 49% of the nodes
+
+Let’s assume we are rich - so we do RAFT.
+
+
+#### Search storage
+
+We already applied leader-follower async replication for scaling purposes, so it is by default highly available. We don’t have a strong consistency requirement here.
+
+
+#### Events Storage
+
+It should be strongly consistent to not lose data (as it is money data in a nutshell).
+
+We cannot have high concurrency/conflicts per seat, because we allow only one client to write at a time due to Distributed lock, it means we can have the following replication strategies here:
+
+
+
+* heavy RAFT, a bit overkill here
+* leaderless replication with w + r > n quorum.
 
 
 ![alt_text](images/image9.png "image_tooltip")
 
 
-Actually, strong consistency was not required, I misunderstood the interviewer.
 
-**Solution:**
+### Spikes
 
-Standard master replication + partitioning with consistent hashing (traffic spikes possible) + cache (to store last event ID per file). We assumed there is an event ID working like a logical clock. By comparing two IDs, we know which is newer, and we discard older ones.
+This is the most tricky requirement. While we might handle millions of requests in general in the system, having tens of thousands same sized events - we cannot handle extremely popular events, like Lady Gaga or Taylor Swift.
 
-
-    *Sorry, solution removed.*
-
-Behavioral question: task and scope of work I’m proud of.
+There is published data that Taylor Swift got 3.5 B requests overall during sellings. People estimated it to 40-200k requests per second. No single node can handle this number of requests. \
+ \
+The clear bottleneck here is Distributed Lock and Events Storage.
 
 
-# **Offer (MS lied to me)**
+#### Distributed Lock
 
-After 1.5 weeks, I received an offer.
+What usually happens: within the first minute people that are let in will lock ALL possible seats, and then they will be deciding whether to buy or not. While the whole arena is “free” it might not be that big of a deal. Assume 200k seats and around 200k requests - pretty manageable.
+
+We can go to extremes and have Redis node per seat - seems easy fix.
+
+But keep in mind the amount of people that want to buy a ticket is 3-5 M or even more. So they all are waiting and constantly reloading the page, and only 200k are “booking” at the moment.
+
+Now it is enough for only a single seat to get “unlocked” - and a whole burst of 2M people will try to click on it. Even if we are optimistic enough, and maybe only a small fraction of people out of 2M will go there, it is still 2-10k at least. A single node can never handle this.
+
+It is clear - even if we have Redis Node per seat - for events like Taylor Swift it is not enough.
+
+
+####  Events storage
+
+Since we have sharding per event - it is even worse. However the situation is not that critical: since lock is necessary for API to allow payment and update status in Events Storage - we will be able to have at most a maximum number of seats per event writing concurrently. Arena that handles 200k seats - will produce at max 200k concurrent writs (in reality it is much lower).
+
+To scale further - we can shard by arena zones, or even go to extremes and shard by seats - then we clearly can handle write traffic.
+
+
+### Solution
 
 
 ![alt_text](images/image10.png "image_tooltip")
 
 
+**North star: Virtual Waiting Room**
 
-![alt_text](images/image11.png "image_tooltip")
+You all probably have seen the production solution for this. When you try to buy tickets for some popular event - you will get this page saying “you are X in the queue, wait until you are in”.
 
+It is called “Distributed Waiting room”. Cloudflare has this offering: [https://www.cloudflare.com/application-services/products/waiting-room/](https://www.cloudflare.com/application-services/products/waiting-room/)
 
-I cannot express the amount of various feelings I had back then. I have been dreaming about tier 1 FAANG level companies since I started (2018), and now, here it is, they have considered me.
+It is a separate system design problem. It is sort of a **Stateful Rate limiter** on steroids, and pretty complicated, so you don’t want to design it during the interview.
 
-There was one caveat though: the offer was for a specific location (Prague) and for a specific project (Dynamics), which was one of the reasons I left Microsoft later, more in [this article](https://live.andreyka26.com/i-left-microsoft-after-4-years). \
-I was just a bit upset, but I really wanted to try Microsoft from the inside out, and got this badge on my CV - so I agreed.
+With a virtual waiting room - you can have a guarantee of how many requests you receive per event, and it makes our system design good enough with current state.
 
-The offer was for level 60 (Junior 2), however at Epam I was Senior (fake senior I would say) back then. Later on, when I join Presence backend service in Teams I would double confirm for myself that me and most of the seniors in outsource with less than 5 years of exp - are fake seniors, sorry. This is the conclusion I made, when I saw the REAL seniors and principals in my team.
+You won’t find a system design solution on the internet for it, but I have it in my archive. Since it is pretty complicated and exclusive, it will go public only when my Telegram and Instagram has 1k subscribers and Youtube has 2k subscribers.
 
+**Email campaign**.
 
-# **How I prepared**
+During my practical lecture, one student proposed to have an Email campaign that will send invitations for booking in batches. You send the first 5k people that subscribed by email -> here is your link with specific code that will let you in and buy a ticket, then next 5k and so on.
 
-Preparation had two streams: **system design / architecture** and **leetcode problems**. I almost didn’t prepare behavioral questions.
+The problem here is that if even a single email link gets into public - we are again in the same spot, up to 100-500k people are trying to follow this link and will overload the node that handles this invitation code.
 
+**Straight forward rate limiter**.
 
-## Coding problems
-
-This is the hardest part for me. For me, intelligence is the relative speed of solving new problems. If 4 people see a problem for the first time, the smarter one solves it faster (with many caveats). That’s what separates smart people from not so smart (IMHO, based on books).
-
-And I’m in the “not so smart” category. Often solutions just don’t come to my mind. So my only way is to **memorize patterns and solutions**.
-
-So from the beginning of Amazon prep, I started LeetCode.
-
-Every 3-4 problems, at least one was impossible for me. Two desires fight in your head:
+One working solution with terrible user experience is to put rate limiting on “locking” operation. The bucket key would be seat id, so rate limiter will just allow 1k rps and not more by discarding other requests randomly.
 
 
+## Conclusion
 
-1. Continue thinking → huge dopamine if you solve it
-2. Look at solution → almost no pleasure, sometimes anger, but you learn
+I tried to go as deep as possible, as people seem to like it the most. Please put a reaction to the article below and provide your feedback about this solution. I will be happy to discuss technical doubts about this solution
 
-1.5 years ago I solved ~80 problems in 6 months. With the second approach, I solved ~150 problems in 3-4 months. The second approach gave much more understanding and confidence. But you must deeply analyze the solution, solve it again in different ways, “live through” the problem.
-
-Will this guarantee solving the next similar problem? No. Don’t hope. But after 2-4 similar problems, you start feeling more confident.
-
-Very important: find good explanations. I really like **NeetCode** on YouTube.
-
-Bad explanation = rage and notebook thrown at the wall 😅
-
-
-## What LeetCode problems I solved
-
-I took **Top 100 liked problems**, solved all easy and medium + bunch of random problems. Then I continued solving by likes > dislikes (back then leetcode showed number of likes and number of dislikes to a problem)
-
-I tracked milestones in Instagram: \
-[https://www.instagram.com/stories/highlights/17939340292663489/](https://www.instagram.com/stories/highlights/17939340292663489/)
-
-
-![alt_text](images/image12.png "image_tooltip")
-
-
-Statistics: Before the interview, I solved **147 problems**.
-
-Sometimes I read **CLRS (Cormen)**, mostly for graph theory.
-
-
-![alt_text](images/image13.png "image_tooltip")
-
-
-
-## Architecture / system design
-
-I read the **“System Design Interview”** book.
-
-
-![alt_text](images/image14.png "image_tooltip")
-
-
-Honestly, I didn’t like it much. Good as a roadmap, but I would learn topics from other resources.
-
-For example, the consistent Hashing explanation was bad for me. I googled and understood it in 5 minutes, while the book took 20 minutes and I still didn’t get it. Maybe it was  just me being dumb.
-
-But it explains how to talk in an interview, what to ask, what techniques to use.
-
-Besides that, of course, I have reread **Designing Data-Intensive Applications (Kleppmann)**. I reread it before every single interview. This book is the most valuable for me in general, not only for interviews.
-
-
-![alt_text](images/image15.png "image_tooltip")
-
-
-On top of that, I watched Kleppmann lectures and read articles about logical timestamps, CAP, consistency guarantees, HA techniques, etc.
-
-
-# **Conclusions**
-
-I liked the Microsoft interview much more than Amazon.
-
-Less behavioral questions, interviewers were much more friendly, they guided me to correct ideas. In Amazon, it felt like the interviewer was doing his tasks while answering my questions.
-
-One downside: feedback was positive but not detailed. Amazon told me what was good and bad. Apart from that, I was a bit stressed that they didn’t allow me to choose the project and relocation country, although they promised that.
-
-If you are too lazy to read - I recorded the [same in video](https://www.youtube.com/watch?v=oVaISHBflo0).
-
-If you have questions, ask in comments or my social networks (Instagram, Telegram, Facebook, YouTube). Thanks for reading!
+Please don’t forget to subscribe to my social media: [telegram](https://t.me/programming_space), [instagram](https://www.instagram.com/andreyka26_se/), [x](https://x.com/andreyka26_), [tiktok](https://www.tiktok.com/@andreyka26__). Try out my pet projects: [SyncSymptom](https://syncsymptom.com/), [Pet4Pet](https://pet-4-pet.com/).
