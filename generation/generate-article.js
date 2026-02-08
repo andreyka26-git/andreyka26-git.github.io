@@ -204,6 +204,13 @@ function main() {
   console.log("Moved post to _posts/" + articleName + ".md");
 
   rimraf(TEMP_EXTRACT_DIR);
+  
+  // Clean up the HTML file that was used for generation
+  if (fs.existsSync(htmlDest)) {
+    fs.unlinkSync(htmlDest);
+    console.log("Cleaned up temporary HTML file");
+  }
+  
   console.log("Done. Article:", articleName);
 }
 

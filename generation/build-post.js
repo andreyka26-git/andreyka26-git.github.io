@@ -4,7 +4,7 @@ const path = require("path");
 // Default metadata (overridden by frontmatter in .txt if present)
 const date =
   new Date().toISOString().replace(/T/, " ").replace(/\..+/, "") + " -0000";
-let title = "[Draft] Interview experience at AWS in 2021";
+let title = "How I got offer from Microsoft in 2021";
 let category = "Software Engineering Life";
 let tags = "[softwareengineeringlife]";
 let description = "Blog post.";

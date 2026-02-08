@@ -1,243 +1,297 @@
+<!-- Copy and paste the converted output. -->
+
 <!-- You have some errors, warnings, or alerts. If you are using reckless mode, turn it off to see useful information and inline alerts.
 * ERRORs: 0
 * WARNINGs: 0
-* ALERTS: 12 -->
+* ALERTS: 15 -->
 
 
 # **What this article is about**
 
-This is not a success story, because I didn’t pass the Amazon interview.
+This is a continuation of my FAANG adventures. The previous article was about my Amazon interview experience: [https://live.andreyka26.com/interview-experience-at-aws-in-2021](https://live.andreyka26.com/interview-experience-at-aws-in-2021)
 
-This is a story about my Amazon interview experience and why I didn’t like it compared to other FAANG companies. Besides that, I will answer questions like: **what exactly they asked, what were the coding tasks, what was system design question**.
+Today we are talking about how Microsoft lied to me, its interview experience, what they asked me, how many stages, what is the offer process, and what was the location in the offer. We will do an interview experience comparison between AWS and Microsoft.
 
-In general, this article is about my experience: what interviews were, what was hard, what was not, how I prepared, and how much luck matters.
+By the way, all interviews are online now, no onsite interviews due to Covid as well.
 
 
-# **Start - Amazon offer**
-
-One day, on September 6, I received this message on LinkedIn.
+# **LinkedIn message**
 
 
 ![alt_text](images/image1.png "image_tooltip")
 
 
-I agreed to an interview. At that time, Amazon interview process had three stages:
+On November 4th, 2021, I got a message on LinkedIn. At that time, I was actively preparing for the final round at Amazon, so of course I agreed.
+
+After that, I had a call with a recruiter. He gave general information, and said (remember): the  **interview is for the company** (not a specific project), for **multiple locations **(with a possibility to choose).
 
 
+# **First stage - online coding tasks again**
 
-1. Online coding tasks without interviewer
-2. 1-hour interview with one interviewer
-3. Final round with 5 interviews, 1 hour each
+I received a Codility test (similar to LeetCode), with 3 tasks to solve in a limited time. Unlike Amazon, I didn’t need to explain my solutions.
 
 
 ![alt_text](images/image2.png "image_tooltip")
 
 
-
-# **Interviewing at Amazon**
-
-From the moment I understood that I will interview at Amazon, I started grinding LeetCode, because it is my weakest part in interviews (at least I thought so). It was not going great, but slowly improving.
-
-All interviews were online because of the COVID.
-
-Now about the first stage.
-
-
-# **First stage (done)**
-
-At HackerRank I got 2 tasks, I solved only one. Important note: for each task I had to **explain the solution**.
-
-Sorry for bad screenshots, I was afraid Amazon could detect screenshots 😅 Next ones are better.
+All tasks were easy and medium level.
 
 
 ### First problem
 
 
+### 
 ![alt_text](images/image3.png "image_tooltip")
+ \
 
 
 
 ### Second problem
 
-I didn’t solve it, brute force timed out, I needed dynamic programming.
-
 
 ![alt_text](images/image4.png "image_tooltip")
+ \
 
 
 
-# **Second stage (first try)**
-
-I thought if I didn’t solve all the tasks - I'd be rejected. But then I got this email.
+### Third Problem
 
 
 ![alt_text](images/image5.png "image_tooltip")
 
 
-I was surprised but happy.
-
-After some time, they scheduled a second stage: 1-hour interview. I googled and understood Amazon loves **Leadership Principles** questions. So I learned all the principles, prepared examples from my small experience (3 years), and continued grinding LeetCode.
-
-Interview day came (early October). We started talking, the interviewer explained the interview, and I realized I prepared for **completely wrong things**.
-
-The interview was about **behavioral questions, Linux, and networking**. \
-I've been a Windows user since I was 4 years old. My Linux experience was minimal, only some on-prem stuff for pet projects. Networking knowledge - only theoretical from books.
-
-I didn’t record interview, but wrote down some questions:
-
-
-
-* How to delete a file in Linux?
-* You deleted a file but disk space is not freed, what to do?
-* You see there is no internet on the machine, what to do?
-* How to find the biggest file in Linux?
-* How to pipe output from one command to another?
-* The disk is full on the server, how to troubleshoot?
-* In one region latency increased, others are fine, how to fix and troubleshoot?
-
-Behavioral question I remember: \
-**Tell me about a situation when you had an uncomfortable task and how you overcame it.**
-
-After a few days, I got a rejection email.
+Honestly, I don’t remember exactly how I solved them, but I managed to solve them all.
 
 
 ![alt_text](images/image6.png "image_tooltip")
 
 
-But then I got another email.
+A few days later, I was invited to the final round that consisted of 4 interviews.
 
 
 ![alt_text](images/image7.png "image_tooltip")
 
 
-Of course I agreed. My top career ambition is to be in FAANG.
+
+# **Second stage - interview loop**
+
+As I said, there were 4 interviews in a row. Each was 45 minutes + 15 minutes break. The total process took 4 hours.
 
 
-# **Second stage (second try, done)**
+## First interview (OOP)
 
-This time interview was mostly behavioral questions like: \
-“Tell me about a situation when you had a conflict with a colleague and how you resolved it and what impact it had on the project.”
-
-I exaggerate, but in all interviews there were like **40-50 behavioral questions** (see stage 3). For me, it’s too much.
-
-Luckily, feedback was positive and I moved to stage 3.
+I needed to design a system that can switch between elements in an imaginary client. I never had such tasks before and didn’t prepare for them, so my solution was like this:
 
 
-# **Preparation - LeetCode, books**
+    *Sorry, there was a solution here, but for some reasons I have to remove it.*
 
-I won’t write much here, because nobody cares how a rejected guy prepared \
-More details are in my Microsoft/Google/Snowflake interview article.
+During the interview, they guided me to better ideas, for example, to use Command pattern instead of Strategy, etc. The interviewer was in a good mood, and I liked it.
 
-Shortly: I solved **114 LeetCode problems** and even recorded this moment.
-
-I read **“System Design Interview”** (didn’t like it much) and reread **“Designing Data-Intensive Applications”** by Kleppmann (as always, amazing).
+By the way, there were no behavioral questions in this interview.
 
 
-# **Third stage (reject)**
+## Second interview
 
-Amazon gives final round feedback by phone, which surprised me. I’ll describe all 5 interviews based on feedback analysis.
+Even now I don’t fully understand what this interview was about 😅 \
+At one point, I wrote code, explained what was wrong with it. Then I explained how I would test it.
 
 
-## 1 System design
+    *Sorry, there was a solution here, but I had to remove it.*
 
-The first interview was system design. I liked it. Not many behavioral questions (3-4), task was reasonable, interviewer was nice.
+Then there were SOLID questions, like:
 
-Later I found him on LinkedIn: 14 years at IBM and many years at Amazon. It was an honor to interview with him, especially on system design.
+There is an interface with 10 methods:
 
-Task: design a **notification system** that sends notifications when requested by external services.
 
-My solution (not perfect but meets requirements):
+```
+IInt {
+  M1,
+  M2,
+  ...
+  M10
+}
+```
+
+
+Two classes implement it:
+
+
+```
+Class A : IInt {
+  M1 { behavior },
+  ...
+  M10 { behavior }
+}
+
+Class B : IInt {
+  M1 { behavior },
+  ...
+  M9() {},
+  M10() {}
+}
+```
+
+
+The second class doesn’t need methods 9 and 10. What is wrong here and how to fix it?
+
+Behavioral questions were quite detailed about my experience, and a classic question: **why I want to work at Microsoft**.
+
+I also liked this interview. No pressure. We finished 15 minutes earlier and had time to chat for another 30 minutes.
+
+
+## Third interview (algorithms)
+
+Actually, I was lucky. I got the same LeetCode problem that I had solved before. They didn’t even change the input.
+
+For fun, I’ll let you find this problem and post a link in the comments. If you are lazy - ask me in any social network, I’ll send it.
 
 
 ![alt_text](images/image8.png "image_tooltip")
 
 
-Later from feedback I understood that my system design was **better than expected**. But good news ended there.
+It was a **group anagrams** problem. Anagrams are words that are equal after sorting.
+
+And yes, I cheated a bit. After bad Amazon algorithm experience, I didn’t say that I saw this problem before. But honestly, I didn’t remember the solution. I started writing and understood it wouldn't work, so I solved it again “from scratch”.
+
+I solved it in two ways: **O(n * m log m)** and **O(n * m)**.
 
 
-## 2 Coding
+    *Sorry, solution removed.*
 
-5-6 behavioral questions and trivial task: \
-**find files with specific extension and size.**
+Behavioral questions:
 
-Problem: I had no idea how to get file size from code, never did it before. I didn’t understand what the interviewer expected.
 
-My solution:
+
+* The most difficult task I did
+* How I handle situations when team opinions differ
+* And this one I didn’t answer well because I didn’t fully understand it: \
+**“situation when someone was mistreated at the workplace”**
+
+I liked this interview, but the behavioral questions were strange. The interviewer looked nervous, like he was afraid of me 😅 But still friendly.
+
+
+## Fourth interview (system design)
+
+We had a system that sends file events (created, updated, deleted). There is content for create/update in these events
+
+Requirements I wrote down:
 
 
 ![alt_text](images/image9.png "image_tooltip")
 
 
-Actually, I should assume there are system calls returning file/directory objects. But they said the solution was OK.
+Actually, strong consistency was not required, I misunderstood the interviewer.
+
+**Solution:**
+
+Standard master replication + partitioning with consistent hashing (traffic spikes possible) + cache (to store last event ID per file). We assumed there is an event ID working like a logical clock. By comparing two IDs, we know which is newer, and we discard older ones.
 
 
-## 3 Behavioral
+    *Sorry, solution removed.*
 
-Yes, full hour of questions like: \
-“Tell me about a situation when you had conflict and how you solved it and what impact it had.”
-
-They ask **8-13 questions per hour**.
-
-I had 3 years of experience and ~10 prepared stories for leadership principles. I quickly ran out of stories and started reusing the same stories from different angles. It was annoying. Too much focus on this, in my opinion.
-
-But feedback was OK.
+Behavioral question: task and scope of work I’m proud of.
 
 
-## 4 Coding (or how I an Irish guy r*ped me)
+# **Offer (MS lied to me)**
 
-From the start, the interviewer was not happy. I asked “how are you”, and got answer like: \
-“as usual, no time for anything, but okay”.
-
-The first question was an OOP task for Amazon lockers. Frankly I don’t know this concept in real life, there were no Amazon lockers in Ukraine back then. I didn’t understand the requirements and asked clarifying questions for ~20 minutes.
+After 1.5 weeks, I received an offer.
 
 
 ![alt_text](images/image10.png "image_tooltip")
 
 
-By his tone, I felt he was doing his work in parallel. Probably the “rejection” decision was made during the first 10 minutes already.
-
-After 20 minutes he stopped me: **“unfortunately we ran out of time”**. Then 3-4 behavioral questions.
-
-Then, 20 minutes before the end, he gave another coding problem.
-
 
 ![alt_text](images/image11.png "image_tooltip")
 
 
-Later I found out it was similar to LeetCode, but harder. \
-Attaching the [discussion on the Leetcode](https://leetcode.com/discuss/post/545748/amazon-subsidiary-phone-concatenated-wor-uajg/) created by a guy who got exactly the same problem, and [variation of the problem on the Leetcode](https://leetcode.com/problems/concatenated-words/description/).
+I cannot express the amount of various feelings I had back then. I have been dreaming about tier 1 FAANG level companies since I started (2018), and now, here it is, they have considered me.
 
- \
-I had 20 minutes left. I panicked and couldn't solve it.
+There was one caveat though: the offer was for a specific location (Prague) and for a specific project (Dynamics), which was one of the reasons I left Microsoft later, more in [this article](https://live.andreyka26.com/i-left-microsoft-after-4-years). \
+I was just a bit upset, but I really wanted to try Microsoft from the inside out, and got this badge on my CV - so I agreed.
+
+The offer was for level 60 (Junior 2), however at Epam I was Senior (fake senior I would say) back then. Later on, when I join Presence backend service in Teams I would double confirm for myself that me and most of the seniors in outsource with less than 5 years of exp - are fake seniors, sorry. This is the conclusion I made, when I saw the REAL seniors and principals in my team.
+
+
+# **How I prepared**
+
+Preparation had two streams: **system design / architecture** and **leetcode problems**. I almost didn’t prepare behavioral questions.
+
+
+## Coding problems
+
+This is the hardest part for me. For me, intelligence is the relative speed of solving new problems. If 4 people see a problem for the first time, the smarter one solves it faster (with many caveats). That’s what separates smart people from not so smart (IMHO, based on books).
+
+And I’m in the “not so smart” category. Often solutions just don’t come to my mind. So my only way is to **memorize patterns and solutions**.
+
+So from the beginning of Amazon prep, I started LeetCode.
+
+Every 3-4 problems, at least one was impossible for me. Two desires fight in your head:
+
+
+
+1. Continue thinking → huge dopamine if you solve it
+2. Look at solution → almost no pleasure, sometimes anger, but you learn
+
+1.5 years ago I solved ~80 problems in 6 months. With the second approach, I solved ~150 problems in 3-4 months. The second approach gave much more understanding and confidence. But you must deeply analyze the solution, solve it again in different ways, “live through” the problem.
+
+Will this guarantee solving the next similar problem? No. Don’t hope. But after 2-4 similar problems, you start feeling more confident.
+
+Very important: find good explanations. I really like **NeetCode** on YouTube.
+
+Bad explanation = rage and notebook thrown at the wall 😅
+
+
+## What LeetCode problems I solved
+
+I took **Top 100 liked problems**, solved all easy and medium + bunch of random problems. Then I continued solving by likes > dislikes (back then leetcode showed number of likes and number of dislikes to a problem)
+
+I tracked milestones in Instagram: \
+[https://www.instagram.com/stories/highlights/17939340292663489/](https://www.instagram.com/stories/highlights/17939340292663489/)
 
 
 ![alt_text](images/image12.png "image_tooltip")
 
 
-This is what I wrote (wrong solution). He asked for complexity, but interrupted again with **“unfortunately we ran out of time”**.
+Statistics: Before the interview, I solved **147 problems**.
 
-Honestly, if this was expected, I’m not on that level to solve it in 20 minutes with clarifying, coding, and complexity analysis.
-
-
-## 5 Behavioral
-
-Very nice person. The first half was relaxed, like chatting. In the second half he drilled into details so deeply that I felt like murder suspect and he is a detective.
-
-Leadership principles questions are exhausting. I’m fine with them, but not so many.
+Sometimes I read **CLRS (Cormen)**, mostly for graph theory.
 
 
-# **Feedback**
-
-Feedback was given by phone, no proof. Short version:
+![alt_text](images/image13.png "image_tooltip")
 
 
-    You are a great guy, exceeded expectations in system design, but coding was very bad. So no, come back in 12 months.
+
+## Architecture / system design
+
+I read the **“System Design Interview”** book.
+
+
+![alt_text](images/image14.png "image_tooltip")
+
+
+Honestly, I didn’t like it much. Good as a roadmap, but I would learn topics from other resources.
+
+For example, the consistent Hashing explanation was bad for me. I googled and understood it in 5 minutes, while the book took 20 minutes and I still didn’t get it. Maybe it was  just me being dumb.
+
+But it explains how to talk in an interview, what to ask, what techniques to use.
+
+Besides that, of course, I have reread **Designing Data-Intensive Applications (Kleppmann)**. I reread it before every single interview. This book is the most valuable for me in general, not only for interviews.
+
+
+![alt_text](images/image15.png "image_tooltip")
+
+
+On top of that, I watched Kleppmann lectures and read articles about logical timestamps, CAP, consistency guarantees, HA techniques, etc.
 
 
 # **Conclusions**
 
-I read a lot about Amazon interview loops. People say luck matters a lot. Looks like I was unlucky, but I got experience.
+I liked the Microsoft interview much more than Amazon.
 
-Everything here I also told in my video, if you don’t want to read.
+Less behavioral questions, interviewers were much more friendly, they guided me to correct ideas. In Amazon, it felt like the interviewer was doing his tasks while answering my questions.
 
-Thanks for reading, waiting for feedback!
+One downside: feedback was positive but not detailed. Amazon told me what was good and bad. Apart from that, I was a bit stressed that they didn’t allow me to choose the project and relocation country, although they promised that.
+
+If you are too lazy to read - I recorded the [same in video](https://www.youtube.com/watch?v=oVaISHBflo0).
+
+If you have questions, ask in comments or my social networks (Instagram, Telegram, Facebook, YouTube). Thanks for reading!
