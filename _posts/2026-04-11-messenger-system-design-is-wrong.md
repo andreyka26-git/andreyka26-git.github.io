@@ -362,7 +362,7 @@ We can say that we can fan out notifications in parallel. I would agree, but we 
 
 ## **What is the answer on the system design interview**
 
-My answer for this problem on the real System Design problem would be the following:
+My answer for this problem on the real System Design interview would be the following:
 
 
 
