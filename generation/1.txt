@@ -1,382 +1,390 @@
 <!-- Copy and paste the converted output. -->
 
 <!-- You have some errors, warnings, or alerts. If you are using reckless mode, turn it off to see useful information and inline alerts.
-* ERRORs: 0
+* ERRORs: 1
 * WARNINGs: 0
-* ALERTS: 10 -->
+* ALERTS: 27 -->
 
 
-## What this article about
+## Introduction
 
-This is a continuation of the System Design series, where I’m doing very deep and detailed solutions for the most popular problems that are asked in FAANGs companies. \
-[Previous system design](https://andreyka26.com/payment-gateway-stripe-system-design-with-microsoft-engineer) was about designing Stripe - payment processing platform for businesses.
+Welcome everyone, I am a big fan of System Design problems, and have been doing them for the past 5 years, yet I have encountered an unsolved problem that I couldn’t find a working solution on the internet. The problem is Designing a Messenger, but not easy peasy Whatsapp with up to 100 users or so, but a real CHAD - Telegram - that can handle 200k users per chat and millions of the users per channel.
 
-Today we are designing [Ticketmaster](https://www.ticketmaster.com/), one of the hardest system design problems because of many reasons, starting with popular events (celebrity problem), where you need to handle millions of requests per event and  ending with correctness of payments and ticket assignments.
+I checked all the System Design solutions on the internet, asked on the forums (Reddit, Stackoverflow, Threads), asked one principal at Microsoft, 1 staff at Snowflake, one Solutions Architect (my ex tech lead), and all of them pointed that the problem I’m describing does really exist and the proposed solution does not solve it. I even applied to the Telegram for SRE position to basically ask them during the interview how it works (but they ignored me).
 
+My claim in this article: `ALL EXISTING SYSTEM DESIGN SOLUTIONS WILL NOT LINEARLY SCALE WITH LARGE CHAT FEATURE, meaning every web socket node will be handling all big chats regardless how you scale it`
 
-## Requirements
-
-We are following the same structure for each system design:
+I would appreciate your ideas in the comment section.
 
 
+## The problem
 
-* Define functional and non-functional requirements
-* Satisfy functional requirement for couple of users and single server
-* Satisfy non-functional requirements
-* Follow ups & infra cost if needed/asked
+Messenger is a pretty complex System Design problem, so we will narrow it down to the problematic part.
 
 
-### Functional Requirements
-
-If you think through how Ticketmaster is done they have simple requirements:
+### Functional requirements
 
 
 
-* create event
-* search for an event
-* book a ticket / seat
-* avoid double booking (2 persons had the same ticket/seat)
-
-To simplify our domain will consist of events like concerts, standups etc, and we will work with exclusive seats instead of “area” e.g. golden circle, fan zone, etc. Why? because it is harder than handling, and the zone's handling can be derived from handling specific seats easily.
-
-To avoid confusion we treat “ticket” and “seat” as the same concepts here, something that users can buy and should exclusively own until the event is over.
+* User is able to select chat, where he/she wants to communicate (send messages, read other’s messages)
+* User receives near real time updates ONLY if he is online and if he currently has the chat selected/opened
 
 
-### Non-Functional Requirements
-
-Typically interviewers make requirements in the way that a single machine cannot handle it thus making you think about scalability, consistency and availability with all the tradeoffs between them.
-
-For Ticketmaster we have:
+### Non Functional requirements
 
 
 
-* High load: 
-    * 30-50M MAU (monthly active users) on average according to [official statistics](https://business.ticketmaster.com/ticketing-straight-to-your-app/?utm_source=chatgpt.com)
-    * 7-10M DAU (Daily active users) typically you can take 10-20% of MAU
-* Availability, ofc, we want as high as possible, depending on consistency reqs.
-* Consistency:
-    * Strong consistency for booking the ticket to prevent double booking
-    * Eventual consistency for everything else: searching events, creating events, analytics
-* Spikes: 3.5B total requests for popular events => 100-300k rps (Taylor Swift).
+* Traffic / load
+    * 1k chats
+    * every chat has 10k participants
+    * overall 1k * 10k = 10M users
+* Latency: should be as minimal as possible, message delivery should feel like instant.
+* The system should be linearly scalable. It means if we add more chats and scale the component - we should be able to handle the load (keep CPU, Memory and Network bandwidth within allowed controllable boundaries)
+* No encryption. Let’s be fair, Telegram does not encrypt the messages per user, so we won’t do it either.
 
 
-## Satisfy Functional Requirements
-
-Now, focus on a single machine, few users just to show that system overall works.
-
-
-### Create Event
-
-Imagine I’m Lady Gaga, or rather her manager and I want to create an event in some city.
+## Prerequisite
 
 
 ![alt_text](images/image1.png "image_tooltip")
 
 
-Let’s keep things simple. We define simple RESTful stateless service and some storage (postgres for example).
-
-The manager has some ui where he can input the event information and tickets information, e.g. how many tickets/seats, how much for each of them.
-
-
-### Search for an event
-
-For searching we don’t need to add anything else, just a GET endpoint that accepts a bunch of query parameters and applies them as “WHERE” clauses in the database.
-
-
-### Book a ticket / seat
-
-Let’s draw User experience for this feature:
+To simplify the RPS calculation and explanation of the problem here how we are going to organize component on the diagram:
 
 
 
-* User looks for event via search
-* User clicks on it and comes to the “Arena” page, where he can select the suitable seat
-* Then user is redirected to “payment” page, where payment is secured
+* **Users/clients** are going to be named `u{x}`, e.g. u1, u2, u3. All the users in the same chat are going to be inside one chat rectangle, and going to have the same color. All requests/operations related to this chat are going to have the same color
+* **Chats **are going to be just rectangles wrapping a bunch of users around. The naming will be `chat{x}`, e.g. chat1, chat2, chat3
+* **WS GW** aka **GW **- Web Socket Gateway, stateful server that can accept websocket connection from the browser initiated by client.
+* **Chat API** - Restful stateless API that processes messages, and sends near real time updates to GW nodes. 
+* **Chat-User storage** - the storage that handles chat to user mapping.
+* **Users-GW storage** - the storage that handles user to GW mapping. It is needed to know which Gateway node has given the user.
 
-We are going to use a third party payment processor, for example Stripe that we have already designed (we gonna be the merchant).
+In the real world scenario, probably we don’t need a separate Chat API, the user can just directly send the message to the GW node that it is connected to at the moment. It is made here for decoupling message creation load from message notification load.
 
-To achieve this user flow - we need to add one additional endpoint for GET event details, that will show arena and seats and one more to let users pay and confirm the booking this way.
+For simplicity, a single Chat API is reserved for single chat, so this API instance can send messages only for the chat it owns (thus has the same color). It is done so to clearly draw why we would have scaling problems. In reality nothing prevents us from making a single Chat API to do that.
+
+The key design decision that makes the solution linearly unscalable is making GW nodes process the user. What I mean by that is making user to connect to GW node randomly (or using a hash + consistent hashing approach) as typically you’ll see on the internet.
+
+Phrasing my claim again: `ALL OF THE SOLUTIONS BELOW WILL HAVE GW NODE AS BOTTLENECK, AS EVERY GW NODE WILL PROCESS ALL BIG CHATS ALWAYS`
+
+
+### How user connect to Gateway node
+
+It does not really matter how the client decides which GW node to connect to, the thing that matters is that it is done by the user, not by chat.
 
 
 ![alt_text](images/image2.png "image_tooltip")
 
 
-Please note that this is a very bad approach, as we can have double booking.
+One approach can be to have a REST API on GW nodes apart from WebSocket. The user/client sends `/connect` request to a random GW node, let’s say via LB7 (can be even DNS round robin load balancing). This GW node writes to user-gw storage that this user is handled by ‘me’ and returns its URL/IP. The user then connects directly via URL
+
+Another approach might be to have predefined load balancers that have a consistent hashing ring of GW nodes. LB receives http request with userid, it calculates the GW node: `node = hash(userid) % GW nodes`. Then it returns GW node URL/IP to the user and the user directly connects to the GW node. *Actually a consistent hashing ring works differently, but for simplification this is enough*. The topology of the GW nodes is kept by some linearizable storage e.g. etcd, zookeeper that sends topology updates to all LBs.
+
+The third option that I have seen is using stateless LB4, which works as SNAT and DNAT, thus stateless because it does not terminate TCP. This approach I like the least, because typically you don’t have payload on LB4 level, it means you can make routing decisions only based on `sourceip_sourceport_destinationip_destinationport` - not that flexible. Still it does not eliminate the need to know where the user actually connected, so on the other end you still need either etcd + API/LB7 or storage that keeps track of user&lt;->GW connections.
+
+The only thing we should remember is that we connect to the GW nodes evenly, assuming good hashfunction or random function. For simplicity, we will be connecting via roundrobin to emulate “even distribution”.
+
+Now let’s consider different designs that are not scalable.
 
 
-### Avoid double booking (2 persons had the same ticket/seat)
-
-This is a very interesting concurrency problem. It is possible to have double booking at the moment.
-
-The scenario:
+## Non working solutions
 
 
-
-* there is event1
-* user1 saw seat5 in state “free” and  clicked on it to complete the payment
-* user2 saw seat5 in state “free” and clicked on it to complete the payment
-* user1 paid successfully -> webhook handler updates seat5 to be owned by user1 now.
-* user2 paid successfully -> webhook handler overrides seat 5 to be owned by user2 now.
-* Result: user1 and user2 paid for ticket, but only user2 is assigned, user1 is pissed.
-
-You have probably seen that when you select a seat on Ticketmaster - you are getting a 10 minutes timer to complete the payment. Let me explain what is going on and why this happens.
+### Direct GW append
 
 
-#### Fix on Stripe side
-
-There might be a way to prevent this problem by using deduplication mechanism on Stripe side, in case we can form the same eventid-seatid payment_intend_id so that Stripe does not charge user2 as user1 has already paid. But this means severe coupling and relying on third party and bad user experience.
-
-
-#### Leverage storage (optimistic concurrency / locking)
-
-Whenever you hear someone needs “exclusive access” to something - it almost always means Distributed Lock in System Design, but we have only 2 users it is overkill for now. Instead - we can add guards on our database.
-
-How? Checking database before doing payment is not enough
 
 
 ![alt_text](images/image3.png "image_tooltip")
 
 
-Typically you are using locking when something needs exclusive access (one at a time). In databases you have two ways of doing that:
+Let me show you the simple scenario, and how we are going to put down `user-gw storage` and `GW1`:
 
 
 
-* **pessimistic locking**: SELECT FOR UPDATE -> UPDATE within the same transaction
-* **optimistic locking**: READ row -> UPDATE WHERE r == row, can be 2 different transactions.
+* u1 and u2 in the chat1 connect to random GW nodes (GW1) via web socket.
+* a new message “hi” is received on chat api.
+* chat api queries chat-user storage to get the users (u1, u2) that we need to send notification to
+* chat api queries user-gw storage to resolve GW nodes to send update to (GW1)
+* GW node resolves the users for chat1 it has in memory (u1, u2)
+* GW node resolves user’s socket per user (sock1, sock2)
+* GW sends update for each socket, performs retry if it didn’t deliver, etc
 
-The tradeoff is already written in Martin Kleppmann’s book: \
+Let’s start with a single 4 users chat and 2 GW nodes.
+
 
 ![alt_text](images/image4.png "image_tooltip")
 
 
-tl;rd - if you have a lot of concurrent operations fighting for the same resource - use **pessimistic concurrency**, if you have just a couple of or only edge cases - use **optimistic concurrency**.
+Given that we distribute users evenly between the nodes we will get **4 users per chat / 2 GW nodes = 2 users per node** for single chat. Trace down the new message from Chat2 API to users in this chat. We clearly see that both GW nodes need to process the message for chat2.
 
-For sure it won’t help if we have only 2 states for the seat (**free, booked**), because we are updating from “**free**” to “**booked**” only after the user paid, which is too late, money is gone.
-
-Therefore we are introducing a new state “**locked**” or “**selected**” that expresses the state when the user clicked on the seat but has not booked yet. Later on, when payment succeeds we update the status from “**locked**” to “**booked**”.
-
-```sql
-
-
-```
--- we see status of the seat5 now free, so we straight away lock it using optimistic concurrency
-
-SELECT * FROM seats WHERE id = 'seat5';
-  -- depending on isolation level, this will either fail or return "rows_affected = 0". In both cases you know there is somebody else who has locked or booked the seat already
-UPDATE seats SET status = 'locked' WHERE status = 'free'
-```
-
-
-```
-
-This way double booking is not possible. However, the user might lock the seat and go for a walk for 3 hours. In that case we will run a background job to automatically reset the “lock” state after 10 minutes of inactivity, so let me introduce “updated_at” to our Seats entity.
-
-Apart from solving this problem we also improved user experience. Now user doesn’t have to fill in payment information just to see that seat was occupied long time ago, it will see it right away he clicked on the seat.
+ \
+ \
+Now things get interesting, let’s say we scale GW nodes by 2 times. Should help right? Actually, no.
 
 
 ![alt_text](images/image5.png "image_tooltip")
 
 
+We have less users per GW node - this way it scaled for sure. But we still make each GW node to process messages from our chat2, because every GW node has at least one user from the chat2. **Users per chat == number of GWs**. GWs = 4, users per chat 4 => users per GW in single chat = 4 / 4 = 1.
 
-## Satisfy non-functional requirements
+Let’s add 3 more chats:
 
-Now given the working system - let’s scale it to millions of users.
-
-
-### High load
-
-As we mentioned we might have 30-50M MAU => 7-10 DAU (daily active users). It is not that big actually. 10M / 24*60*60 = 115 users per second. Let’s even add peak hours: 115 * 5 = 575. Let’s also add the fact that single user’s action can trigger multiple requests, 575 * 5 = **2875 rps at most**.
-
-Believe me, really well vertically scaled Postgres can handle it no problem. Let’s add “semi” popular events, marketing spikes etc -> and we might have something like 3-5k rps, and this is when it is better to scale. \
  \
-Again, we don’t talk about celebrity problems, it is not possible to solve it with scaling.
-
-
-#### Scale APIs / workers
-
-APIs are stateless -> infinitely scalable, just spawn a lot of instances.
-
 
 ![alt_text](images/image6.png "image_tooltip")
 
 
+We can clearly see now that every GW must process messages from all chats.
 
-#### Scale Storage
+You can scale it to having 1k GW nodes, and 10k users per chat, it will be the same picture, every GW node will need to process ALL messages from ALL large chats.
 
-Storage is stateful - meaning we must be careful with scaling. A typical approach is to scale horizontally -> Sharding.
+The situation is even worse, because now user-gw storage is overloaded as well due to scatter-gather, as we are sharding by user id. Even with extreme sharding (one node per one user) we will need to contact ALL the shards unless we have more shards than the possible number of participants per chat.
 
-Hard to say what to use for scaling as we have different kind of loads:
-
-
-
-* we have search traffic that is not binded to specific events
-* we have read traffic for specific events (checking arena, details)
-* we have write traffic for specific seats
-
-Options to shard by: events, seats. The answer here is to decouple storage first and scale it independently, because we will have different ratios of load for different types of operations.
-
-**Step 1: decouple storage**.
-
-We can put general information about the event to some fulltext search optimized storage that has a lot of indices to speed up the search and filtering
-
-Now we can put event details with seats to the simple reads/simple writes storage.
-
-**Step 2. Shard storage**.
-
-For **Search Storage** we don’t have parameters to share on - so we will replicate data as it handles read heavy traffic.
-
-For **Events Storage** we shard by events for different reasons: 
-
-
-
-* we might want to allow user to select 2-3 seats at the same time for payment, we will need extremely hard coordination if we shard by seat in that case
-* it is much faster to read the whole seat map in single request to single node on read request.
+Attaching a simple emulation for our non-functional requirements, that you can find in [my github](https://github.com/andreyka26-git/andreyka26-distributed-systems/tree/main/Messenger/emulation/direct-gw-append).
 
 
 ![alt_text](images/image7.png "image_tooltip")
 
 
-For rebalancing we can use either of three approaches:
+
+### Pub/Sub enjoyers :)
+
+Now “just use queue” triggers me as never before, after how many people shout it out because they have “heard” scalability = putting a queue/kafka somewhere. I am going to show you that it will not work in the next examples.
 
 
-
-* consistent hashing (needs coordination)
-* rendezvous hashing (stateless but needs more operations)
-* hashslot reshuffling (redis approach, needs coordination as well)
-
-**Step 3. Use Distributed Lock**.
-
-In the case of a semi-popular event we will have a lot of “locking” and later “unlocking” if the users changed their mind. Besides that booking and locking the seat are conceptually different - so we might apply Distributed Locking pattern. Another benefit here is in the case of RedLock - we can remove the background job that resets the “locked” state after 10 mins of inactivity.
-
-This way we create a Redis instance, sharded by seats (can be by event as well, does not matter).
-
-The flow works like this now:
-
-
-
-* user tries to acquire a lock with SET NX “seatid”. It will write to the redis “seatid” key only if it does not exist. The key is set to expire in 10 minutes automatically via TTL mechanism.
-* in case the user got the successful lock - he/she proceeds with payment and saves the result to postgres database.
-
-Please note that we need to enable “fsync” for every write to redis. Concurrency is not the issue, because Redis is one threaded.
-
-If you are patient with details you will notice that there is an edge case now, if we have concurrent payment and locking in 9:59 TTL. It can be solved by prolonging TTL upon user’s operation and playing with longer TTL.
-
-	
 ![alt_text](images/image8.png "image_tooltip")
 
 
-Now, given a single event is not very popular - we can scale infinitely as we isolate event related information by sharding. But if we have too popular an event, like Taylor Swift - we are done. All requests will go to the same shard for Taylor’s event and it will be down the whole time. We will talk about a solution later.
-
-
-### Availability and Consistency
-
-The general availability pattern is replication. Apis are already solved, let’s talk about storages.
-
-
-#### Distributed lock high availability
-
-We need strong consistency and no data loss requirement, otherwise we will not be able to guarantee no double booking.
-
-For this reason we **CANNOT do**:
-
-
-
-* leader-follower async replication, prone to data loss on leader election
-* leader-follower sync replication, no high availability as we cannot lose replica
-* leaderless, due to data loss on conflicts/concurrency (last write win problem)
-* leaderful, due to data loss on conflicts and not being strongly consistent
-
-How do we approach this? The answer is simple:
-
-
-
-* either we say that according to CAP theorem we cannot be highly available
-* or we apply heavy RAFT consensus and then we can lose up to 49% of the nodes
-
-Let’s assume we are rich - so we do RAFT.
-
-
-#### Search storage
-
-We already applied leader-follower async replication for scaling purposes, so it is by default highly available. We don’t have a strong consistency requirement here.
-
-
-#### Events Storage
-
-It should be strongly consistent to not lose data (as it is money data in a nutshell).
-
-We cannot have high concurrency/conflicts per seat, because we allow only one client to write at a time due to Distributed lock, it means we can have the following replication strategies here:
-
-
-
-* heavy RAFT, a bit overkill here
-* leaderless replication with w + r > n quorum.
-
+Besides that popular “System Design Interview” by Alex Xu suggests queue based approach as well: \
 
 ![alt_text](images/image9.png "image_tooltip")
 
 
-
-### Spikes
-
-This is the most tricky requirement. While we might handle millions of requests in general in the system, having tens of thousands same sized events - we cannot handle extremely popular events, like Lady Gaga or Taylor Swift.
-
-There is published data that Taylor Swift got 3.5 B requests overall during sellings. People estimated it to 40-200k requests per second. No single node can handle this number of requests. \
- \
-The clear bottleneck here is Distributed Lock and Events Storage.
-
-
-#### Distributed Lock
-
-What usually happens: within the first minute people that are let in will lock ALL possible seats, and then they will be deciding whether to buy or not. While the whole arena is “free” it might not be that big of a deal. Assume 200k seats and around 200k requests - pretty manageable.
-
-We can go to extremes and have Redis node per seat - seems easy fix.
-
-But keep in mind the amount of people that want to buy a ticket is 3-5 M or even more. So they all are waiting and constantly reloading the page, and only 200k are “booking” at the moment.
-
-Now it is enough for only a single seat to get “unlocked” - and a whole burst of 2M people will try to click on it. Even if we are optimistic enough, and maybe only a small fraction of people out of 2M will go there, it is still 2-10k at least. A single node can never handle this.
-
-It is clear - even if we have Redis Node per seat - for events like Taylor Swift it is not enough.
-
-
-####  Events storage
-
-Since we have sharding per event - it is even worse. However the situation is not that critical: since lock is necessary for API to allow payment and update status in Events Storage - we will be able to have at most a maximum number of seats per event writing concurrently. Arena that handles 200k seats - will produce at max 200k concurrent writs (in reality it is much lower).
-
-To scale further - we can shard by arena zones, or even go to extremes and shard by seats - then we clearly can handle write traffic.
-
-
-### Solution
+HelloInterview suggests this approach as well:
 
 
 ![alt_text](images/image10.png "image_tooltip")
 
 
-**North star: Virtual Waiting Room**
+It is time to show that this will not work for big chats at all.
 
-You all probably have seen the production solution for this. When you try to buy tickets for some popular event - you will get this page saying “you are X in the queue, wait until you are in”.
+We have a lot of options for queue vendors: kafka, mqtt, redis pub/sub, rabbitmq, etc. Let’s just agree that queue is not a bottleneck, so either by using native mechanisms, or creating our own sharding on top we can confidently say we can scale. In the worst case we can scale to one topic per node, or even one topic per multiple nodes.
 
-It is called “Distributed Waiting room”. Cloudflare has this offering: [https://www.cloudflare.com/application-services/products/waiting-room/](https://www.cloudflare.com/application-services/products/waiting-room/)
-
-It is a separate system design problem. It is sort of a **Stateful Rate limiter** on steroids, and pretty complicated, so you don’t want to design it during the interview.
-
-With a virtual waiting room - you can have a guarantee of how many requests you receive per event, and it makes our system design good enough with current state.
-
-You won’t find a system design solution on the internet for it, but I have it in my archive. Since it is pretty complicated and exclusive, it will go public only when my Telegram and Instagram has 1k subscribers and Youtube has 2k subscribers.
-
-**Email campaign**.
-
-During my practical lecture, one student proposed to have an Email campaign that will send invitations for booking in batches. You send the first 5k people that subscribed by email -> here is your link with specific code that will let you in and buy a ticket, then next 5k and so on.
-
-The problem here is that if even a single email link gets into public - we are again in the same spot, up to 100-500k people are trying to follow this link and will overload the node that handles this invitation code.
-
-**Straight forward rate limiter**.
-
-One working solution with terrible user experience is to put rate limiting on “locking” operation. The bucket key would be seat id, so rate limiter will just allow 1k rps and not more by discarding other requests randomly.
+There is still a fundamental problem with queues, they don’t “magically” solve scalability problems here, but rather add one more unscalable and expensive layer.
 
 
-## Conclusion
+#### Publish message via Pub/Sub by user
 
-I tried to go as deep as possible, as people seem to like it the most. Please put a reaction to the article below and provide your feedback about this solution. I will be happy to discuss technical doubts about this solution
 
-Please don’t forget to subscribe to my social media: [telegram](https://t.me/programming_space), [instagram](https://www.instagram.com/andreyka26_se/), [x](https://x.com/andreyka26_), [tiktok](https://www.tiktok.com/@andreyka26__). Try out my pet projects: [SyncSymptom](https://syncsymptom.com/), [Pet4Pet](https://pet-4-pet.com/).
+![alt_text](images/image11.gif "image_tooltip")
+
+
+The first type of proposed solution is to decouple GW and Chat API with **PubSub per user**. Now we have user queues/topics where we can insert message updates for specific users. GW node subscribes to the user's queue upon user connection.
+
+The flow:
+
+
+
+* user/client connects to GW evenly/randomly
+* GW subscribes to this user’s topic
+* chat api gets message inserted
+* chat api enqueues message to user’s queues that are participants of the chat
+* GW gets the update from users’ queues
+
+We start with a single chat, and we can already observe that now both GW nodes must process the messages, as they again handle different users of the same chat.
+
+
+![alt_text](images/image12.png "image_tooltip")
+
+
+Let’s try to scale it and add two more GW nodes.
+
+
+![alt_text](images/image13.png "image_tooltip")
+
+
+How come, again it didn’t help, every gateway is still going to process messages from this chat.
+
+
+![alt_text](images/image14.png "image_tooltip")
+
+
+I think it is clear that this solution still makes every GW process message from all our chats.
+
+Moreover, now the problem is even worse: we cannot batch the messages per GW node. Before, if we have 2 users connected to the same GW node in the same chat - we could send the message update from Chat API once, and process it on GW node once (fan out to users). Instead now it will be published to 2 different queues, and read by 2 different threads (presumably) in GW that will deliver it in 1:1 manner. Simply speaking, in the simplest setup when we have a single chat with 4 users, a single GW node will receive 4 messages from 4 users’ queues.
+
+Attaching a simple emulation for our non-functional requirements, that you can find in [my github](https://github.com/andreyka26-git/andreyka26-distributed-systems/tree/main/Messenger/emulation/pubsub-by-user).
+
+
+![alt_text](images/image15.png "image_tooltip")
+
+
+
+#### Publish message via Pub/Sub by chat
+
+
+![alt_text](images/image16.gif "image_tooltip")
+
+
+Maybe let’s group the queues by chat instead of the user?
+
+The flow:
+
+
+
+* user/client connects to GW evenly/randomly
+* GW subscribes to this chat topic the particular user interested in right now
+* chat api gets message inserted
+* chat api enqueues message to chat’s queue
+* GW gets the update from respective chat topic and fans out to all the users.
+
+
+![alt_text](images/image17.png "image_tooltip")
+
+
+Following the same scenario - we start with a single 4 users chat.
+
+
+![alt_text](images/image18.png "image_tooltip")
+
+
+Turned out again, both GW nodes handle the messages from chat1.
+
+Let's scale GW nodes by 2.
+
+
+![alt_text](images/image19.png "image_tooltip")
+
+
+Damn, again every node has to be subscribed to this chat2 topic therefore processing every message from there.
+
+For studying purposes, showing you what happens with 3 chats.
+
+
+![alt_text](images/image20.png "image_tooltip")
+
+
+Clearly GW is going to be handling updates from all of the chat topics.
+
+I must say that it will be much better than the previous pub/sub per user approach, but definitely not better than our initial “Direct GW append” as now for some reason we will need to pay for a message broker.
+
+Attaching a simple emulation for our non-functional requirements, that you can find in [my github](https://github.com/andreyka26-git/andreyka26-distributed-systems/tree/main/Messenger/emulation/pubsub-by-chat).
+
+
+![alt_text](images/image21.png "image_tooltip")
+
+
+
+## How it looks from code perspective
+
+In order to understand why I claim that GW is bottleneck, here is one of the simplest message delivery implementations:
+
+
+![alt_text](images/image22.png "image_tooltip")
+
+
+No matter how we received the message: from user topic, from chat topic or directly from API - it will be the same: we have to 
+
+
+
+* resolve the users that are interested in this chat message update
+* deliver this update for ALL the interested users. Please note that client’s connection probably is bad
+* retry in case of failure 3 times.
+
+Just computing hash for chatid along with iterating over all the users will cost us a lot of CPU, I’m not talking about retries, metrics, etc.
+
+We can say that we can fan out notifications in parallel. I would agree, but we will be capped by the amount of cores on GW, we can’t do more than that. Even if we assume that iterating over all the users is O(1) - it is still not scalable, because our bottleneck is the amount of times `deliver_chat_message` is called.
+
+
+## What is the answer on the system design interview
+
+My answer for this problem on the real System Design problem would be the following:
+
+
+
+* start treating large chats separately (celebrity problem)
+* create specific GW nodes per chat
+* connect users of large chat to this Chat GW node
+
+
+![alt_text](images/image23.png "image_tooltip")
+
+
+This way it is linearly scalable, as we can scale Chat GW nodes up until every node has a single chat, and 1-10 messages per second is definitely easy to process. You see the difference? Now Gateway node handles only one messages of its large chats, e.g. Chat1 message does not trigger any processing in Chat2 GW or Chat3 GW.
+
+For sure typically we will have Chat GW that handles a bunch of chats, not single chat. There should be coordinator who assigns chat to GW and therefore updates the Service Registry or LB that tells the clients where to connect to (See “How user connect to Gateway node”).
+
+
+![alt_text](images/image24.png "image_tooltip")
+
+
+
+![alt_text](images/image25.png "image_tooltip")
+
+
+Do you see linear scaling now? We doubled the number of nodes; consequently, each node handles half the load (CPU, memory, and I/O bandwidth).
+
+The drawback, whenever a user clicks on a different chat - the client must reconnect to corresponding Chat GW. Besides that you cannot use this GW for presence, likes/emojis, etc updates.
+
+
+## How it works in real world apps
+
+Unfortunately, the above solution is not the way the real prod apps work.
+
+I specifically checked Telegram, Slack, Discord, network tabs, as they might have crazy big chats/channels, and **they all keep a single socket per user**. I was switching between the chats and there was no reconnect - which leads to the conclusion that they use a single connection to GW as we depicted above.
+
+
+### Math
+
+As Telegram does not expose public data about its traffic, let’s ask GPT about rough numbers
+
+
+![alt_text](images/image26.png "image_tooltip")
+
+
+Traffic:
+
+
+
+* 10k of large chats (10k participants). Overall 10k * 10k = 100M users
+* 1 message per second in each chat
+* 100 bytes per message
+* 1-2k of GW nodes, as each of them can handle 50-100k active sockets for sure.
+
+For single big chat we are going to have **10k users / 2k nodes = 5 users per GW node **for SINGLE BIG CHAT.
+
+For a single big chat, having 1 message per second per chat, we are going to have 1 message per GW node for processing.
+
+For 10k such large chats we are going to have 10k messages per GW node for processing.
+
+Eventually we got to the problem: if we even decide to scale GW nodes - 2k -> 5k will not change anything (**10k users / 5k nodes  = 2 users per GW node**)
+
+
+## So how?
+
+This is the question to you, readers. The problem here is that I don’t really have the metrics data from telegram, maybe it is not that bad that a non-scalable solution is good enough? Maybe there are some extremely complicated optimizations? Or maybe there is still some scalable solution that I’m not aware of.
+
+ \
+Please share your thoughts in the comments or write directly to me on social media. I’m happy to mention you as a contributor to the article.
+
+
+## Sources
+
+Github with emulation and graphics: [https://github.com/andreyka26-git/andreyka26-distributed-systems/tree/main/Messenger/emulation](https://github.com/andreyka26-git/andreyka26-distributed-systems/tree/main/Messenger/emulation)
+
+Books / article:
+
+
+
+* System Design Interview, Alex Xu: [https://github.com/mukul96/System-Design-AlexXu/blob/master/System%20Design%20Interview%20An%20Insider%E2%80%99s%20Guide%20by%20Alex%20Xu%20(z-lib.org).pdf](https://github.com/mukul96/System-Design-AlexXu/blob/master/System%20Design%20Interview%20An%20Insider%E2%80%99s%20Guide%20by%20Alex%20Xu%20(z-lib.org).pdf)
+* Messenger System Design, Hello Interview: [https://www.hellointerview.com/learn/system-design/problem-breakdowns/whatsapp](https://www.hellointerview.com/learn/system-design/problem-breakdowns/whatsapp)
+
+Forums:
+
+
+
+* Stack exchange: [https://softwareengineering.stackexchange.com/questions/460862/how-messengers-like-telegram-handles-big-chats](https://softwareengineering.stackexchange.com/questions/460862/how-messengers-like-telegram-handles-big-chats)
+* Reddit: [https://www.reddit.com/r/softwarearchitecture/comments/1r6qes5/how_messengers_like_telegram_handles_big_chats/](https://www.reddit.com/r/softwarearchitecture/comments/1r6qes5/how_messengers_like_telegram_handles_big_chats/)
+* Threads: [https://www.threads.com/@andreyka26_se/post/DVs9A5GjEW1](https://www.threads.com/@andreyka26_se/post/DVs9A5GjEW1)

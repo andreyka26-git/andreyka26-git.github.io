@@ -1,0 +1,468 @@
+---
+layout: post
+title: "Messenger System Design is WRONG"
+date: 2026-04-11 23:46:16 -0000
+category: System Design
+tags: [system_design, architecture]
+description: "Why do all popular Messenger System Design solutions — Direct GW, Pub/Sub by user, Pub/Sub by chat — fail to linearly scale for large chats with 10k+ participants? This article breaks down the fundamental bottleneck in WebSocket Gateway scaling and proposes a chat-partitioned architecture that actually works at Telegram-level scale."
+thumbnail: /assets/2026-04-11-messenger-system-design-is-wrong/logo.png
+thumbnailwide: /assets/2026-04-11-messenger-system-design-is-wrong/logo-wide.png
+---
+
+* TOC
+{:toc}
+
+<!-- Copy and paste the converted output. -->
+
+<!-- You have some errors, warnings, or alerts. If you are using reckless mode, turn it off to see useful information and inline alerts.
+* ERRORs: 1
+* WARNINGs: 0
+* ALERTS: 27 -->
+
+
+
+
+<br>
+
+## **Introduction**
+
+Welcome everyone, I am a big fan of System Design problems, and have been doing them for the past 5 years, yet I have encountered an unsolved problem that I couldn’t find a working solution on the internet. The problem is Designing a Messenger, but not easy peasy Whatsapp with up to 100 users or so, but a real CHAD - Telegram - that can handle 200k users per chat and millions of the users per channel.
+
+I checked all the System Design solutions on the internet, asked on the forums (Reddit, Stackoverflow, Threads), asked one principal at Microsoft, 1 staff at Snowflake, one Solutions Architect (my ex tech lead), and all of them pointed out that the problem I’m describing does really exist and the proposed solution does not solve it. I even applied to the Telegram for SRE position to basically ask them during the interview how it works (but they ignored me).
+
+My claim in this article: `ALL EXISTING SYSTEM DESIGN SOLUTIONS WILL NOT LINEARLY SCALE WITH LARGE CHAT FEATURE, meaning every web socket node will be handling ALL big chats regardless of how you scale it`
+
+
+
+<br>
+
+## **The problem**
+
+Messenger is a pretty complex System Design problem, so we will narrow it down to the problematic part.
+
+
+
+
+<br>
+
+### **Functional requirements**
+
+
+
+* User is able to select chat, where he/she wants to communicate (send messages, read other’s messages)
+* User receives near real time updates ONLY if he is online and if he currently has the chat selected/opened
+
+
+
+
+<br>
+
+### **Non Functional requirements**
+
+
+
+* Traffic / load
+    * 1k chats
+    * every chat has 10k participants
+    * overall 1k * 10k = 10M users
+* Latency: should be as minimal as possible, message delivery should feel like instant.
+* The system should be linearly scalable. It means if we add more chats and scale the component - we should be able to handle the load (keep CPU, Memory and Network bandwidth within allowed controllable boundaries)
+* No encryption. Let’s be fair, Telegram does not encrypt the messages per user, so we won’t do it either.
+
+
+
+
+<br>
+
+## **Prerequisite**
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image23.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image23.png "image_tooltip"){:target="_blank"}
+
+
+To simplify the RPS calculation and explanation of the problem, here is how we are going to organize components on the diagram:
+
+
+
+* **Users/clients** are going to be named `u{x}`, e.g. u1, u2, u3. All the users in the same chat are going to be inside one chat rectangle, and going to have the same color. All requests/operations related to this chat are going to have the same color
+* **Chats** are going to be just rectangles wrapping a bunch of users around. The naming will be `chat{x}`, e.g. chat1, chat2, chat3
+* **WS GW** aka **GW**- Web Socket Gateway, stateful server that can accept websocket connection from the browser initiated by client.
+* **Chat API** - RESTful stateless API that processes messages, and sends near real time updates to GW nodes. 
+* **Chat-User storage** - the storage that handles chat to user mapping.
+* **Users-GW storage** - the storage that handles user to GW mapping. It is needed to know which Gateway node has given the user.
+
+In the real world scenario, probably we don’t need a separate Chat API, the user can just directly send the message to the GW node that it is connected to at the moment. It is made here for decoupling message creation load from message notification load.
+
+For simplicity, a single Chat API is reserved for a single chat, so this API instance can send messages only for the chat it owns (thus has the same color). It is done so to clearly draw why we would have scaling problems. In reality nothing prevents us from making a single Chat API to do that.
+
+The key design decision that makes the solution linearly unscalable is making GW nodes process the user. What I mean by that is making user to connect to GW node randomly (or using a hash + consistent hashing approach) as typically you’ll see on the internet.
+
+Phrasing my claim again: `ALL OF THE SOLUTIONS BELOW WILL HAVE GW NODE AS BOTTLENECK, AS EVERY GW NODE WILL PROCESS ALL BIG CHATS ALWAYS`
+
+
+
+
+<br>
+
+### **How user connect to Gateway node**
+
+It does not really matter how the client decides which GW node to connect to, the thing that matters is that it is done by the user, not by chat.
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image1.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image1.png "image_tooltip"){:target="_blank"}
+
+
+One approach can be to have a REST API on GW nodes apart from WebSocket. The user/client sends `/connect` request to a random GW node, let’s say via LB7 (can be even DNS round robin load balancing). This GW node writes to user-gw storage that this user is handled by ‘me’ and returns its URL/IP. The user then connects directly via URL
+
+Another approach might be to have predefined load balancers that have a consistent hashing ring of GW nodes. LB receives http request with userid, it calculates the GW node: `node = hash(userid) % GW nodes`. Then it returns GW node URL/IP to the user and the user directly connects to the GW node. *Actually a consistent hashing ring works differently, but for simplification this is enough*. The topology of the GW nodes is kept by some linearizable storage e.g. etcd, zookeeper that sends topology updates to all LBs.
+
+The third option that I have seen is using stateless LB4, which works as SNAT and DNAT, thus stateless because it does not terminate TCP. This approach I like the least, because typically you don’t have payload on LB4 level, it means you can make routing decisions only based on `sourceip_sourceport_destinationip_destinationport` - not that flexible. Still it does not eliminate the need to know where the user actually connected, so on the other end you still need either etcd + API/LB7 or storage that keeps track of user<->GW connections.
+
+The only thing we should remember is that we connect to the GW nodes evenly, assuming a good hash function or random function. For simplicity, we will be connecting via roundrobin to emulate “even distribution”.
+
+Now let’s consider different designs that are not scalable.
+
+
+
+
+<br>
+
+## **Non working solutions**
+
+
+
+
+<br>
+
+### **Direct GW append**
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/direct.gif "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/direct.gif "image_tooltip"){:target="_blank"}
+
+
+Let me show you the simple scenario, and how we are going to put down `user-gw storage` and `GW1`:
+
+
+* u1 and u2 in the chat1 connect to random GW nodes (GW1) via web socket.
+* a new message “hi” is received on chat api.
+* chat api queries chat-user storage to get the users (u1, u2) that we need to send notification to
+* chat api queries user-gw storage to resolve GW nodes to send update to (GW1)
+* GW node resolves the users for chat1 it has in memory (u1, u2)
+* GW node resolves user’s socket per user (sock1, sock2)
+* GW sends update for each socket, performs retry if it didn’t deliver, etc
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image15.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image15.png "image_tooltip"){:target="_blank"}
+
+Let’s start with a single 4 users chat and 2 GW nodes.
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image5.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image5.png "image_tooltip"){:target="_blank"}
+
+
+Given that we distribute users evenly between the nodes, we will get **4 users per chat / 2 GW nodes = 2 users per node** for a single chat. Trace down the new message from Chat2 API to users in this chat. We clearly see that both GW nodes need to process the message for chat2.
+
+ 
+ 
+Now things get interesting, let’s say we scale GW nodes by 2 times. Should help right? Actually, no.
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image18.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image18.png "image_tooltip"){:target="_blank"}
+
+
+We have less users per GW node - this way it scaled for sure. But we still make each GW node to process messages from our chat2, because every GW node has at least one user from the chat2. **Users per chat == number of GWs**. GWs = 4, users per chat 4 => users per GW in single chat = 4 / 4 = 1.
+
+Let’s add 3 more chats:
+
+ 
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image2.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image2.png "image_tooltip"){:target="_blank"}
+
+
+We can clearly see now that every GW must process messages from all chats.
+
+You can scale it to having 1k GW nodes, and 10k users per chat, it will be the same picture, every GW node will need to process ALL messages from ALL large chats.
+
+The situation is even worse, because now user-gw storage is overloaded as well due to scatter-gather, as we are sharding by user id. Even with extreme sharding (one node per one user) we will need to contact ALL the shards unless we have more shards than the possible number of participants per chat.
+
+Attaching a simple emulation for our non-functional requirements, that you can find in [my github](https://github.com/andreyka26-git/andreyka26-distributed-systems/tree/main/Messenger/emulation/direct-gw-append).
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image9.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image9.png "image_tooltip"){:target="_blank"}
+
+
+
+
+
+<br>
+
+### **Pub/Sub enjoyers :)**
+
+Now “just use a queue” triggers me as never before, after so many people shout it out because they have “heard” scalability = putting a queue/kafka somewhere. I am going to show you that it will not work in the next examples.
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image14.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image14.png "image_tooltip"){:target="_blank"}
+
+
+Besides that popular “System Design Interview” by Alex Xu suggests queue based approach as well: 
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image4.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image4.png "image_tooltip"){:target="_blank"}
+
+
+HelloInterview suggests this approach as well:
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image16.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image16.png "image_tooltip"){:target="_blank"}
+
+
+It is time to show that this will not work for big chats at all.
+
+We have a lot of options for queue vendors: kafka, mqtt, redis pub/sub, rabbitmq, etc. Let’s just agree that queue is not a bottleneck, so either by using native mechanisms, or creating our own sharding on top we can confidently say we can scale. In the worst case we can scale to one topic per node, or even one topic per multiple nodes.
+
+There is still a fundamental problem with queues, they don’t “magically” solve scalability problems here, but rather add one more unscalable and expensive layer.
+
+
+
+
+<br>
+
+#### **Publish message via Pub/Sub by user**
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image24.gif "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image24.gif "image_tooltip"){:target="_blank"}
+
+
+The first type of proposed solution is to decouple GW and Chat API with **PubSub per user**. Now we have user queues/topics where we can insert message updates for specific users. GW node subscribes to the user's queue upon user connection.
+
+The flow:
+
+
+
+* user/client connects to GW evenly/randomly
+* GW subscribes to this user’s topic
+* chat api gets message inserted
+* chat api enqueues message to user’s queues that are participants of the chat
+* GW gets the update from users’ queues
+
+We start with a single chat, and we can already observe that now both GW nodes must process the messages, as they again handle different users of the same chat.
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image3.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image3.png "image_tooltip"){:target="_blank"}
+
+
+Let’s try to scale it and add two more GW nodes.
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image13.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image13.png "image_tooltip"){:target="_blank"}
+
+
+How come, again it didn’t help, every gateway is still going to process messages from this chat.
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image6.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image6.png "image_tooltip"){:target="_blank"}
+
+
+I think it is clear that this solution still makes every GW process message from all our chats.
+
+Moreover, now the problem is even worse: we cannot batch the messages per GW node. Before, if we have 2 users connected to the same GW node in the same chat - we could send the message update from Chat API once, and process it on GW node once (fan out to users). Instead now it will be published to 2 different queues, and read by 2 different threads (presumably) in GW that will deliver it in 1:1 manner. Simply put, in the simplest setup when we have a single chat with 4 users, a single GW node will receive 4 messages from 4 users’ queues.
+
+Attaching a simple emulation for our non-functional requirements, that you can find in [my github](https://github.com/andreyka26-git/andreyka26-distributed-systems/tree/main/Messenger/emulation/pubsub-by-user).
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image21.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image21.png "image_tooltip"){:target="_blank"}
+
+
+
+
+
+<br>
+
+#### **Publish message via Pub/Sub by chat**
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image25.gif "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image25.gif "image_tooltip"){:target="_blank"}
+
+
+Maybe let’s group the queues by chat instead of the user?
+
+The flow:
+
+
+
+* user/client connects to GW evenly/randomly
+* GW subscribes to this chat topic the particular user interested in right now
+* chat api gets message inserted
+* chat api enqueues message to chat’s queue
+* GW gets the update from respective chat topic and fans out to all the users.
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image12.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image12.png "image_tooltip"){:target="_blank"}
+
+
+Following the same scenario - we start with a single 4 users chat.
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image26.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image26.png "image_tooltip"){:target="_blank"}
+
+
+Turned out again, both GW nodes handle the messages from chat1.
+
+Let's scale GW nodes by 2.
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image8.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image8.png "image_tooltip"){:target="_blank"}
+
+
+Damn, again every node has to be subscribed to this chat2 topic therefore processing every message from there.
+
+For studying purposes, showing you what happens with 3 chats.
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image10.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image10.png "image_tooltip"){:target="_blank"}
+
+
+Clearly GW is going to be handling updates from all of the chat topics.
+
+I must say that it will be much better than the previous pub/sub per user approach, but definitely not better than our initial “Direct GW append”, as now for some reason we will need to pay for a message broker.
+
+Attaching a simple emulation for our non-functional requirements, that you can find in [my github](https://github.com/andreyka26-git/andreyka26-distributed-systems/tree/main/Messenger/emulation/pubsub-by-chat).
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image20.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image20.png "image_tooltip"){:target="_blank"}
+
+
+
+
+
+<br>
+
+## **How it looks from code perspective**
+
+In order to understand why I claim that GW is bottleneck, here is one of the simplest message delivery implementations:
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image7.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image7.png "image_tooltip"){:target="_blank"}
+
+
+No matter how we received the message: from user topic, from chat topic or directly from API - it will be the same: we have to 
+
+
+
+* resolve the users that are interested in this chat message update
+* deliver this update for ALL the interested users. Please note that client’s connection probably is bad
+* retry in case of failure 3 times.
+
+Just computing hash for chatid along with iterating over all the users will cost us a lot of CPU, I’m not talking about retries, metrics, etc.
+
+We can say that we can fan out notifications in parallel. I would agree, but we will be capped by the amount of cores on GW, we can’t do more than that. Even if we assume that iterating over all the users is O(1) - it is still not scalable, because our bottleneck is the amount of times `deliver_chat_message` is called.
+
+
+
+
+<br>
+
+## **What is the answer on the system design interview**
+
+My answer for this problem on the real System Design problem would be the following:
+
+
+
+* start treating large chats separately (celebrity problem)
+* create specific GW nodes per chat
+* connect users of large chat to this Chat GW node
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image11.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image11.png "image_tooltip"){:target="_blank"}
+
+
+This way it is linearly scalable, as we can scale Chat GW nodes up until every node has a single chat, and 1-10 messages per second is definitely easy to process. You see the difference? Now the Gateway node handles only the messages of its large chat, e.g. Chat1 message does not trigger any processing in Chat2 GW or Chat3 GW.
+
+For sure, typically we will have a Chat GW that handles a bunch of chats, not a single chat. There should be coordinator who assigns chat to GW and therefore updates the Service Registry or LB that tells the clients where to connect to (See “How user connect to Gateway node”).
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image19.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image19.png "image_tooltip"){:target="_blank"}
+
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image17.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image17.png "image_tooltip"){:target="_blank"}
+
+
+Do you see linear scaling now? We doubled the number of nodes; consequently, each node handles half the load (CPU, memory, and I/O bandwidth).
+
+The drawback, whenever a user clicks on a different chat - the client must reconnect to the corresponding Chat GW. Besides that you cannot use this GW for presence, likes/emojis, etc.
+
+
+
+
+<br>
+
+## **How it works in real world apps**
+
+Unfortunately, the above solution is not the way the real prod apps work.
+
+I specifically checked Telegram, Slack, Discord, network tabs, as they might have crazy big chats/channels, and **they all keep a single socket per user**. I was switching between the chats and there was no reconnect - which leads to the conclusion that they use a single connection to GW as we depicted above.
+
+
+
+
+<br>
+
+### **Math**
+
+As Telegram does not expose public data about its traffic, let’s ask GPT about rough numbers
+
+
+[![alt_text](/assets/2026-04-11-messenger-system-design-is-wrong/image22.png "image_tooltip")](/assets/2026-04-11-messenger-system-design-is-wrong/image22.png "image_tooltip"){:target="_blank"}
+
+
+Traffic:
+
+
+
+* 10k of large chats (10k participants). Overall 10k * 10k = 100M users
+* 1 message per second in each chat
+* 100 bytes per message
+* 1-2k GW nodes, as each of them can handle 50-100k active sockets for sure.
+
+For a single big chat we are going to have **10k users / 2k nodes = 5 users per GW node** for SINGLE BIG CHAT.
+
+For a single big chat, having 1 message per second per chat, we are going to have 1 message per GW node for processing.
+
+For 10k such large chats we are going to have 10k messages per GW node for processing.
+
+Eventually, we get to the problem: if we even decide to scale GW nodes - 2k -> 5k will not change anything (**10k users / 5k nodes  = 2 users per GW node**)
+
+
+
+
+<br>
+
+## **So how?**
+
+This is the question to you, readers. The problem here is that I don’t really have the metrics data from Telegram, maybe it is not that bad that a non-scalable solution is good enough? Maybe there are some extremely complicated optimizations? Or maybe there is still some scalable solution that I’m not aware of.
+
+ 
+Please share your thoughts in the comments or write directly to me on social media. I’m happy to mention you as a contributor to the article.
+
+
+
+
+<br>
+
+## **Sources**
+
+Github with emulation and graphics: [https://github.com/andreyka26-git/andreyka26-distributed-systems/tree/main/Messenger/emulation](https://github.com/andreyka26-git/andreyka26-distributed-systems/tree/main/Messenger/emulation)
+
+Books / article:
+
+
+
+* System Design Interview, Alex Xu: [https://github.com/mukul96/System-Design-AlexXu/blob/master/System%20Design%20Interview%20An%20Insider%E2%80%99s%20Guide%20by%20Alex%20Xu%20(z-lib.org).pdf](https://github.com/mukul96/System-Design-AlexXu/blob/master/System%20Design%20Interview%20An%20Insider%E2%80%99s%20Guide%20by%20Alex%20Xu%20(z-lib.org).pdf)
+* Messenger System Design, Hello Interview: [https://www.hellointerview.com/learn/system-design/problem-breakdowns/whatsapp](https://www.hellointerview.com/learn/system-design/problem-breakdowns/whatsapp)
+
+Forums:
+
+
+
+* Stack exchange: [https://softwareengineering.stackexchange.com/questions/460862/how-messengers-like-telegram-handles-big-chats](https://softwareengineering.stackexchange.com/questions/460862/how-messengers-like-telegram-handles-big-chats)
+* Reddit: [https://www.reddit.com/r/softwarearchitecture/comments/1r6qes5/how_messengers_like_telegram_handles_big_chats/](https://www.reddit.com/r/softwarearchitecture/comments/1r6qes5/how_messengers_like_telegram_handles_big_chats/)
+* Threads: [https://www.threads.com/@andreyka26_se/post/DVs9A5GjEW1](https://www.threads.com/@andreyka26_se/post/DVs9A5GjEW1)
