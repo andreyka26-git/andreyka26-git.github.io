@@ -1,390 +1,305 @@
-<!-- Copy and paste the converted output. -->
-
 <!-- You have some errors, warnings, or alerts. If you are using reckless mode, turn it off to see useful information and inline alerts.
-* ERRORs: 1
+* ERRORs: 0
 * WARNINGs: 0
-* ALERTS: 27 -->
+* ALERTS: 13 -->
 
 
 ## Introduction
 
-Welcome everyone, I am a big fan of System Design problems, and have been doing them for the past 5 years, yet I have encountered an unsolved problem that I couldn’t find a working solution on the internet. The problem is Designing a Messenger, but not easy peasy Whatsapp with up to 100 users or so, but a real CHAD - Telegram - that can handle 200k users per chat and millions of the users per channel.
+As I switched to Snowflake, I found out that there are a lot of gaps in Networks and Security areas as I started working closely on low level things.
 
-I checked all the System Design solutions on the internet, asked on the forums (Reddit, Stackoverflow, Threads), asked one principal at Microsoft, 1 staff at Snowflake, one Solutions Architect (my ex tech lead), and all of them pointed that the problem I’m describing does really exist and the proposed solution does not solve it. I even applied to the Telegram for SRE position to basically ask them during the interview how it works (but they ignored me).
+Today we are going to cover the encryption/security fundamentals that are needed for System Design interview and your day to day work. Mainly we will focus on TLS and mTLS along with the certificates, chain of trust, PKI and the underlying underhood of it.
 
-My claim in this article: `ALL EXISTING SYSTEM DESIGN SOLUTIONS WILL NOT LINEARLY SCALE WITH LARGE CHAT FEATURE, meaning every web socket node will be handling all big chats regardless how you scale it`
-
-I would appreciate your ideas in the comment section.
+Math fundamentals are going to be covered in the last chapter.
 
 
-## The problem
+## Terminology
 
-Messenger is a pretty complex System Design problem, so we will narrow it down to the problematic part.
+The cryptography and encryption topic seems hard first of all because tons of abbreviations and terms that seem unfamiliar. One of the first steps towards understanding is being able to easily operate by these terms.
+
+For now you can skip reading them, and just return to this chapter as you read the article.
+
+**TLS** - Transport Layer Security
+
+**RSA** (**Rivest–Shamir–Adleman**) - both encryption and signature algorithm, pretty heavy and now considered legacy in TLS.
+
+**MAC** (**Message Authentication Codes aka Authentication tag**) - sort of signature, that is computed over the payload and added to it to confirm that the payload hasn’t been changed. Typically it is implemented as some hashing with MAC secret key involved. Examples: **GHASH**, **HMAC**.
+
+**AEAD** (**Authenticated Encryption with Associated Data**) -  encryption + signature (to ensure encrypted data was not tempered). The most commonly used AEAD is **AES-GCM**, which computes encrypted bytes (AES part)  in parallel per block and then generates **GHASH MAC **over them (GCM part)
+
+**HKDF **(**HMAC-based Key Derivation Function**) - function that can deterministically derive a bunch of different keys needed for signing and encrypting, from a single shared key.
+
+**ECDSA **(**Elliptic Curve Digital Signature Algorithm**) - signature creation and verification approach using public and private key derived from Elliptic Curve formula
+
+**ECDH **(**Elliptic Curve Diffie-Hellman**) / **ECDHE **(**Elliptic Curve Diffie-Hellman Ephemeral**) - shared secret derivation from private and public keys using Elliptic Curve formula.
+
+**ASN.1 (Abstract Syntax Notation One)** - schema/structure definition, like JSON.
+
+**DER (Distinguished Encoding Rules) **- binary encoding for **ASN.1** data
+
+**PEM **- textual (base64) encoding of **DER**, with headers marking is the payload {-----BEGIN PRIVATE KEY-----}, {-----BEGIN CERTIFICATE-----}, {-----BEGIN PUBLIC KEY-----}
+
+**TbsCertificate** - To Be Signed Certificate, contains subject, issuer, validity, **public key**, serial number, extensions.
+
+**Certificate **- is a specific **ASN.1** structure (**Certificate ::= SEQUENCE { tbsCertificate, signatureAlgorithm, signatureValue }** ) encoded as **DER **(optionally encoded to **PEM**).
 
 
-### Functional requirements
+## What is TLS and why bother?
 
+TLS - is a protocol that is needed to ensure the communication over the network is secured, not readable and not malformed by a middleman.
 
+Keep in mind we won’t consider SSL here as it is deprecated and not used pretty much.
 
-* User is able to select chat, where he/she wants to communicate (send messages, read other’s messages)
-* User receives near real time updates ONLY if he is online and if he currently has the chat selected/opened
-
-
-### Non Functional requirements
-
-
-
-* Traffic / load
-    * 1k chats
-    * every chat has 10k participants
-    * overall 1k * 10k = 10M users
-* Latency: should be as minimal as possible, message delivery should feel like instant.
-* The system should be linearly scalable. It means if we add more chats and scale the component - we should be able to handle the load (keep CPU, Memory and Network bandwidth within allowed controllable boundaries)
-* No encryption. Let’s be fair, Telegram does not encrypt the messages per user, so we won’t do it either.
-
-
-## Prerequisite
+Having in mind our TCP / IP stack, where is it? Let’s recall the stack itself [TCP/IP Illustrated Volume 1 by Richard Stevens]:
 
 
 ![alt_text](images/image1.png "image_tooltip")
 
 
-To simplify the RPS calculation and explanation of the problem here how we are going to organize component on the diagram:
+TLS / SSL is the layer that is working on top of the Transport layer (TCP as delivery guarantee is required). Worth noting, that default TLS/SSL implementation is run in user space rather than kernel space.
 
+ \
+But still it is hard to put it into the Application layer fully, as TLS will be an intermediate layer between Transport (TCP) and Application (HTTP). Under the hood SSL is going to be just a user space library running or used by Application server, so for TCP it will be opaque, as TCP just operates over the bytes (does not matter encrypted or not).
 
-
-* **Users/clients** are going to be named `u{x}`, e.g. u1, u2, u3. All the users in the same chat are going to be inside one chat rectangle, and going to have the same color. All requests/operations related to this chat are going to have the same color
-* **Chats **are going to be just rectangles wrapping a bunch of users around. The naming will be `chat{x}`, e.g. chat1, chat2, chat3
-* **WS GW** aka **GW **- Web Socket Gateway, stateful server that can accept websocket connection from the browser initiated by client.
-* **Chat API** - Restful stateless API that processes messages, and sends near real time updates to GW nodes. 
-* **Chat-User storage** - the storage that handles chat to user mapping.
-* **Users-GW storage** - the storage that handles user to GW mapping. It is needed to know which Gateway node has given the user.
-
-In the real world scenario, probably we don’t need a separate Chat API, the user can just directly send the message to the GW node that it is connected to at the moment. It is made here for decoupling message creation load from message notification load.
-
-For simplicity, a single Chat API is reserved for single chat, so this API instance can send messages only for the chat it owns (thus has the same color). It is done so to clearly draw why we would have scaling problems. In reality nothing prevents us from making a single Chat API to do that.
-
-The key design decision that makes the solution linearly unscalable is making GW nodes process the user. What I mean by that is making user to connect to GW node randomly (or using a hash + consistent hashing approach) as typically you’ll see on the internet.
-
-Phrasing my claim again: `ALL OF THE SOLUTIONS BELOW WILL HAVE GW NODE AS BOTTLENECK, AS EVERY GW NODE WILL PROCESS ALL BIG CHATS ALWAYS`
-
-
-### How user connect to Gateway node
-
-It does not really matter how the client decides which GW node to connect to, the thing that matters is that it is done by the user, not by chat.
+So at the same time TLS is considered as a separate layer, as part of Application layer and as NOT a layer at all.
 
 
 ![alt_text](images/image2.png "image_tooltip")
 
 
-One approach can be to have a REST API on GW nodes apart from WebSocket. The user/client sends `/connect` request to a random GW node, let’s say via LB7 (can be even DNS round robin load balancing). This GW node writes to user-gw storage that this user is handled by ‘me’ and returns its URL/IP. The user then connects directly via URL
 
-Another approach might be to have predefined load balancers that have a consistent hashing ring of GW nodes. LB receives http request with userid, it calculates the GW node: `node = hash(userid) % GW nodes`. Then it returns GW node URL/IP to the user and the user directly connects to the GW node. *Actually a consistent hashing ring works differently, but for simplification this is enough*. The topology of the GW nodes is kept by some linearizable storage e.g. etcd, zookeeper that sends topology updates to all LBs.
+### The purpose
 
-The third option that I have seen is using stateless LB4, which works as SNAT and DNAT, thus stateless because it does not terminate TCP. This approach I like the least, because typically you don’t have payload on LB4 level, it means you can make routing decisions only based on `sourceip_sourceport_destinationip_destinationport` - not that flexible. Still it does not eliminate the need to know where the user actually connected, so on the other end you still need either etcd + API/LB7 or storage that keeps track of user&lt;->GW connections.
+The application of the TLS is very simple, when you transfer data over the network - typically you don’t want it to be readable by other parties, and you don’t want to receive malformed data without knowing it.
 
-The only thing we should remember is that we connect to the GW nodes evenly, assuming good hashfunction or random function. For simplicity, we will be connecting via roundrobin to emulate “even distribution”.
-
-Now let’s consider different designs that are not scalable.
+These are the problems that are solved by **TLS**:
 
 
-## Non working solutions
+
+* Confidentiality (Encryption): it encrypts the data transferred between client and server, so whoever captures the packet won’t be able to decrypt it
+* Authentication (Signature): it ensures data is coming from trusted side (you don’t want mistakenly send card number to malicious actor who tricked you to believe this is the bank e.g. via Typosquatting)
+* Integrity (Signature): it ensures the data wasn’t malformed while transferred over the network, so servers receive exactly what the clients have sent.
 
 
-### Direct GW append
+### Encryption
+
+Encryption is used to transform original text to bytes stream that is completely opaque when intercepted, that therefore is untransformed on the receiving side using some sort of keys.
+
+We have 2 different types of encryption: asymmetric and symmetric, they have different pros/cons and serve different purposes usually.
 
 
+#### Asymmetric encryption
+
+Needs 2 keys for encryption: public and private.
+
+It all works because of math magic with prime numbers. In simple words you can find two numbers `private_key` and `public_key` such that: 
+
+`encrypt(message, public_key) == decrypt(message, private_key)`.
 
 
 ![alt_text](images/image3.png "image_tooltip")
 
 
-Let me show you the simple scenario, and how we are going to put down `user-gw storage` and `GW1`:
+For client/server communication we do:
 
 
 
-* u1 and u2 in the chat1 connect to random GW nodes (GW1) via web socket.
-* a new message “hi” is received on chat api.
-* chat api queries chat-user storage to get the users (u1, u2) that we need to send notification to
-* chat api queries user-gw storage to resolve GW nodes to send update to (GW1)
-* GW node resolves the users for chat1 it has in memory (u1, u2)
-* GW node resolves user’s socket per user (sock1, sock2)
-* GW sends update for each socket, performs retry if it didn’t deliver, etc
+* Server generates 2 keys: `sprivate`, `spublic`
+* Client generates 2keys: `cprivate`, `cpulbic`
+* Server provider `spublic` to client, client provider `cpublic` to server.
+* Server sends a message and encrypts it with `cpublic`. Client decrypts with `cprivate`
+* Client sends a message and decrypts it with `spublic`. Server decrypts with `sprivate`
 
-Let’s start with a single 4 users chat and 2 GW nodes.
+The math magic is called **RSA** (Rivest–Shamir–Adleman, most popular asymmetric encryption and signature algo), that works via generating 2 huge prime numbers, deriving private and public key from them, then encrypting/decrypting using these private and public keys. 
+
+Note still that these keys are essentially big numbers (bytes) as well as the cipher and message. The trick here is knowing only the public key - it is very hard/almost impossible to bruteforce private key -> therefore decrypt.
+
+We see the main benefit of asymmetric encryption: we don’t have problems sharing the key, the public key is very safe to distribute, but on the other hand - it is extremely slow for encryption, needs more CPU and time compared to symmetric encryption.
+
+
+#### Symmetric encryption
+
+Works over a single shared key that both server and client know. Shortly speaking, encryption is usually deterministic bytes operations performed with shared secret + bunch of derived keys thus making it reversible. \
+ \
+For client/server communication we do:
+
+
+
+* Somehow distribute the same shared key to client and to server
+* Both server and client derive 2 keys: **server->client shared key** used only when server sends message to client , and **client->server shared key** used only when client sends message to server. Both of them generate a bunch of other secret keys that are used for encryption and signature. It is done so to make it less guessable.
+* Client encrypts data and signs with client -> server shared key. Server decrypts it using the same **client -> server shared key**.
+* Server encrypts data and signs with client -> server shared key. Client decrypts it using the same **client -> server shared key**.
 
 
 ![alt_text](images/image4.png "image_tooltip")
 
 
-Given that we distribute users evenly between the nodes we will get **4 users per chat / 2 GW nodes = 2 users per node** for single chat. Trace down the new message from Chat2 API to users in this chat. We clearly see that both GW nodes need to process the message for chat2.
+Symmetric encryption is faster than asymmetric. There is only one problem: how to exchange the shared key securely?
 
- \
- \
-Now things get interesting, let’s say we scale GW nodes by 2 times. Should help right? Actually, no.
+
+## Signature
+
+Signature is bytes computed from some payload using some cryptographic algorithms (RSA, or ECDSA), that can be used to prove that message wasn’t malformed and was sent from the real owner.
+
+It does not change the payload itself (it stays plain and visible to any middleman), but it adds an additional message/part in the end, that the receiver can use to validate the integrity and authenticity of the payload.
+
+Signatures are mainly used in TLS certificates to validate the certificate itself, including the chain of parent certificates.
+
+There are 2 main algorithms: **ECDSA **(ES256) and **RSA** (RS256).
+
+ECDSA is mainly used as it is easier to compute (requires less CPU and time), it needs less space for signature still providing the same security guarantees.
+
+
+### ECDSA (Elliptic curve)
+
+In modern TLS the most useful algorithm for signatures is ECDSA, which is a geometry based method based on elliptic curve function. 
 
 
 ![alt_text](images/image5.png "image_tooltip")
 
 
-We have less users per GW node - this way it scaled for sure. But we still make each GW node to process messages from our chat2, because every GW node has at least one user from the chat2. **Users per chat == number of GWs**. GWs = 4, users per chat 4 => users per GW in single chat = 4 / 4 = 1.
+To not put too much math details:
 
-Let’s add 3 more chats:
 
- \
+
+* signing: we are getting the starting point on the elliptic curve, and performing scalar multiplication `private_key` number of times (point addition) thus getting the end value (`public_key`, it is just X coordinate). Then we compute the `result` using formula from `private_key`, hash of the payload and `public_key`. 
+* verifying: receiver is given `result`, `public_key` and payload. By using reversed formula it is possible to verify that computed x coordinate (`public_key`) and passed x coordinate do match
+
 
 ![alt_text](images/image6.png "image_tooltip")
 
 
-We can clearly see now that every GW must process messages from all chats.
 
-You can scale it to having 1k GW nodes, and 10k users per chat, it will be the same picture, every GW node will need to process ALL messages from ALL large chats.
+### RSA
 
-The situation is even worse, because now user-gw storage is overloaded as well due to scatter-gather, as we are sharding by user id. Even with extreme sharding (one node per one user) we will need to contact ALL the shards unless we have more shards than the possible number of participants per chat.
-
-Attaching a simple emulation for our non-functional requirements, that you can find in [my github](https://github.com/andreyka26-git/andreyka26-distributed-systems/tree/main/Messenger/emulation/direct-gw-append).
+Signing using RSA is pretty similar to encryption. The same math trick is used: you are getting two huge prime numbers, and derive private and public keys from them. The signature is just an encrypted cipher over the hashed payload (with different padding due to security).
 
 
 ![alt_text](images/image7.png "image_tooltip")
 
 
 
-### Pub/Sub enjoyers :)
+## Agree on shared key / ECDHE (Elliptic curve)
 
-Now “just use queue” triggers me as never before, after how many people shout it out because they have “heard” scalability = putting a queue/kafka somewhere. I am going to show you that it will not work in the next examples.
+Previously we concluded that symmetric encryption is cheaper and faster than asymmetric.
+
+There is only one concern left: how can we agree on the same shared secret over an untrusted network?
+
+Mathematicians have solved this problem for us engineers a long time ago. The method is called **ECDHE **(Elliptic Curve Diffie-Hellman Ephemeral), yes, again elliptic curves.
 
 
 ![alt_text](images/image8.png "image_tooltip")
 
 
-Besides that popular “System Design Interview” by Alex Xu suggests queue based approach as well: \
+It works using the same private/public keys derivation using elliptic curve:
+
+
+
+* Client is getting the starting point on the elliptic curve, and performing scalar multiplication `private_key` number of times (point addition) thus getting the end value (`public_key`, it is just X coordinate).
+* The server is getting the starting point on the elliptic curve, and performing scalar multiplication `private_key` number of times (point addition) thus getting the end value (`public_key`, it is just X coordinate).
+* Client gets Server’s public_key
+* Server gets Client’s public_key
+* Both client and server will arrive into the same `shared_secret` given the keys they have, because of the math properties of elliptic curves.
+
+Note that this `shared_key` is never used raw, we are running HKDF functions to derive more keys from this single shared key to start using them for symmetric encryption.
+
+
+## Certificates
+
+This was probably one of the most mysterious topics for me. Terminology helped me.
+
+Certificate is just a bunch of metadata: issuer, subject name, expiry, etc, along with a public key. All this metadata is signed using some private key. Now 3 parts: metadata, public key and signature are presented in a special format called **ASN.1**.
+
+**DER** - is binary encoding for **ASN.1** data. **PEM**, and .pem files are just textual (base64) encoding for **DER**.
+
+Certificate generated using usually ECDSA pair, where public key is encoded into certificate and signature is produced using private key and body of certificate.
+
+You can think about the certificate as a JWT that the server presents to you, so that you can verify that this website is legitimate.
+
 
 ![alt_text](images/image9.png "image_tooltip")
 
 
-HelloInterview suggests this approach as well:
+Generally everyone can just generate an ECD key pair and issue a self-signed certificate, and then replace it as a middleman on the way to the client. That way, the client will agree on a shared key with the middleman, and the middleman can serve as a proxy decrypting and reading all the messages.
+
+How does the client then differentiate which certificate was really issued by server and which one was not?
+
+
+### PKI / Chain of Trust
+
+People generally agreed on few Root CA (certificate authorities) that can issue new certificates. Root CA is just a server that holds private key and public certificate, and can issue new certificates using its private key.
 
 
 ![alt_text](images/image10.png "image_tooltip")
 
 
-It is time to show that this will not work for big chats at all.
+Since the internet grew, and private keys are extremely sensitive information, we have added a new layer of certificates called Intermediate CA. These are usually used to issue new certificates.
 
-We have a lot of options for queue vendors: kafka, mqtt, redis pub/sub, rabbitmq, etc. Let’s just agree that queue is not a bottleneck, so either by using native mechanisms, or creating our own sharding on top we can confidently say we can scale. In the worst case we can scale to one topic per node, or even one topic per multiple nodes.
-
-There is still a fundamental problem with queues, they don’t “magically” solve scalability problems here, but rather add one more unscalable and expensive layer.
+All browsers agreed to distribute Root CA public keys so that clients can easily tell whether leaf + intermediate certificates are coming from root or not.
 
 
-#### Publish message via Pub/Sub by user
+![alt_text](images/image11.png "image_tooltip")
 
 
-![alt_text](images/image11.gif "image_tooltip")
-
-
-The first type of proposed solution is to decouple GW and Chat API with **PubSub per user**. Now we have user queues/topics where we can insert message updates for specific users. GW node subscribes to the user's queue upon user connection.
-
-The flow:
+During TLS handshake the certificate chain is validated like this:
 
 
 
-* user/client connects to GW evenly/randomly
-* GW subscribes to this user’s topic
-* chat api gets message inserted
-* chat api enqueues message to user’s queues that are participants of the chat
-* GW gets the update from users’ queues
-
-We start with a single chat, and we can already observe that now both GW nodes must process the messages, as they again handle different users of the same chat.
+* server signs all previous handshake tls messages with Leaf server’s private key
+* client then: 
+    * validates that signature with leaf certificate that server presents
+    * client validates leaf certificate with intermediate certificate (that server attaches too)
+    * client validates intermediate certificate against root certificate that is already distributed to the client
 
 
 ![alt_text](images/image12.png "image_tooltip")
 
 
-Let’s try to scale it and add two more GW nodes.
+
+## How does TLS work?
 
 
 ![alt_text](images/image13.png "image_tooltip")
 
 
-How come, again it didn’t help, every gateway is still going to process messages from this chat.
+Now given all prerequisite background we can grasp what is going on in TLS layer:
 
 
-![alt_text](images/image14.png "image_tooltip")
 
+* **ClientHello**: client generates ECDHE keys `c_priv` and `c_pub` and send `c_pub` along with supported ciphers, curves, nonce, etc.
+* **ServerHello**: server generates ECDHE keys `s_priv` and `s_pub`, sends chosen cipher, nonce, etc.
+* Client and Server compute `shared_	secret` using ECDHE algorithm. `Server’s shared = ECDHE(s_priv, c_pub)`, `Client’s shared = ECDHE(c_priv,j s_pub)`
+* From `shared_secret` they derive a bunch of keys that are going to be used for actual encryption using the HKDF function.
+* **Certificate**: Server sends certificate to the client
+* **CertificateVerify**: Server sends hash over all the previous TLS messages along with signature created from Leaf’s private key)
+* **ServerFinished**: Server computes the final e2e encryption key along with HMAC over all the messages sent to the client so far.
+* Client validates certificate chain (leaf -> intermediate, root)
+* Client validates the leaf certificate from CertificateVerify message and Leaf cert’s public key
+* **ClientFinished**: Client verifies HMAC from Finished message matches the one it calculated from all the message it received, and sends its HMAC to the server.
+* Server validates client’s Finish HMAC.
 
-I think it is clear that this solution still makes every GW process message from all our chats.
+The beauty of this method is everything is happening over an open network, and any middleman can sit there and see the communication, but couldn’t do anything about it. Besides that the encryption keys generated as well as shared_secret are only for the current TLS session. Even if they are compromised - the malicious actor can decrypt a single session message.
 
-Moreover, now the problem is even worse: we cannot batch the messages per GW node. Before, if we have 2 users connected to the same GW node in the same chat - we could send the message update from Chat API once, and process it on GW node once (fan out to users). Instead now it will be published to 2 different queues, and read by 2 different threads (presumably) in GW that will deliver it in 1:1 manner. Simply speaking, in the simplest setup when we have a single chat with 4 users, a single GW node will receive 4 messages from 4 users’ queues.
 
-Attaching a simple emulation for our non-functional requirements, that you can find in [my github](https://github.com/andreyka26-git/andreyka26-distributed-systems/tree/main/Messenger/emulation/pubsub-by-user).
+## Practical application
 
+One of the most common applications of all above that I have seen is mTLS over the internal components.
 
-![alt_text](images/image15.png "image_tooltip")
+mTLS - is mutual TLS, meaning server1 presents its own certificate to server2 as well as server2 presents its own certificate to server1. Thus they both authorize each other, so not only server1 knows it is talking to trusted server2, but also server2 knows the request is coming from the trusted server1.
 
+Another approach that I have seen: custom PKI, when you control how, where and to whom the certificates can be issued. You could build different chains of trust thus limiting the disjoint set of components that can talk to each other.
 
+The last example would be the case, when you want to establish ephemeral encryption key per session without TLS: you can implement custom ECDHE (using libraries ofc).
 
-#### Publish message via Pub/Sub by chat
 
+## Conclusion
 
-![alt_text](images/image16.gif "image_tooltip")
+Hope you found something useful for yourself here. Not including math background for that as it would make the article extremely long.
 
+This article is pretty much a refined version of my personal notes, because sometimes my brain errors out trying to recall how this chain of trust is working, who checks whose signature, which private key is used to generate which signature, etc.
 
-Maybe let’s group the queues by chat instead of the user?
+The diagrams here help me to recall everything within 1 minute and move on.
 
-The flow:
+Github repo: [https://github.com/andreyka26-git/andreyka26-distributed-systems/tree/main/Tls](https://github.com/andreyka26-git/andreyka26-distributed-systems/tree/main/Tls)
 
-
-
-* user/client connects to GW evenly/randomly
-* GW subscribes to this chat topic the particular user interested in right now
-* chat api gets message inserted
-* chat api enqueues message to chat’s queue
-* GW gets the update from respective chat topic and fans out to all the users.
-
-
-![alt_text](images/image17.png "image_tooltip")
-
-
-Following the same scenario - we start with a single 4 users chat.
-
-
-![alt_text](images/image18.png "image_tooltip")
-
-
-Turned out again, both GW nodes handle the messages from chat1.
-
-Let's scale GW nodes by 2.
-
-
-![alt_text](images/image19.png "image_tooltip")
-
-
-Damn, again every node has to be subscribed to this chat2 topic therefore processing every message from there.
-
-For studying purposes, showing you what happens with 3 chats.
-
-
-![alt_text](images/image20.png "image_tooltip")
-
-
-Clearly GW is going to be handling updates from all of the chat topics.
-
-I must say that it will be much better than the previous pub/sub per user approach, but definitely not better than our initial “Direct GW append” as now for some reason we will need to pay for a message broker.
-
-Attaching a simple emulation for our non-functional requirements, that you can find in [my github](https://github.com/andreyka26-git/andreyka26-distributed-systems/tree/main/Messenger/emulation/pubsub-by-chat).
-
-
-![alt_text](images/image21.png "image_tooltip")
-
-
-
-## How it looks from code perspective
-
-In order to understand why I claim that GW is bottleneck, here is one of the simplest message delivery implementations:
-
-
-![alt_text](images/image22.png "image_tooltip")
-
-
-No matter how we received the message: from user topic, from chat topic or directly from API - it will be the same: we have to 
-
-
-
-* resolve the users that are interested in this chat message update
-* deliver this update for ALL the interested users. Please note that client’s connection probably is bad
-* retry in case of failure 3 times.
-
-Just computing hash for chatid along with iterating over all the users will cost us a lot of CPU, I’m not talking about retries, metrics, etc.
-
-We can say that we can fan out notifications in parallel. I would agree, but we will be capped by the amount of cores on GW, we can’t do more than that. Even if we assume that iterating over all the users is O(1) - it is still not scalable, because our bottleneck is the amount of times `deliver_chat_message` is called.
-
-
-## What is the answer on the system design interview
-
-My answer for this problem on the real System Design problem would be the following:
-
-
-
-* start treating large chats separately (celebrity problem)
-* create specific GW nodes per chat
-* connect users of large chat to this Chat GW node
-
-
-![alt_text](images/image23.png "image_tooltip")
-
-
-This way it is linearly scalable, as we can scale Chat GW nodes up until every node has a single chat, and 1-10 messages per second is definitely easy to process. You see the difference? Now Gateway node handles only one messages of its large chats, e.g. Chat1 message does not trigger any processing in Chat2 GW or Chat3 GW.
-
-For sure typically we will have Chat GW that handles a bunch of chats, not single chat. There should be coordinator who assigns chat to GW and therefore updates the Service Registry or LB that tells the clients where to connect to (See “How user connect to Gateway node”).
-
-
-![alt_text](images/image24.png "image_tooltip")
-
-
-
-![alt_text](images/image25.png "image_tooltip")
-
-
-Do you see linear scaling now? We doubled the number of nodes; consequently, each node handles half the load (CPU, memory, and I/O bandwidth).
-
-The drawback, whenever a user clicks on a different chat - the client must reconnect to corresponding Chat GW. Besides that you cannot use this GW for presence, likes/emojis, etc updates.
-
-
-## How it works in real world apps
-
-Unfortunately, the above solution is not the way the real prod apps work.
-
-I specifically checked Telegram, Slack, Discord, network tabs, as they might have crazy big chats/channels, and **they all keep a single socket per user**. I was switching between the chats and there was no reconnect - which leads to the conclusion that they use a single connection to GW as we depicted above.
-
-
-### Math
-
-As Telegram does not expose public data about its traffic, let’s ask GPT about rough numbers
-
-
-![alt_text](images/image26.png "image_tooltip")
-
-
-Traffic:
-
-
-
-* 10k of large chats (10k participants). Overall 10k * 10k = 100M users
-* 1 message per second in each chat
-* 100 bytes per message
-* 1-2k of GW nodes, as each of them can handle 50-100k active sockets for sure.
-
-For single big chat we are going to have **10k users / 2k nodes = 5 users per GW node **for SINGLE BIG CHAT.
-
-For a single big chat, having 1 message per second per chat, we are going to have 1 message per GW node for processing.
-
-For 10k such large chats we are going to have 10k messages per GW node for processing.
-
-Eventually we got to the problem: if we even decide to scale GW nodes - 2k -> 5k will not change anything (**10k users / 5k nodes  = 2 users per GW node**)
-
-
-## So how?
-
-This is the question to you, readers. The problem here is that I don’t really have the metrics data from telegram, maybe it is not that bad that a non-scalable solution is good enough? Maybe there are some extremely complicated optimizations? Or maybe there is still some scalable solution that I’m not aware of.
-
- \
-Please share your thoughts in the comments or write directly to me on social media. I’m happy to mention you as a contributor to the article.
-
-
-## Sources
-
-Github with emulation and graphics: [https://github.com/andreyka26-git/andreyka26-distributed-systems/tree/main/Messenger/emulation](https://github.com/andreyka26-git/andreyka26-distributed-systems/tree/main/Messenger/emulation)
-
-Books / article:
-
-
-
-* System Design Interview, Alex Xu: [https://github.com/mukul96/System-Design-AlexXu/blob/master/System%20Design%20Interview%20An%20Insider%E2%80%99s%20Guide%20by%20Alex%20Xu%20(z-lib.org).pdf](https://github.com/mukul96/System-Design-AlexXu/blob/master/System%20Design%20Interview%20An%20Insider%E2%80%99s%20Guide%20by%20Alex%20Xu%20(z-lib.org).pdf)
-* Messenger System Design, Hello Interview: [https://www.hellointerview.com/learn/system-design/problem-breakdowns/whatsapp](https://www.hellointerview.com/learn/system-design/problem-breakdowns/whatsapp)
-
-Forums:
-
-
-
-* Stack exchange: [https://softwareengineering.stackexchange.com/questions/460862/how-messengers-like-telegram-handles-big-chats](https://softwareengineering.stackexchange.com/questions/460862/how-messengers-like-telegram-handles-big-chats)
-* Reddit: [https://www.reddit.com/r/softwarearchitecture/comments/1r6qes5/how_messengers_like_telegram_handles_big_chats/](https://www.reddit.com/r/softwarearchitecture/comments/1r6qes5/how_messengers_like_telegram_handles_big_chats/)
-* Threads: [https://www.threads.com/@andreyka26_se/post/DVs9A5GjEW1](https://www.threads.com/@andreyka26_se/post/DVs9A5GjEW1)
+Don’t forget to sub to my [telegram](https://t.me/programming_space), [instagram](https://www.instagram.com/andreyka26_se/), [threads](https://www.threads.com/@andreyka26_se), [X](https://x.com/andreyka26_), as we are doing polls for the next topic to discuss (like TLS today).
