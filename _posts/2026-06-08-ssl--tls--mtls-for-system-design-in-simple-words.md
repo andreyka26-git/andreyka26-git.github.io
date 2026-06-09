@@ -143,6 +143,7 @@ Note also that these keys are essentially big numbers (bytes), as are the cipher
 
 We see the main benefit of asymmetric encryption: we don’t have problems sharing the key, as the public key is very safe to distribute. But on the other hand, it is extremely slow for encryption and needs more CPU and time compared to symmetric encryption.
 
+Note: Elliptic curve public/private keys cannot be used for encryption, only for signatures (ECDSA) or shared-key derivation (ECDHE).
 
 
 
@@ -232,7 +233,7 @@ Previously we concluded that symmetric encryption is cheaper and faster than asy
 
 There is only one concern left: how can we agree on the same shared secret over an untrusted network?
 
-Mathematicians solved this problem for us engineers a long time ago. The method is called **ECDHE** (Elliptic Curve Diffie-Hellman Ephemeral) — yes, elliptic curves again.
+Mathematicians solved this problem for us engineers a long time ago. The method is called **ECDHE** (Elliptic Curve Diffie-Hellman Ephemeral) - yes, elliptic curves again.
 
 
 [![alt_text](/assets/2026-06-08-ssl--tls--mtls-for-system-design-in-simple-words/image6.png "image_tooltip")](/assets/2026-06-08-ssl--tls--mtls-for-system-design-in-simple-words/image6.png "image_tooltip"){:target="_blank"}
@@ -259,7 +260,7 @@ Note that this `shared_secret` is never used raw; we run HKDF functions to deriv
 
 This was probably one of the most mysterious topics for me. The terminology helped me.
 
-A certificate is just a bunch of metadata: issuer, subject name, expiry, etc., along with a public key. All this metadata is signed using some private key. These 3 parts — metadata, public key, and signature — are presented in a special format called **ASN.1**.
+A certificate is just a bunch of metadata: issuer, subject name, expiry, etc., along with a public key. All this metadata is signed using some private key. These 3 parts - metadata, public key, and signature - are presented in a special format called **ASN.1**.
 
 **DER** is the binary encoding for **ASN.1** data. **PEM** and .pem files are just the textual (base64) encoding of **DER**.
 
