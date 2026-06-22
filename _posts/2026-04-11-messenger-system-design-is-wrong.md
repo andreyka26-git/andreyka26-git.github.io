@@ -4,7 +4,7 @@ title: "Messenger System Design is WRONG"
 date: 2026-04-11 23:46:16 -0000
 category: System Design
 tags: [system_design, architecture]
-description: "Why do all popular Messenger System Design solutions — Direct GW, Pub/Sub by user, Pub/Sub by chat — fail to linearly scale for large chats with 10k+ participants? This article breaks down the fundamental bottleneck in WebSocket Gateway scaling and proposes a chat-partitioned architecture that actually works at Telegram-level scale."
+description: "Why do all popular Messenger System Design solutions - Direct GW, Pub/Sub by user, Pub/Sub by chat - fail to linearly scale for large chats with 10k+ participants? This article breaks down the fundamental bottleneck in WebSocket Gateway scaling and proposes a chat-partitioned architecture that actually works at Telegram-level scale."
 thumbnail: /assets/2026-04-11-messenger-system-design-is-wrong/logo.png
 thumbnailwide: /assets/2026-04-11-messenger-system-design-is-wrong/logo-wide.png
 ---

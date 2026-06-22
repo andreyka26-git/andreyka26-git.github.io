@@ -72,7 +72,7 @@ In this way, the authentication is stateful, as the session  is stored on the se
 
 ## **Why Cookie is not stateful**
 
-As you can see, if you choose a stateful authentication method, it doesn't matter whether you use cookies, headers, or the body — it’s still stateful.
+As you can see, if you choose a stateful authentication method, it doesn't matter whether you use cookies, headers, or the body - it’s still stateful.
 
 The main point here is that cookies are not an authentication method; they are a way to save and transfer information between the browser/client and the server.
 

@@ -25,36 +25,42 @@ urls:
 # Edit Author details (For multi authors check _data/authors.yml)
 author_logo: profile.png
 author: Andrii Bui
-author_bio: Hi, my name is Andrii. I'm Software Engineer at Microsoft with 7 years of experience.
+author_bio: Hi, my name is Andrii. I'm Software Engineer at Microsoft with 8 years of experience.
 author_location: Ukraine
 typewrite-text: Master Leetcode & FAANG Interviews | Software Architecture | Authorization & Security | DevOps & Infrastructure
 hero_cover_img: sample_cover.png # replace this for changing homepage cover (eg. try cover.jpeg). Image should be in /assets/img
 
 # Experiences
 author_work_experiences:
+  - company_name: Snowflake
+    company_logo: snowflake.svg
+    company_url: https://www.snowflake.com
+    designation: Software Engineer
+    description: Working in the Traffic team, handling all incoming and outgoing traffic of the whole Snowflake.
+    visibility: true
   - company_name: Microsoft
     company_logo: microsoft.png
     company_url: https://microsoft.com
     designation: Software Engineer
-    description: I am acting as Software Engineer working on Backend services for M365
+    description: Initially worked on Dynamics 365, then switched to the Microsoft Teams Presence service - a high-load backend powering the availability indicator.
     visibility: true
   - company_name: Epam Systems
     company_logo: epam.png
     company_url: https://www.epam.com
     designation: Senior Software Engineer
-    description: Developing project with Oil domain(the project is under NDA). The system is a search service that searches through a lot of external and internal systems and services(REST API, SOAP, SQL Server, Cognitive Search). Playing the key software engineer role on the backend side, designing and implementing software architecture, improve performance, provide security compliance. Also developing and maintaining Java Solution which works with active directory and Kafka acting as an ETL job.
+    description: Backend engineer on an enterprise search service in the oil domain (under NDA).
     visibility: true
   - company_name: Eleks
     company_logo: eleks.png
     company_url: https://www.eleks.com
     designation: Middle Software Engineer
-    description: Developing new features, designing application architecture, and maintaining current behavior on 2C2P (https://www.2c2p.com/). The system is a payment gateway between different payment providers. Playing the role as a key developer on the project delegated to me along with the QA team.
+    description: Key developer on 2C2P, a payment gateway between multiple payment providers.
     visibility: true
   - company_name: Magnise
     company_logo: magnise.jfif
     company_url: https://magnise.com
     designation: Junior Software Engineer
-    description: Developing the news monitoring system Alphateka (https://alphateka.com). The system monitors social networks, online news, TV, and Radio. It provides quick articles/posts querying with sentiment and clustering analysis. It is able to build analytical charts on the data and notify about different alerts. Playing the role as a backend developer along with 2 frontend developers, 3 backend developers, PM, QA.
+    description: Backend developer on Alphateka, a news-monitoring and analytics system.
     visibility: true
 
 # social links

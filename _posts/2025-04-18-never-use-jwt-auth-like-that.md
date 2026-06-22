@@ -17,7 +17,7 @@ thumbnailwide: /assets/2025-04-18-never-use-jwt-auth-like-that/logo-wide.png
 
 ## **Disclaimer**
 
-Wait, wait, wait — don’t go away. Let me explain myself. JWT itself is a good mechanism, but the problem lies in the authorization flow that uses JWT.
+Wait, wait, wait - don’t go away. Let me explain myself. JWT itself is a good mechanism, but the problem lies in the authorization flow that uses JWT.
 
 I’m talking about clients (React, Angular, Flutter) that send a login and password to the backend and receive a JWT in response.
 
@@ -92,7 +92,7 @@ Since the client fires the request (XHR), it’s easy to perform a brute-force a
 [![alt_text](/assets/2025-04-18-never-use-jwt-auth-like-that/image5.png "image_tooltip")](/assets/2025-04-18-never-use-jwt-auth-like-that/image5.png "image_tooltip"){:target="_blank"}
 
 
-With the Authorization Code flow, for example — where the login UI is hosted on the Authorization Server — you can simply add anti-forgery tokens and that’s it, because it’s done via a <form> submission instead of an XHR request.
+With the Authorization Code flow, for example - where the login UI is hosted on the Authorization Server - you can simply add anti-forgery tokens and that’s it, because it’s done via a <form> submission instead of an XHR request.
 
 
 
@@ -101,7 +101,7 @@ With the Authorization Code flow, for example — where the login UI is hosted o
 
 ### **No External Identity Providers (Google, Github, Microsoft)**
 
-I’ve been in situations like this many times. First, the product team says, “Let’s implement email and password.” So you do it, everything works — great success! But suddenly, they want to add an external identity provider, like Google or GitHub authentication.
+I’ve been in situations like this many times. First, the product team says, “Let’s implement email and password.” So you do it, everything works - great success! But suddenly, they want to add an external identity provider, like Google or GitHub authentication.
 
 Now real fun starts.
 
@@ -140,7 +140,7 @@ For the custom Password Grant type - you need to implement it for every new clie
 
 Here, I need to point out that this flow does not support MFA out of the box with Authorization Servers like Microsoft Entra, Google Auth, etc. However, **you can** implement it yourself.
 
-The problem is that it’s not standardized, which introduces multiple security issues — you'd essentially be reinventing the wheel. Also, it involves communication between the client and the Authorization Server, whereas in a proper OAuth implementation, MFA is handled entirely on the Authorization Server’s side.
+The problem is that it’s not standardized, which introduces multiple security issues - you'd essentially be reinventing the wheel. Also, it involves communication between the client and the Authorization Server, whereas in a proper OAuth implementation, MFA is handled entirely on the Authorization Server’s side.
 
 From [oauth.net](https://oauth.net/2/grant-types/password/):
 
