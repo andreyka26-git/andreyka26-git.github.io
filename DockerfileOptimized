@@ -2,19 +2,12 @@ FROM jekyll/jekyll:4.2.2
 
 WORKDIR /srv/jekyll
 
-# Copy project files
-COPY . .
+# Copy only the gem manifests first so `bundle install` is cached as its own
+# layer - it re-runs only when Gemfile/Gemfile.lock change, not on every source
+# edit. The site source is bind-mounted at runtime (see docker-compose.yml), so
+# the image itself does not need a `COPY . .`.
+COPY Gemfile Gemfile.lock ./
 
-# Install dependencies
 RUN bundle install
 
-# Expose Jekyll port
 EXPOSE 4000
-
-# Custom serve command
-CMD ["jekyll", "serve", \
-     "--host", "0.0.0.0", \
-     "--livereload", \
-     "--config", "_config.yml,_config_dev.yml", \
-     "--incremental", \
-     "--limit_posts", "3"]

@@ -157,6 +157,13 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - node_modules/
+  # Post-generation tool (kept in repo, but never served)
+  - generation/
+  # Docker/build files copied as static assets otherwise
+  - Dockerfile
+  - DockerfileOptimized
+  - docker-compose.yml
+  - .dockerignore
   - vendor/bundle/
   - vendor/cache/
   - vendor/gems/

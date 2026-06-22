@@ -44,6 +44,50 @@ html[data-theme="light"] {
     --button-background-color: #fff;
 }
 
+html[data-theme="sepia"] {
+    --bold-color: #2b1d0e;
+    --box-background-color: #efe3c8;
+    --highlight-color: #b8a888;
+    --light-border-color: #ddccae;
+    --light-text-color: #6b5a42;
+    --link-color: #9a6a2f;
+    --nav-color: #ece0c4;
+    --search-color: #9a6a2f;
+    --nav-link-color: #5c4a32;
+    --link-color-visited: #7a4a1f;
+    --main-background-color: #f4ecd8;
+    --main-text-color: #4a3b28;
+    --medium-text-color: #5c4a32;
+    --sidebar-color: #e8dcc0;
+    --underline-color: #c2b290;
+    --social-link-color: #4a3b28;
+    --card-background-color: #f0e7d0;
+    --newsletter-background-color: #00000008;
+    --button-background-color: #ece0c4;
+}
+
+html[data-theme="solarized"] {
+    --bold-color: #fdf6e3;
+    --box-background-color: #073642;
+    --highlight-color: #586e75;
+    --light-border-color: #0a4b5a;
+    --light-text-color: #93a1a1;
+    --link-color: #268bd2;
+    --nav-color: #002028;
+    --search-color: #2aa198;
+    --nav-link-color: #93a1a1;
+    --link-color-visited: #6c71c4;
+    --main-background-color: #002b36;
+    --main-text-color: #93a1a1;
+    --medium-text-color: #839496;
+    --sidebar-color: #073642;
+    --underline-color: #586e75;
+    --social-link-color: #eee8d5;
+    --card-background-color: #073642;
+    --newsletter-background-color: #ffffff0a;
+    --button-background-color: #002028;
+}
+
 @media (prefers-color-scheme: dark) {
      /* Dark Mode */
     html,
@@ -276,9 +320,19 @@ header {
 }
 .navbar-dark .navbar-nav .nav-link {
     color: var(--nav-link-color) !important;
+    /* Keep each nav item (e.g. "Terms of Use") on a single line so it doesn't
+       wrap into 2-3 lines on medium/narrow desktop widths. */
+    white-space: nowrap;
 }
 .navbar-dark .navbar-toggler {
     border-color:transparent !important;
+}
+
+/* Keep the search and theme icons side by side (one row, two columns)
+   instead of wrapping onto separate rows when the bar gets narrow. */
+#topNav .nav.justify-content-end {
+    flex-direction: row;
+    flex-wrap: nowrap;
 }
 
 .navbar-brand-img{
@@ -648,6 +702,12 @@ header {
     #project-card{
         margin-top:30px;
     }
+    .project-item {
+        margin-top: 15px;
+        &:first-of-type {
+            margin-top: 0;
+        }
+    }
     .project-link{
         color: var(--link-color);
     }
@@ -657,6 +717,8 @@ header {
 .company-logo {
     width: 100px;
     height: 100px;
+    /* Keep aspect ratio for non-square logos (e.g. the Snowflake wordmark) */
+    object-fit: contain;
 }
 
 .author-profile-img {
@@ -1258,7 +1320,158 @@ footer {
     opacity: 0.9;
 }
 
-#mc_embed_signup h2, 
+#mc_embed_signup h2,
 #mc_embed_signup .indicates-required {
     color: var(--bold-color);
+}
+
+/* Table of contents (post sidebar) */
+.toc-nav {
+    position: sticky;
+    top: 80px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding: 0.25rem 0 0.5rem 0.75rem;
+    border-left: 2px solid var(--light-border-color);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.toc-nav ul {
+    list-style: none;
+    margin: 0 !important;
+    padding: 0;
+}
+
+.toc-nav li {
+    margin: 0.15rem 0;
+}
+
+.toc-nav li.toc-h3 {
+    padding-left: 0.9rem;
+    font-size: 0.85rem;
+}
+
+.toc-nav a {
+    color: var(--medium-text-color);
+    text-decoration: none;
+    display: block;
+    padding: 0.1rem 0;
+    border-left: 2px solid transparent;
+    margin-left: -0.77rem;
+    padding-left: 0.65rem;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.toc-nav a:hover {
+    color: var(--link-color);
+}
+
+.toc-nav a.active {
+    color: var(--link-color);
+    border-left-color: var(--link-color);
+    font-weight: 600;
+}
+
+/* Scroll to top / bottom arrows */
+#scroll-arrows {
+    position: fixed;
+    right: 18px;
+    bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1030;
+}
+
+.scroll-arrow {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid var(--light-border-color);
+    background-color: var(--card-background-color);
+    color: var(--main-text-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.scroll-arrow:hover {
+    background-color: var(--link-color);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* Optically center the chevron glyphs inside the round buttons */
+.scroll-arrow .fa-chevron-up {
+    position: relative;
+    top: -2px;
+}
+
+.scroll-arrow .fa-chevron-down {
+    position: relative;
+    top: 2px;
+}
+
+@media (max-width: 480px) {
+    #scroll-arrows {
+        right: 12px;
+        bottom: 16px;
+    }
+    .scroll-arrow {
+        width: 38px;
+        height: 38px;
+    }
+}
+
+/* Theme switch toast */
+#theme-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background-color: var(--card-background-color);
+    color: var(--main-text-color);
+    border: 1px solid var(--light-border-color);
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1040;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+#theme-toast.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Heading anchors clear the fixed navbar on jump */
+.card-body[itemprop="articleBody"] h2,
+.card-body[itemprop="articleBody"] h3 {
+    scroll-margin-top: 80px;
+}
+
+/* Comfortable reading rhythm for article body */
+.card-body[itemprop="articleBody"] {
+    line-height: 1.7;
+}
+
+.card-body[itemprop="articleBody"] p {
+    margin-bottom: 1.1rem;
+}
+
+.card-body[itemprop="articleBody"] h2 {
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+}
+
+.card-body[itemprop="articleBody"] h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
 }

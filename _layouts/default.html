@@ -10,6 +10,14 @@ layout: compress
         <div class="main-container">
             {{ content }}
         </div>
+        <div id="scroll-arrows">
+          <button id="scroll-top" class="scroll-arrow" aria-label="Scroll to top">
+            <i class="fa fa-chevron-up" aria-hidden="true"></i>
+          </button>
+          <button id="scroll-bottom" class="scroll-arrow" aria-label="Scroll to bottom">
+            <i class="fa fa-chevron-down" aria-hidden="true"></i>
+          </button>
+        </div>
         {%- include footer.html -%}
      <script>
             var options = {
@@ -23,6 +31,6 @@ layout: compress
         </script>
 
 
-   <script src="{{site.url}}{{site.baseurl}}/assets/js/mode-switcher.js"></script>
+   <script src="{{site.url}}{{site.baseurl}}/assets/js/scroll-arrows.js?v={{ site.time | date: '%s' }}"></script>
   </body>
 </html>

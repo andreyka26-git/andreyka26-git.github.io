@@ -1,0 +1,16 @@
+# Keep build artifacts out of the image. Otherwise `COPY . .` bakes the local
+# build/ output into the image, and Docker seeds the jekyll_build named volume
+# from it - those seeded files can't be reopened for writing through the
+# layered bind-mount + volume on Docker Desktop, breaking `jekyll serve`.
+build/
+_site/
+.jekyll-cache/
+.jekyll-metadata
+.sass-cache/
+
+# Dev cruft / not needed in the image
+.git/
+.github/
+node_modules/
+vendor/
+*.log

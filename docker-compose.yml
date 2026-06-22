@@ -1,9 +1,45 @@
 version: "3.8"
 services:
   jekyll:
-    build: .
+    build:
+      context: .
+      dockerfile: DockerfileOptimized   # limit_posts + no sitemap/feed for dev
+    # The jekyll image's `jekyll` wrapper always su-exec's down to the `jekyll`
+    # user (uid 1000) to run the build, and it auto-chowns _site/.jekyll-cache -
+    # but NOT our custom `build` destination, so the root-owned named volume is
+    # unwritable to uid 1000 (EACCES). Start as root and chown the build + cache
+    # volumes to jekyll before handing off to the normal image entrypoint.
+    user: root
+    entrypoint:
+      - sh
+      - -c
+      - 'chown -R jekyll:jekyll /srv/jekyll/build /srv/jekyll/.jekyll-cache; exec /usr/jekyll/bin/entrypoint "$$@"'
+      - --
+    # Overriding entrypoint clears the image CMD, so restate the serve command.
+    command:
+      - jekyll
+      - serve
+      - --host
+      - 0.0.0.0
+      - --livereload
+      - --config
+      - _config.yml,_config_dev.yml
+      - --incremental
+      - --limit_posts
+      - "3"
+    environment:
+      # NOT "development": otherwise Jekyll serve overwrites site.url with the
+      # --host value (0.0.0.0), making every absolute asset URL unreachable in
+      # the browser. With a neutral env, site.url stays = _config_dev.yml's localhost.
+      - JEKYLL_ENV=local
     ports:
       - "4000:4000"
       - "35729:35729"   # livereload
     volumes:
-      - .:/srv/jekyll   # mount local files for live editing
+      - .:/srv/jekyll                      # mount local files for live editing
+      - jekyll_build:/srv/jekyll/build     # keep output OFF the slow Windows mount
+      - jekyll_cache:/srv/jekyll/.jekyll-cache  # persist incremental cache (fast)
+
+volumes:
+  jekyll_build:
+  jekyll_cache:

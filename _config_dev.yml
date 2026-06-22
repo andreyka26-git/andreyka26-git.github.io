@@ -6,16 +6,15 @@ incremental: true
 profile: true
 limit_posts: 5  # Only build the latest 5 posts during development
 
-# Disable time-consuming plugins during development
+# Disable time-consuming plugins during development.
+# jekyll-seo-tag must stay enabled: head.html uses the {% seo %} tag, which is an
+# unknown (parse-error) tag if the plugin is not loaded - even in development.
 plugins:
   - jekyll-paginate
+  - jekyll-seo-tag
   # Disabled for faster builds:
   # - jekyll-gist
-  # - jekyll-seo-tag
   # - jekyll-sitemap
-
-# Don't build sitemap and feed during development
-plugins: []
 
 # Development-specific settings
 url: "http://localhost:4000"
