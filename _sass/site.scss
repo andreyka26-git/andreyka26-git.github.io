@@ -1347,9 +1347,10 @@ footer {
     margin: 0.15rem 0;
 }
 
-.toc-nav li.toc-h3 {
+/* Nested levels (h3, h4, ...) are indented via kramdown's nested <ul>. */
+.toc-nav ul ul {
     padding-left: 0.9rem;
-    font-size: 0.85rem;
+    font-size: 0.95em;
 }
 
 .toc-nav a {
