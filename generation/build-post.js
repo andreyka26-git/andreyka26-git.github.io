@@ -4,8 +4,8 @@ const path = require("path");
 // Default metadata (overridden by frontmatter in .txt if present)
 const date =
   new Date().toISOString().replace(/T/, " ").replace(/\..+/, "") + " -0000";
-let title = "SSL / TLS / mTLS for System Design in simple words";
-let category = "Infrastructure";
+let title = "Concurrency for System Design with Microsoft Engineer";
+let category = "System Design";
 let tags = "[system_design, architecture, infrastructure]";
 let description = "Blog post.";
 

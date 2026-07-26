@@ -1,305 +1,401 @@
+<!-- Copy and paste the converted output. -->
+
 <!-- You have some errors, warnings, or alerts. If you are using reckless mode, turn it off to see useful information and inline alerts.
 * ERRORs: 0
 * WARNINGs: 0
-* ALERTS: 13 -->
+* ALERTS: 24 -->
 
 
 ## Introduction
 
-As I switched to Snowflake, I found out that there are a lot of gaps in Networks and Security areas as I started working closely on low level things.
+I passed many System Design interviews in FAANG companies myself, and conducted around 40-50 of them by myself. Today we are going to talk about one of the core problems that you are going to face during a system design interview - concurrency and race conditions.
 
-Today we are going to cover the encryption/security fundamentals that are needed for System Design interview and your day to day work. Mainly we will focus on TLS and mTLS along with the certificates, chain of trust, PKI and the underlying underhood of it.
+Good thing - that this knowledge is not “interview-specific”, but usually you would apply it in a real world scenario while developing/fixing/investigating something.
 
-Math fundamentals are going to be covered in the last chapter.
-
-
-## Terminology
-
-The cryptography and encryption topic seems hard first of all because tons of abbreviations and terms that seem unfamiliar. One of the first steps towards understanding is being able to easily operate by these terms.
-
-For now you can skip reading them, and just return to this chapter as you read the article.
-
-**TLS** - Transport Layer Security
-
-**RSA** (**Rivest–Shamir–Adleman**) - both encryption and signature algorithm, pretty heavy and now considered legacy in TLS.
-
-**MAC** (**Message Authentication Codes aka Authentication tag**) - sort of signature, that is computed over the payload and added to it to confirm that the payload hasn’t been changed. Typically it is implemented as some hashing with MAC secret key involved. Examples: **GHASH**, **HMAC**.
-
-**AEAD** (**Authenticated Encryption with Associated Data**) -  encryption + signature (to ensure encrypted data was not tempered). The most commonly used AEAD is **AES-GCM**, which computes encrypted bytes (AES part)  in parallel per block and then generates **GHASH MAC **over them (GCM part)
-
-**HKDF **(**HMAC-based Key Derivation Function**) - function that can deterministically derive a bunch of different keys needed for signing and encrypting, from a single shared key.
-
-**ECDSA **(**Elliptic Curve Digital Signature Algorithm**) - signature creation and verification approach using public and private key derived from Elliptic Curve formula
-
-**ECDH **(**Elliptic Curve Diffie-Hellman**) / **ECDHE **(**Elliptic Curve Diffie-Hellman Ephemeral**) - shared secret derivation from private and public keys using Elliptic Curve formula.
-
-**ASN.1 (Abstract Syntax Notation One)** - schema/structure definition, like JSON.
-
-**DER (Distinguished Encoding Rules) **- binary encoding for **ASN.1** data
-
-**PEM **- textual (base64) encoding of **DER**, with headers marking is the payload {-----BEGIN PRIVATE KEY-----}, {-----BEGIN CERTIFICATE-----}, {-----BEGIN PUBLIC KEY-----}
-
-**TbsCertificate** - To Be Signed Certificate, contains subject, issuer, validity, **public key**, serial number, extensions.
-
-**Certificate **- is a specific **ASN.1** structure (**Certificate ::= SEQUENCE { tbsCertificate, signatureAlgorithm, signatureValue }** ) encoded as **DER **(optionally encoded to **PEM**).
+We are going to consider multiple SQL and NoSQL storages, so that you have all the technology detailed solutions.
 
 
-## What is TLS and why bother?
+## The problem
 
-TLS - is a protocol that is needed to ensure the communication over the network is secured, not readable and not malformed by a middleman.
+Let’s consider the most typical scenario: Ticketmaster, Ryanair/Kiwi, Uber. The general case: two users might want to book/lock the same resource (seat, ticket, rider) -> we should allow only one of them to do so, and let the other one see the error and retry. Correctness breaks if two users would think both got the seat/ticket/rider whereas in fact only one of them has it.
 
-Keep in mind we won’t consider SSL here as it is deprecated and not used pretty much.
+In our case we will take the Ticketmaster as an example, as it is the most representative. We have an entity `Seat`, that has id (unique), status (available, reserved), reserved_by (the user that has reserved), version (part of concurrency mechanism). \
+ \
+In SQL it would look like that:
 
-Having in mind our TCP / IP stack, where is it? Let’s recall the stack itself [TCP/IP Illustrated Volume 1 by Richard Stevens]:
+```sql
+
+
+```
+CREATE TABLE IF NOT EXISTS seats (
+    id           INT  PRIMARY KEY,
+    status       TEXT NOT NULL DEFAULT 'available',
+    reserved_by  TEXT,
+    version      INT  NOT NULL DEFAULT 0 -- used by the OPTIMISTIC demo
+);
+```
+
+
+```
+
+Set up the single available seat: \
+ \
+```sql
+
+
+```
+INSERT INTO seats (id, status, reserved_by, version)
+VALUES (1, 'available', NULL, 0)
+ON CONFLICT (id) DO UPDATE
+    SET status = 'available', reserved_by = NULL, version = 0;
+```
+
+
+```
+
+Apparently we might have 2 and more people trying to book the same seat. We want to ensure only one of them is taking the seat and others see the error. If 2 people booked and paid for the same seat we will have a correctness anomaly called `double booking`.
+
+Typical answer that I hear from a candidate: “well, we read the seat from db, check the status and change status to reserved if it is free, DB will handle everything“. This is the so-called `read-modify-write` (RMW) operation. So…. will db handle everything actually?
+
+You can go straight to the "Recipe" chapter to get the summary of what you must pick depending on the usecase, or check the Postgres, Redis and MongoDB section that explain internally how it exactly works.
+
+
+## Pessimistic vs Optimistic concurrency
+
+General rule for system design - whenever you can consider two options and compare (trade offs) and make a decision in favor of one of them - DO IT.
+
+Trade offs discussion is the one that actually gives you a green flag in the interview, especially when you have good points and you make a good conclusion in the end.
+
+The solution to the original problem is to use either optimistic or pessimistic concurrency. Now which one to use, how do they work?
+
+Of course, no system design can go without Martin Kleppmann’s book, here is one of the best tradeoff explanations:
 
 
 ![alt_text](images/image1.png "image_tooltip")
 
 
-TLS / SSL is the layer that is working on top of the Transport layer (TCP as delivery guarantee is required). Worth noting, that default TLS/SSL implementation is run in user space rather than kernel space.
+Remember, these are two main reasons (there are others for sure):
 
- \
-But still it is hard to put it into the Application layer fully, as TLS will be an intermediate layer between Transport (TCP) and Application (HTTP). Under the hood SSL is going to be just a user space library running or used by Application server, so for TCP it will be opaque, as TCP just operates over the bytes (does not matter encrypted or not).
 
-So at the same time TLS is considered as a separate layer, as part of Application layer and as NOT a layer at all.
+
+* `high contention` (a lot of threads/processes try to write to EXACTLY SAME row/document/key) -> pessimistic. Locking cost is less than retries cost
+* `low contention` (just a few threads/processes try to write to EXACTLY SAME row/document/key) -> optimistic, as locking cost is less than retries cost on edge cases.
+
+
+## Postgres
+
+First, we need to understand what “race conditions” model Postgres uses (it is always about specific DB, you cannot assume the same for all SQL databases).
+
+
+### MVCC - Multiversion concurrency control
+
+There are 2 main ways for database to keep thread safe operations:
+
+
+
+* 2PL (Two-Phase Locking) - classic shared read lock vs exclusive write lock. Readers block writers, writers block readers.
+* MVCC (multiversion concurrency control) - writes are locked, reads are parallel and don’t interfere with each other, multiple versions of row might exist at one point of time.
+
+Postgres uses MVCC (Multi-version concurrency control) as a concurrency mechanism. Essentially it means that it keeps MULTIPLE versions for the same object/row at a point of time. Transactions can then decide which version it “sees”.
+
+Note though [0]:
+
+
+
+* **internal writes **inside Postgres (the actual c code that writes to the memory) is done via exclusive locking only, there is no optimistic concurrency. SQL level write statements (e.g. UPDATE, DELETE) are exclusively locked as well, and executed one at a time for the same row. Therefore: whenever 2 transactions in parallel try to update the same row - one will be blocked until the other one is done. We still might have optimistic concurrency as the result of that update: error or success.
+* **internal reads **(the actual c code that reads memory), on the other hand is never blocked (in any isolation level, except SELECT FOR UPDATE that is using write lock, same as for UPDATE, DELETE, etc). The concurrent reads are organized around “what current transaction can see”, as row has all the potential versions.
 
 
 ![alt_text](images/image2.png "image_tooltip")
 
 
+Having this mentioned, now we can implement “optimistic” and “pessimistic” locking on the sql statement level.
 
-### The purpose
+In general, every transaction has a snapshot, which is the state of ongoing transactions, rows that are affected, etc. The difference between isolation levels  is when this snapshot is taken, and how much information we assess in this snapshot.
 
-The application of the TLS is very simple, when you transfer data over the network - typically you don’t want it to be readable by other parties, and you don’t want to receive malformed data without knowing it.
+Small “underhood”: Postgres operates on tuples. Tuple is the version of row (along with the data, to put it simply). If there is another version of the row, postgres creates a new tuple and points first one to the second one in similar to Linked List fashion. The “next” pointer is named `t_ctid` and it points to “newer” tuple, or to itself if there is only a single version of tuple.
 
-These are the problems that are solved by **TLS**:
-
-
-
-* Confidentiality (Encryption): it encrypts the data transferred between client and server, so whoever captures the packet won’t be able to decrypt it
-* Authentication (Signature): it ensures data is coming from trusted side (you don’t want mistakenly send card number to malicious actor who tricked you to believe this is the bank e.g. via Typosquatting)
-* Integrity (Signature): it ensures the data wasn’t malformed while transferred over the network, so servers receive exactly what the clients have sent.
-
-
-### Encryption
-
-Encryption is used to transform original text to bytes stream that is completely opaque when intercepted, that therefore is untransformed on the receiving side using some sort of keys.
-
-We have 2 different types of encryption: asymmetric and symmetric, they have different pros/cons and serve different purposes usually.
-
-
-#### Asymmetric encryption
-
-Needs 2 keys for encryption: public and private.
-
-It all works because of math magic with prime numbers. In simple words you can find two numbers `private_key` and `public_key` such that: 
-
-`encrypt(message, public_key) == decrypt(message, private_key)`.
+Example:
 
 
 ![alt_text](images/image3.png "image_tooltip")
 
 
-For client/server communication we do:
+Let’s briefly discuss what is going on on simple UPDATE statement in different Isolation levels for Postgres:
 
 
 
-* Server generates 2 keys: `sprivate`, `spublic`
-* Client generates 2keys: `cprivate`, `cpulbic`
-* Server provider `spublic` to client, client provider `cpublic` to server.
-* Server sends a message and encrypts it with `cpublic`. Client decrypts with `cprivate`
-* Client sends a message and decrypts it with `spublic`. Server decrypts with `sprivate`
-
-The math magic is called **RSA** (Rivest–Shamir–Adleman, most popular asymmetric encryption and signature algo), that works via generating 2 huge prime numbers, deriving private and public key from them, then encrypting/decrypting using these private and public keys. 
-
-Note still that these keys are essentially big numbers (bytes) as well as the cipher and message. The trick here is knowing only the public key - it is very hard/almost impossible to bruteforce private key -> therefore decrypt.
-
-We see the main benefit of asymmetric encryption: we don’t have problems sharing the key, the public key is very safe to distribute, but on the other hand - it is extremely slow for encryption, needs more CPU and time compared to symmetric encryption.
-
-
-#### Symmetric encryption
-
-Works over a single shared key that both server and client know. Shortly speaking, encryption is usually deterministic bytes operations performed with shared secret + bunch of derived keys thus making it reversible. \
- \
-For client/server communication we do:
-
-
-
-* Somehow distribute the same shared key to client and to server
-* Both server and client derive 2 keys: **server->client shared key** used only when server sends message to client , and **client->server shared key** used only when client sends message to server. Both of them generate a bunch of other secret keys that are used for encryption and signature. It is done so to make it less guessable.
-* Client encrypts data and signs with client -> server shared key. Server decrypts it using the same **client -> server shared key**.
-* Server encrypts data and signs with client -> server shared key. Client decrypts it using the same **client -> server shared key**.
-
-
+* `READ UNCOMMITTED isolation` - does not exist in postgres, behaves exactly like READ COMMITTED.
+* `READ COMMITTED isolation` - every single statement calculates the fresh “snapshot” of the rows. That’s exactly how two different SELECTs for the same row might return different results. As mentioned above UPDATE locks row exclusively, and then postgres re-reads the same row (while exclusively keeping UPDATE lock) via EPQ[1]  and then evaluates UPDATE … WHERE criteria over the freshly fetched row. This is where lost update can happen, and where we might have double booking.
 ![alt_text](images/image4.png "image_tooltip")
 
+* `REPEATABLE READ (SNAPSHOT) isolation` - the snapshot is taken in the beginning of the transaction (not before each statement as in READ COMMITTED). All SELECT statements for a single row see the same result in the transaction. UPDATE statement just detects whether there is a newer version of the row or not, if somebody has updated the row, the transaction will see a newer tuple in MVCC, and abort the UPDATE [2] [3].
 
-Symmetric encryption is faster than asymmetric. There is only one problem: how to exchange the shared key securely?
-
-
-## Signature
-
-Signature is bytes computed from some payload using some cryptographic algorithms (RSA, or ECDSA), that can be used to prove that message wasn’t malformed and was sent from the real owner.
-
-It does not change the payload itself (it stays plain and visible to any middleman), but it adds an additional message/part in the end, that the receiver can use to validate the integrity and authenticity of the payload.
-
-Signatures are mainly used in TLS certificates to validate the certificate itself, including the chain of parent certificates.
-
-There are 2 main algorithms: **ECDSA **(ES256) and **RSA** (RS256).
-
-ECDSA is mainly used as it is easier to compute (requires less CPU and time), it needs less space for signature still providing the same security guarantees.
-
-
-### ECDSA (Elliptic curve)
-
-In modern TLS the most useful algorithm for signatures is ECDSA, which is a geometry based method based on elliptic curve function. 
-
-
+    
 ![alt_text](images/image5.png "image_tooltip")
 
 
-To not put too much math details:
 
-
-
-* signing: we are getting the starting point on the elliptic curve, and performing scalar multiplication `private_key` number of times (point addition) thus getting the end value (`public_key`, it is just X coordinate). Then we compute the `result` using formula from `private_key`, hash of the payload and `public_key`. 
-* verifying: receiver is given `result`, `public_key` and payload. By using reversed formula it is possible to verify that computed x coordinate (`public_key`) and passed x coordinate do match
-
-
+    
 ![alt_text](images/image6.png "image_tooltip")
 
 
+* `SERIALIZABLE` - works pretty similar as REPEATABLE READ except that it maintains the reads made by transactions, and aborts the UPDATEs in case there is a transaction that reads that row, because it might lead to REPEATABLE READ anomalies. Essentially, whenever there is UPDATE statement, SERIALIZABLE checks not only whether there is newer version of the row, but also whether it was read by someone.
 
-### RSA
+Rollback works in the way that Postgres writes ROLLBACK messages to WAL, add that transaction id to `clog` and that’s it. During the read postgres just checks the transaction status fin clog.
 
-Signing using RSA is pretty similar to encryption. The same math trick is used: you are getting two huge prime numbers, and derive private and public keys from them. The signature is just an encrypted cipher over the hashed payload (with different padding due to security).
+To commit - we essentially don’t do anything, just add a commit message to WAL.
+
+
+### Vanilla READ COMMITTED - double booking
+
+Consider this example:
+
+```sql
+
+
+```
+BEGIN TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+SELECT id, status FROM seats WHERE id = 1;
+UPDATE seats SET status = 'reserved', reserved_by = 'ALICE' WHERE id = 1;
+
+COMMIT;
+```
+
+
+```
 
 
 ![alt_text](images/image7.png "image_tooltip")
 
 
+Since we are using READ COMMITTED - each statement will capture a fresh snapshot, moreover, UPDATE statement will do EvalPlanQual [1] (re-reading row while holding write lock by UPDATE, in case it sees that row has been changed). 
 
-## Agree on shared key / ECDHE (Elliptic curve)
+That means the following scenario can happen:
 
-Previously we concluded that symmetric encryption is cheaper and faster than asymmetric.
 
-There is only one concern left: how can we agree on the same shared secret over an untrusted network?
 
-Mathematicians have solved this problem for us engineers a long time ago. The method is called **ECDHE **(Elliptic Curve Diffie-Hellman Ephemeral), yes, again elliptic curves.
+* transaction1 selects the seat and checks in the application code that it is “available”
+* transaction2 does the same
+* transaction1 does an update statement (EvalPlanQual is NOT performed as row is up-to-date). Update is successful - we proceed with the payment
+* transaction2 does an update (EvalPlanQual returns CHANGED by transaction1 status = “reserved”, but it does not stop us as it matches WHERE statement of the UPDATE) successfully thus overriding transaction1. We proceed with the payment
+* Result: double booking
 
 
 ![alt_text](images/image8.png "image_tooltip")
 
 
-It works using the same private/public keys derivation using elliptic curve:
+
+### Optimistic READ COMMITTED - no double booking
+
+To improve the situation above - we can leverage EvalPlanQual and recheck that seat has expected value that we have read via SELECT before.
+
+Now the steps would be:
 
 
 
-* Client is getting the starting point on the elliptic curve, and performing scalar multiplication `private_key` number of times (point addition) thus getting the end value (`public_key`, it is just X coordinate).
-* The server is getting the starting point on the elliptic curve, and performing scalar multiplication `private_key` number of times (point addition) thus getting the end value (`public_key`, it is just X coordinate).
-* Client gets Server’s public_key
-* Server gets Client’s public_key
-* Both client and server will arrive into the same `shared_secret` given the keys they have, because of the math properties of elliptic curves.
+* transaction1 selects the seat and checks in the application code that it is “available”
+* transaction2 does the same
+* transaction1 does an update statement (EvalPlanQual is NOT performed as row has not been changed yet). Update is successful - we proceed with the payment
+* transaction2 does an update (EvalPlanQual returns CHANGED by transaction1 status = “reserved”, WHERE statement “does not match” by status as it HAS BEEN CHANGED by transaction1 already) unsuccessfully as no rows were matched. We return an error.
+* Result: NO double booking
 
-Note that this `shared_key` is never used raw, we are running HKDF functions to derive more keys from this single shared key to start using them for symmetric encryption.
-
-
-## Certificates
-
-This was probably one of the most mysterious topics for me. Terminology helped me.
-
-Certificate is just a bunch of metadata: issuer, subject name, expiry, etc, along with a public key. All this metadata is signed using some private key. Now 3 parts: metadata, public key and signature are presented in a special format called **ASN.1**.
-
-**DER** - is binary encoding for **ASN.1** data. **PEM**, and .pem files are just textual (base64) encoding for **DER**.
-
-Certificate generated using usually ECDSA pair, where public key is encoded into certificate and signature is produced using private key and body of certificate.
-
-You can think about the certificate as a JWT that the server presents to you, so that you can verify that this website is legitimate.
+Literally the fix is `AND status = @status` + ensure code checks `affected rows`.
 
 
 ![alt_text](images/image9.png "image_tooltip")
 
 
-Generally everyone can just generate an ECD key pair and issue a self-signed certificate, and then replace it as a middleman on the way to the client. That way, the client will agree on a shared key with the middleman, and the middleman can serve as a proxy decrypting and reading all the messages.
 
-How does the client then differentiate which certificate was really issued by server and which one was not?
+### Pessimistic READ COMMITTED - no double booking
 
+Another option here would be to put WRITE lock on the row and work with it exclusively. Since Postgres by default uses MVCC thus reads don’t put any lock on the row - we must use `SELECT FOR UPDATE` that essentially puts write lock on the rows for the transaction duration.
 
-### PKI / Chain of Trust
-
-People generally agreed on few Root CA (certificate authorities) that can issue new certificates. Root CA is just a server that holds private key and public certificate, and can issue new certificates using its private key.
+In that case you don’t have to add `AND status = @status` as Postgres ensures nothing will change that row while it has been run by `SELECT FOR UPDATE`.
 
 
 ![alt_text](images/image10.png "image_tooltip")
 
 
-Since the internet grew, and private keys are extremely sensitive information, we have added a new layer of certificates called Intermediate CA. These are usually used to issue new certificates.
 
-All browsers agreed to distribute Root CA public keys so that clients can easily tell whether leaf + intermediate certificates are coming from root or not.
+### SERIALIZABLE / REPEATABLE READ - no double booking
+
+REPEATABLE READ and SERIALIZABLE are pretty similar - they both take a snapshot at the beginning of transaction, compared to READ COMMITTED that takes a snapshot before each statement inside the transaction.
+
+They both don’t do EvalPlanQual (compared to READ COMMITTED that does it), instead they detect the conflict on update.
+
+Whenever UPDATE is happening in REPEATALE READ or SERIALIZABLE [this code detects whether tuple is already updated by somebody else](https://github.com/postgres/postgres/blob/master/src/backend/access/heap/heapam.c#L3683-L3689) (essentially its t_ctid should point to itself), and [this code rejects UPDATE for modified tuple for REPEATABLE READ+](https://github.com/postgres/postgres/blob/master/src/backend/executor/nodeModifyTable.c#L2884-L2892).
+
+This means that we can easily use the same code as in Vanilla READ COMMITTED version, but in REPEATABLE READ / SERIALIZABLE and it will work.
 
 
 ![alt_text](images/image11.png "image_tooltip")
 
 
-During TLS handshake the certificate chain is validated like this:
+
+## Redis
+
+One of the great solutions to this problem - Distributed Lock pattern, which is quite commonly advised, even though being [roasted by Martin Kleppmann](https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html).
+
+One thing about classic Redis - it is single threaded - therefore the statements/commands are executed sequentially by default.
+
+
+### Vanilla SET - double booking
+
+Even though Redis is single-threaded with wrong usage we might end up having double booking, for example:
 
 
 
-* server signs all previous handshake tls messages with Leaf server’s private key
-* client then: 
-    * validates that signature with leaf certificate that server presents
-    * client validates leaf certificate with intermediate certificate (that server attaches too)
-    * client validates intermediate certificate against root certificate that is already distributed to the client
+* application code reads seat1 key
+* it sees that status is “free”
+* application decides to write value “reserved”
+
+The problem here that there might be a lot of other processes/threads that read seat1 as “free” and decided to write “reserved” thus believing they own the seat and proceed with the payment.
 
 
 ![alt_text](images/image12.png "image_tooltip")
 
 
 
-## How does TLS work?
+### LUA script - no double booking
+
+LUA script is some sort of “transactions” in Redis world. Since Redis is single-threaded it will execute every LUA code atomically [4], meaning nothing else on the server is getting executed at the same time.
 
 
 ![alt_text](images/image13.png "image_tooltip")
 
 
-Now given all prerequisite background we can grasp what is going on in TLS layer:
+LUA scripts don’t have a rollback option, but we don’t need it.
+
+
+![alt_text](images/image14.png "image_tooltip")
+
+
+It will work, however we are using vanilla `SET` as in the previous chapter, but the key point here, that “exists” happens in a non-race environment, one at a time and in the server that is the source of truth.
+
+
+### SET NX - no double booking
+
+Atomic operation that sets the key ONLY if it does not exist at the moment. Redis does not use any specific atomic CPU instruction like CAS/FAA/TAS, instead it leverages the fact of being single-threaded and just checks it via simple `if` [5].
+
+
+![alt_text](images/image15.png "image_tooltip")
 
 
 
-* **ClientHello**: client generates ECDHE keys `c_priv` and `c_pub` and send `c_pub` along with supported ciphers, curves, nonce, etc.
-* **ServerHello**: server generates ECDHE keys `s_priv` and `s_pub`, sends chosen cipher, nonce, etc.
-* Client and Server compute `shared_	secret` using ECDHE algorithm. `Server’s shared = ECDHE(s_priv, c_pub)`, `Client’s shared = ECDHE(c_priv,j s_pub)`
-* From `shared_secret` they derive a bunch of keys that are going to be used for actual encryption using the HKDF function.
-* **Certificate**: Server sends certificate to the client
-* **CertificateVerify**: Server sends hash over all the previous TLS messages along with signature created from Leaf’s private key)
-* **ServerFinished**: Server computes the final e2e encryption key along with HMAC over all the messages sent to the client so far.
-* Client validates certificate chain (leaf -> intermediate, root)
-* Client validates the leaf certificate from CertificateVerify message and Leaf cert’s public key
-* **ClientFinished**: Client verifies HMAC from Finished message matches the one it calculated from all the message it received, and sends its HMAC to the server.
-* Server validates client’s Finish HMAC.
-
-The beauty of this method is everything is happening over an open network, and any middleman can sit there and see the communication, but couldn’t do anything about it. Besides that the encryption keys generated as well as shared_secret are only for the current TLS session. Even if they are compromised - the malicious actor can decrypt a single session message.
+![alt_text](images/image16.png "image_tooltip")
 
 
-## Practical application
 
-One of the most common applications of all above that I have seen is mTLS over the internal components.
+## MongoDB
 
-mTLS - is mutual TLS, meaning server1 presents its own certificate to server2 as well as server2 presents its own certificate to server1. Thus they both authorize each other, so not only server1 knows it is talking to trusted server2, but also server2 knows the request is coming from the trusted server1.
+As the last part - let’s consider a typical Postgres alternative: MongoDb.
 
-Another approach that I have seen: custom PKI, when you control how, where and to whom the certificates can be issued. You could build different chains of trust thus limiting the disjoint set of components that can talk to each other.
+By default MongoDb uses a “WiredTiger” storage engine that uses MVCC [6] as well as Postgres. The optimistic concurrency is per document, but in our case one seat = one document.
 
-The last example would be the case, when you want to establish ephemeral encryption key per session without TLS: you can implement custom ECDHE (using libraries ofc).
+
+![alt_text](images/image17.png "image_tooltip")
+
+
+
+### MVCC - Multiversion concurrency control
+
+In my opinion Mongodb (WiredTiger) has a much more intuitive MVCC approach than Postgres.
+
+There is a map where key is id of document and value is LinkedList of `__wt_update` struct, which contains the transactionid of the written value, timestamps and the pointer to the older version of the document [7].
+
+
+![alt_text](images/image18.png "image_tooltip")
+
+
+
+![alt_text](images/image19.png "image_tooltip")
+
+
+It is similar to Postgres, but Postgres keeps older tuple on the head of linked list, whereas mongo keeps the newest one on the head of the linked list
+
+While reading the value Mongo computes the snapshot (that has uncommitted transaction ids, min/max of visibility for transactions, etc), gets the head of the MVCC linked list, and gets the highest (newest) transaction id that is visible for that snapshot -> work with that.
+
+On write/update - it simply tries to push a new head (version) to the linked list via CAS [8] [9] (lock free atomic compare-and-swap), as this is just a pointer (integer).  The failed transaction will reread the newly inserted head and recheck on the “find criteria” whether it still matches before updating and retry. An interesting distinction from Postgres is that nothing is locked here, so 3 concurrent transactions will all be doing CAS and exponential backoff.
+
+
+![alt_text](images/image20.png "image_tooltip")
+
+
+
+![alt_text](images/image21.png "image_tooltip")
+
+
+Rollback works in the way that you mark transaction id as aborted, and then Mongo marks all the linked list entries from this transaction as aborted (they will be skipped).
+
+To commit - we essentially don’t do anything, just add a commit message to WAL.
+
+
+### Vanilla Update - double booking
+
+
+![alt_text](images/image22.png "image_tooltip")
+
+
+Assume two concurrent threads (Alice and Bob) are writing to that document. Mongo’s CAS will allow only a single one to succeed (Alice), BUT the second one (Bob) will retry (as optimistic concurrency) and succeed -> double booking.
+
+It is happening, because after Mongo got a CAS error (somebody else has updated the document) it refetches the fresh version and rechecks whether the “filter criteria” still matches for that document [10]. Our filter criteria is `Id == seatId` and it fully matches therefore a new update will happen. It is very similar to Postgres’ EvalPlanQual in READ COMMITTED.
+
+
+![alt_text](images/image23.png "image_tooltip")
+
+
+
+### Update with status check - no double booking
+
+Since Mongo will recheck the entry once CAS fails on race conditions -> we can just add “status” to our criteria so that it will stop matching once somebody else reserves the seat.
+
+
+![alt_text](images/image24.png "image_tooltip")
+
+
+
+## Recipe tl; dr;
+
+Avoid `read-modify-write` (RMW) cycles that have the “modify” step in application code (service) but read and write against the real storage.
+
+Instead “understand” whether the seat is reserved (“read” step) by trying to write to storage and check the result of that write (essentially do read-modify-write but all three in storage, that can handle it).
+
+Another approach is to leverage storage’s native concurrency approaches (pessimistic / optimistic) like locking (SELECT FOR UPDATE  in postgres), single threaded (LUA SET NX in Redis) or Optimistic CAS (update with correct filter criteria in Mongo).
 
 
 ## Conclusion
 
-Hope you found something useful for yourself here. Not including math background for that as it would make the article extremely long.
+I hope this article was interesting and useful for you. 
 
-This article is pretty much a refined version of my personal notes, because sometimes my brain errors out trying to recall how this chain of trust is working, who checks whose signature, which private key is used to generate which signature, etc.
+Attentive readers already was that approach here would work only for single row races, and wouldn’t work on classic Aggregation problems e.g. “take a doctor shift only if the number of doctors is less than X”. This is for future content. \
+ \
+Please follow me on social media as I’m solving and discussing System Design / Leetcode and FAANG life there: [Telegram](https://t.me/programming_space), [Instagram](https://www.instagram.com/andreyka26_se/), [Threads](https://www.threads.com/@andreyka26_se), [X](https://x.com/andreyka26_).
 
-The diagrams here help me to recall everything within 1 minute and move on.
+The repository with examples: [https://github.com/andreyka26-git/andreyka26-distributed-systems/tree/main/Concurrency](https://github.com/andreyka26-git/andreyka26-distributed-systems/tree/main/Concurrency)
 
-Github repo: [https://github.com/andreyka26-git/andreyka26-distributed-systems/tree/main/Tls](https://github.com/andreyka26-git/andreyka26-distributed-systems/tree/main/Tls)
 
-Don’t forget to sub to my [telegram](https://t.me/programming_space), [instagram](https://www.instagram.com/andreyka26_se/), [threads](https://www.threads.com/@andreyka26_se), [X](https://x.com/andreyka26_), as we are doing polls for the next topic to discuss (like TLS today).
+## Sources
+
+[0] - [Serializable Isolation Implementation Strategies](https://github.com/postgres/postgres/blob/master/src/backend/storage/lmgr/README-SSI)
+
+[1]  - [EvalPlanQual (READ COMMITTED Update Checking)](https://github.com/postgres/postgres/blob/master/src/backend/executor/README)
+
+[2] - [Repeatable read and Serializable detecting the modified row has changed](https://github.com/postgres/postgres/blob/master/src/backend/access/heap/heapam.c#L3683-L3689)
+
+[3] - [Repeatable read and Serializable rejecting “modified” row](https://github.com/postgres/postgres/blob/master/src/backend/executor/nodeModifyTable.c#L2884-L2892)
+
+[4] - [Redis has LUA scripts atomic](https://redis.io/docs/latest/develop/programmability/eval-intro/#:~:text=Redis%20guarantees%20the%20script%27s%20atomic%20execution.%20While%20executing%20the%20script%2C%20all%20server%20activities%20are%20blocked%20during%20its%20entire%20runtime.%20These%20semantics%20mean%20that%20all%20of%20the%20script%27s%20effects%20either%20have%20yet%20to%20happen%20or%20had%20already%20happened)
+
+[5] -[ Redis SET NX source code via simple if](https://github.com/redis/redis/blob/e1cc3dc268a5ff20eecbdb530483fd692c3dbc6e/src/t_string.c#L104-L112)
+
+[6] - [WiredTiger docs](https://www.mongodb.com/docs/manual/core/wiredtiger/)
+
+[7] - [WiredTiger MVCC linked list entry](https://github.com/wiredtiger/wiredtiger/blob/f08bc4b18612ef95a39b12166abcccf207f91596/src/include/btmem.h#L1063)
+
+[8] - [CAS used in Updating the document in WiredTiger](https://github.com/wiredtiger/wiredtiger/blob/f9d25c772e4c4a6e5a2b831641cdade4647ef364/src/include/serial_inline.h#L276)
+
+[9] [CAS (compare-and-swap) implementation in WiredTiger](https://github.com/wiredtiger/wiredtiger/blob/f8cb8f23fb1bc4a41ce529a44755c41f2cfdd9a9/src/include/gcc.h#L101)
+
+[10] [Mongo checks “doc still matches” before the update](https://github.com/mongodb/mongo/blob/3a871fc6471335817b6ac1b913a47a504b3743b0/src/mongo/db/exec/classic/update_stage.cpp#L229)
