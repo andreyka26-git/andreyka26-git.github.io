@@ -297,6 +297,15 @@ header {
     padding: 0px !important;
     background: none !important;
     border: none;
+
+    /* Wide article logo: line it up with the text, which is inset by the
+       1.25rem horizontal padding of Bootstrap's .card-header / .card-body. */
+    > .card-img-top {
+        display: block;
+        width: calc(100% - 2.5rem);
+        margin: 0 1.25rem;
+        border-radius: 6px;
+    }
 }
 
 #topNav{
@@ -619,6 +628,10 @@ header {
     margin-top: 100px !important;
 }
 
+.kit-subscribe-section {
+    margin: 40px 0;
+}
+
 #recent-articles-header{
     display: grid;
     width: 100%;
@@ -679,6 +692,11 @@ header {
         margin: 2px;
         text-decoration: none !important;
     }
+    .leetcode-icon {
+        width: 15px;
+        height: 15px;
+        vertical-align: -2px;
+    }
     #header-nav{
         float: right;
         margin-inline-start: 45px;
@@ -710,6 +728,88 @@ header {
     }
     .project-link{
         color: var(--link-color);
+    }
+
+    /* Project tiles */
+    .project-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+        margin-top: 10px;
+    }
+    .project-tile {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 18px;
+        border: 1px solid var(--underline-color);
+        border-radius: 10px;
+        text-decoration: none !important;
+        color: var(--main-text-color) !important;
+        background-color: var(--main-background-color);
+        transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+
+        &:hover {
+            border-color: var(--link-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, .15);
+
+            .project-cta {
+                color: var(--link-color);
+
+                .fa-arrow-right {
+                    transform: translateX(4px);
+                }
+            }
+        }
+    }
+    .project-icon {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        background-color: var(--link-color);
+        color: #fff;
+        font-size: 18px;
+    }
+    .project-body {
+        display: block;
+    }
+    .project-name {
+        display: block;
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--medium-text-color);
+    }
+    .project-tagline {
+        display: block;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        opacity: .7;
+        margin-top: 2px;
+    }
+    .project-desc {
+        display: block;
+        font-size: 14px;
+        line-height: 1.5;
+        margin-top: 8px;
+    }
+    .project-cta {
+        display: block;
+        margin-top: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--medium-text-color);
+        transition: color .2s ease;
+
+        .fa-arrow-right {
+            font-size: 11px;
+            transition: transform .2s ease;
+        }
     }
 }
 

@@ -10,8 +10,6 @@ layout: default
         </a>
         <h1 class="profile-name">{{ site.title }}</h1>
         <p class="profile-bio">{{ site.subtitle }}</p>
-        {% if site.github_username %} {%- include github_follow_button.html -%} {%
-        endif %}
 
         <p class="profile-links">
           {% if site.twitter_username %}
@@ -37,6 +35,11 @@ layout: default
           {% endif %} {% if site.github_username %}
           <a class="social-link" href="https://github.com/{{ site.github_username }}">
             <i class="fab fa-github"></i>
+          </a>
+          {% endif %} {% if site.leetcode_username %}
+          <a class="social-link" href="https://leetcode.com/u/{{ site.leetcode_username }}/" title="LeetCode"
+            aria-label="LeetCode">
+            {%- include leetcode_icon.html -%}
           </a>
           {% endif %} {% if site.behance_username %}
           <a class="social-link" href="https://behance.net/{{ site.behance_username }}">
@@ -70,6 +73,9 @@ layout: default
         {% endif %} {% if site.author_website_url %}
         <h6><a href="{{ site.author_website_url }}"><i class="fas fa-link" class="social-link"></i> {{
             site.author_website_url }}</a></h6>
+        {% endif %} {% if site.leetcode_username and site.leetcode_solved %}
+        <h6><a href="https://leetcode.com/u/{{ site.leetcode_username }}/" class="social-link">{%- include
+            leetcode_icon.html -%} {{ site.leetcode_solved }} Leetcode problems solved</a></h6>
         {% endif %}
       </div>
 
@@ -93,23 +99,22 @@ layout: default
         <h1 class="card-title">About</h1>
         <p>{{ site.author_bio }}</p>
       </div>
-
+      {% endif %} {% if site.author_projects %}
       <div id="author_projects" class="card">
         <h1 class="card-title">Projects</h1>
-        <div class="project-item">
-          <h4 class="experience-title">Tools by andreyka26</h4>
-          <p class="experience-desc">A collection of free, browser-based developer and productivity tools.</p>
-          <p><a class="project-link" href="https://tools.andreyka26.com/">https://tools.andreyka26.com/</a></p>
-        </div>
-        <div class="project-item">
-          <h4 class="experience-title">SyncSymptom</h4>
-          <p class="experience-desc">An app to track, log and sync your health symptoms over time.</p>
-          <p><a class="project-link" href="https://syncsymptom.com">https://syncsymptom.com</a></p>
-        </div>
-        <div class="project-item">
-          <h4 class="experience-title">Pet4Pet</h4>
-          <p class="experience-desc">A community platform connecting pet owners and helping pets find new homes.</p>
-          <p><a class="project-link" href="https://pet-4-pet.com">https://pet-4-pet.com</a></p>
+        <div class="project-grid">
+          {% for project in site.author_projects %}
+          <a class="project-tile" href="{{ project.url }}">
+            <span class="project-icon"><i class="{{ project.icon }}"></i></span>
+            <span class="project-body">
+              <span class="project-name">{{ project.title }}</span>
+              {% if project.tagline %}<span class="project-tagline">{{ project.tagline }}</span>{% endif %}
+              <span class="project-desc">{{ project.description }}</span>
+              <span class="project-cta">{{ project.url | replace: "https://", "" | replace: "http://", "" | split: "/" |
+                first }} <i class="fas fa-arrow-right"></i></span>
+            </span>
+          </a>
+          {% endfor %}
         </div>
       </div>
       {% endif %} {% if site.show_author_project_details == true %}

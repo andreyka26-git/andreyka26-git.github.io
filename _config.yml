@@ -1,7 +1,7 @@
 title: andreyka26 tech
 google_analytics: G-71R0HBMGS3
 description: >- # this means to ignore newlines until "baseurl:"
-  I am Software Engineer at Microsoft. This is my tech blog where I would like to share my findings, guides and docs. Feel free to contact me.
+  I am Software Engineer at Microsoft, currently doing FAANG preparation (Leetcode and System Design). This is my tech blog where I would like to share my findings, guides and docs. Feel free to contact me.
 
 url: "https://andreyka26.com" # the base hostname & protocol for your site, e.g. https://example.github.io
 baseurl: "" # the subpath of your site, e.g. /blog
@@ -25,10 +25,29 @@ urls:
 # Edit Author details (For multi authors check _data/authors.yml)
 author_logo: profile.png
 author: Andrii Bui
-author_bio: Hi, my name is Andrii. I'm Software Engineer at Microsoft with 8 years of experience.
-author_location: Ukraine
+author_bio: Hi, my name is Andrii. I'm a Software Engineer at Microsoft with 8 years of experience. Had a bunch of big tech offers (Microsoft, Google, Snowflake); 700+ LeetCode problems solved. Discussing System Design, LeetCode and Software Engineering.
+author_location: Ireland
+leetcode_solved: 700+
 typewrite-text: Master Leetcode & FAANG Interviews | Software Architecture | Authorization & Security | DevOps & Infrastructure
 hero_cover_img: sample_cover.png # replace this for changing homepage cover (eg. try cover.jpeg). Image should be in /assets/img
+
+# Projects (rendered as icon tiles on /about)
+author_projects:
+  - title: Andreyka26Tools
+    tagline: Developer toolbox
+    description: A collection of free, browser-based developer and productivity tools - no sign up, nothing leaves your browser.
+    url: https://tools.andreyka26.com/
+    icon: fas fa-toolbox
+  - title: SyncSymptom
+    tagline: Health tracking
+    description: An app to track, log and sync your health symptoms over time, so you and your doctor can spot the patterns.
+    url: https://syncsymptom.com
+    icon: fas fa-heartbeat
+  - title: Pet4Pet
+    tagline: Pet community
+    description: A community platform connecting pet owners and helping pets find new homes.
+    url: https://pet-4-pet.com
+    icon: fas fa-paw
 
 # Experiences
 author_work_experiences:
@@ -65,6 +84,7 @@ author_work_experiences:
 
 # social links
 github_username: andreyka26-git
+leetcode_username: andreyka26_
 facebook_username: profile.php?id=100017215509428
 linkedin_username: andrii-bui-a55b39166
 instagram_username: andreyka26_se

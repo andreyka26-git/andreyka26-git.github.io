@@ -9,11 +9,17 @@ services:
     # but NOT our custom `build` destination, so the root-owned named volume is
     # unwritable to uid 1000 (EACCES). Start as root and chown the build + cache
     # volumes to jekyll before handing off to the normal image entrypoint.
+    #
+    # Also drop .jekyll-metadata on every start: --incremental only marks a page
+    # dirty when the page's OWN source changes, so edits to _includes/, _layouts/
+    # or _config.yml would otherwise serve stale HTML forever. Deleting it forces
+    # one full build per container start; incremental still speeds up the
+    # edit-while-serving loop afterwards.
     user: root
     entrypoint:
       - sh
       - -c
-      - 'chown -R jekyll:jekyll /srv/jekyll/build /srv/jekyll/.jekyll-cache; exec /usr/jekyll/bin/entrypoint "$$@"'
+      - 'chown -R jekyll:jekyll /srv/jekyll/build /srv/jekyll/.jekyll-cache; rm -f /srv/jekyll/.jekyll-metadata; exec /usr/jekyll/bin/entrypoint "$$@"'
       - --
     # Overriding entrypoint clears the image CMD, so restate the serve command.
     command:
