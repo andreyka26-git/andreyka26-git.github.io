@@ -396,6 +396,6 @@ The repository with examples: [https://github.com/andreyka26-git/andreyka26-dist
 
 [8] - [CAS used in Updating the document in WiredTiger](https://github.com/wiredtiger/wiredtiger/blob/f9d25c772e4c4a6e5a2b831641cdade4647ef364/src/include/serial_inline.h#L276)
 
-[9] [CAS (compare-and-swap) implementation in WiredTiger](https://github.com/wiredtiger/wiredtiger/blob/f8cb8f23fb1bc4a41ce529a44755c41f2cfdd9a9/src/include/gcc.h#L101)
+[9] - [CAS (compare-and-swap) implementation in WiredTiger](https://github.com/wiredtiger/wiredtiger/blob/f8cb8f23fb1bc4a41ce529a44755c41f2cfdd9a9/src/include/gcc.h#L101)
 
-[10] [Mongo checks “doc still matches” before the update](https://github.com/mongodb/mongo/blob/3a871fc6471335817b6ac1b913a47a504b3743b0/src/mongo/db/exec/classic/update_stage.cpp#L229)
+[10] - [Mongo checks “doc still matches” before the update](https://github.com/mongodb/mongo/blob/3a871fc6471335817b6ac1b913a47a504b3743b0/src/mongo/db/exec/classic/update_stage.cpp#L229)
