@@ -93,4 +93,4 @@ Disallow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://live.andreyka26.com/sitemap.xml
+Sitemap: https://andreyka26.com/sitemap.xml
