@@ -86,6 +86,8 @@ Remember, these are two main reasons (there are others for sure):
 * `low contention` (just a few threads/processes try to write to EXACTLY SAME row/document/key) -> optimistic, as locking cost is bigger than retries cost on edge cases.
 
 
+One important caveat: optimistic concurrency normally assumes the loser retries the operation a couple of times. This is not the case for seat/ticket booking (Ticketmaster, Uber, Ryanair) - once a seat is reserved by someone else, there is nothing to retry - the row won't become free for the next 10 minutes.
+So in our case, there is no "retry cost" which means we can say that optimistic concurrency is the way to go for us
 
 
 <br>
@@ -216,7 +218,7 @@ That means the following scenario can happen:
 
         // THE BUG: the WHERE clause only matches on id, not status. Between the SELECT above and
         // this UPDATE another caller can reserve the seat; we overwrite them anyway. The row count
-        // check below looks defensive but is useless here — keyed on id alone, the UPDATE always
+        // check below looks defensive but is useless here - keyed on id alone, the UPDATE always
         // hits exactly 1 row, so `rows` can never surface the conflict. Lost update.
         var rows = await conn.ExecuteAsync(new CommandDefinition(
             "UPDATE seats SET status = 'reserved', reserved_by = @customer, version = version + 1 WHERE id = @seatId",
@@ -224,7 +226,7 @@ That means the following scenario can happen:
 
         if (rows != 1)
         {
-            // Never reached in practice — kept to show that even a row-count guard doesn't catch it.
+            // Never reached in practice - kept to show that even a row-count guard doesn't catch it.
             await tx.RollbackAsync(ct);
             return new SeatLockResult(SeatLockOutcome.Conflict, null, -1);
         }
@@ -257,38 +259,48 @@ Literally the fix is `AND status = @status` + ensure code checks `affected rows`
 
 ```cs
     public async Task<SeatLockResult> LockSeatOptimisticAsync(
-        int seatId, string customer, int maxAttempts = 3, CancellationToken ct = default)
+        int seatId, string customer, CancellationToken ct = default)
     {
         await using var conn = await OpenAsync(ct);
+        await using var tx = await conn.BeginTransactionAsync(ct); // READ COMMITTED
 
-        for (var attempt = 1; attempt <= maxAttempts; attempt++)
+        var seat = await conn.QuerySingleOrDefaultAsync<SeatRow>(new CommandDefinition(
+            "SELECT id, status, reserved_by, version FROM seats WHERE id = @seatId",
+            new { seatId }, tx, cancellationToken: ct));
+
+        if (seat is null)
+            throw new InvalidOperationException($"Seat {seatId} does not exist.");
+
+        if (seat.Status != "available")
         {
-            var seat = await conn.QuerySingleOrDefaultAsync<SeatRow>(new CommandDefinition(
-                "SELECT id, status, reserved_by, version FROM seats WHERE id = @seatId",
-                new { seatId }, cancellationToken: ct));
-
-            if (seat is null)
-                throw new InvalidOperationException($"Seat {seatId} does not exist.");
-
-            if (seat.Status != "available")
-                return new SeatLockResult(SeatLockOutcome.AlreadyTaken, seat.ReservedBy, seat.Version);
-
-            // Compare-and-swap: only succeeds if the status is still what we read.
-            var rows = await conn.ExecuteAsync(new CommandDefinition(
-                """
-                UPDATE seats
-                   SET status = 'reserved', reserved_by = @customer, version = version + 1
-                 WHERE id = @seatId AND status = @status
-                """,
-                new { customer, seatId, seat.Status }, cancellationToken: ct));
-
-            if (rows == 1)
-                return new SeatLockResult(SeatLockOutcome.Reserved, customer, seat.Version + 1);
-
-            // rows == 0 -> someone else bumped the version; loop, re-read, try again.
+            await tx.RollbackAsync(ct);
+            return new SeatLockResult(SeatLockOutcome.AlreadyTaken, seat.ReservedBy, seat.Version);
         }
 
-        return new SeatLockResult(SeatLockOutcome.Conflict, null, -1);
+        // Compare-and-swap: only succeeds if the status is still what we read.
+        var rows = await conn.ExecuteAsync(new CommandDefinition(
+            """
+            UPDATE seats
+               SET status = 'reserved', reserved_by = @customer, version = version + 1
+             WHERE id = @seatId AND status = @status
+            """,
+            new { customer, seatId, seat.Status }, tx, cancellationToken: ct));
+
+        if (rows == 1)
+        {
+            await tx.CommitAsync(ct);
+            return new SeatLockResult(SeatLockOutcome.Reserved, customer, seat.Version + 1);
+        }
+
+        // rows == 0 -> the winner committed between our SELECT and our UPDATE. Re-read (new statement,
+        // new snapshot) to report who holds the seat, then roll back - we wrote nothing.
+        var winner = await conn.QuerySingleOrDefaultAsync<SeatRow>(new CommandDefinition(
+            "SELECT id, status, reserved_by, version FROM seats WHERE id = @seatId",
+            new { seatId }, tx, cancellationToken: ct));
+
+        await tx.RollbackAsync(ct);
+        return new SeatLockResult(
+            SeatLockOutcome.AlreadyTaken, winner?.ReservedBy, winner?.Version ?? seat.Version + 1);
     }
 ```
 
@@ -348,49 +360,53 @@ This means that we can easily use the same code as in Vanilla READ COMMITTED ver
 
 ```cs
     public async Task<SeatLockResult> LockSeatRepeatableReadAsync(
-        int seatId, string customer, int maxAttempts = 3, CancellationToken ct = default)
+        int seatId, string customer, CancellationToken ct = default)
     {
         await using var conn = await OpenAsync(ct);
+        await using var tx = await conn.BeginTransactionAsync(
+            System.Data.IsolationLevel.RepeatableRead, ct);
 
-        for (var attempt = 1; attempt <= maxAttempts; attempt++)
+        try
         {
-            await using var tx = await conn.BeginTransactionAsync(
+            var seat = await conn.QuerySingleOrDefaultAsync<SeatRow>(new CommandDefinition(
+                "SELECT id, status, reserved_by, version FROM seats WHERE id = @seatId",
+                new { seatId }, tx, cancellationToken: ct));
+
+            if (seat is null)
+                throw new InvalidOperationException($"Seat {seatId} does not exist.");
+
+            if (seat.Status != "available")
+            {
+                await tx.RollbackAsync(ct);
+                return new SeatLockResult(SeatLockOutcome.AlreadyTaken, seat.ReservedBy, seat.Version);
+            }
+
+            // Unconditional write - no status guard. Under REPEATABLE READ this is still safe:
+            // if a concurrent txn committed a change to this row after our snapshot, the UPDATE
+            // fails with 40001 instead of clobbering it.
+            await conn.ExecuteAsync(new CommandDefinition(
+                "UPDATE seats SET status = 'reserved', reserved_by = @customer, version = version + 1 WHERE id = @seatId",
+                new { customer, seatId }, tx, cancellationToken: ct));
+
+            await tx.CommitAsync(ct);
+            return new SeatLockResult(SeatLockOutcome.Reserved, customer, seat.Version + 1);
+        }
+        catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.SerializationFailure)
+        {
+            // We lost the race: another transaction committed first. Roll back the aborted transaction,
+            // then read the winner on a fresh snapshot in a transaction of its own.
+            await tx.RollbackAsync(ct);
+
+            await using var readTx = await conn.BeginTransactionAsync(
                 System.Data.IsolationLevel.RepeatableRead, ct);
 
-            try
-            {
-                var seat = await conn.QuerySingleOrDefaultAsync<SeatRow>(new CommandDefinition(
-                    "SELECT id, status, reserved_by, version FROM seats WHERE id = @seatId",
-                    new { seatId }, tx, cancellationToken: ct));
+            var winner = await conn.QuerySingleOrDefaultAsync<SeatRow>(new CommandDefinition(
+                "SELECT id, status, reserved_by, version FROM seats WHERE id = @seatId",
+                new { seatId }, readTx, cancellationToken: ct));
 
-                if (seat is null)
-                    throw new InvalidOperationException($"Seat {seatId} does not exist.");
-
-                if (seat.Status != "available")
-                {
-                    await tx.RollbackAsync(ct);
-                    return new SeatLockResult(SeatLockOutcome.AlreadyTaken, seat.ReservedBy, seat.Version);
-                }
-
-                // Unconditional write — no status guard. Under REPEATABLE READ this is still safe:
-                // if a concurrent txn committed a change to this row after our snapshot, the COMMIT/
-                // UPDATE fails with 40001 instead of clobbering it.
-                await conn.ExecuteAsync(new CommandDefinition(
-                    "UPDATE seats SET status = 'reserved', reserved_by = @customer, version = version + 1 WHERE id = @seatId",
-                    new { customer, seatId }, tx, cancellationToken: ct));
-
-                await tx.CommitAsync(ct);
-                return new SeatLockResult(SeatLockOutcome.Reserved, customer, seat.Version + 1);
-            }
-            catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.SerializationFailure)
-            {
-                // We lost the race: another transaction committed first. Roll back and retry on a
-                // fresh snapshot — where we'll read 'reserved' and back off as AlreadyTaken.
-                await tx.RollbackAsync(ct);
-            }
+            await readTx.CommitAsync(ct);
+            return new SeatLockResult(SeatLockOutcome.AlreadyTaken, winner?.ReservedBy, winner?.Version ?? -1);
         }
-
-        return new SeatLockResult(SeatLockOutcome.Conflict, null, -1);
     }
 ```
 
@@ -619,45 +635,41 @@ Since Mongo will recheck the entry once CAS fails on race conditions -> we can j
 
 ```cs
     public async Task<SeatLockResult> LockSeatAtomicAsync(
-        int seatId, string customer, int maxAttempts = 3, CancellationToken ct = default)
+        int seatId, string customer, CancellationToken ct = default)
     {
-        for (var attempt = 1; attempt <= maxAttempts; attempt++)
-        {
-            var seat = await _seats.Find(s => s.Id == seatId).FirstOrDefaultAsync(ct);
+        var seat = await _seats.Find(s => s.Id == seatId).FirstOrDefaultAsync(ct);
 
-            if (seat is null)
-                throw new InvalidOperationException($"Seat {seatId} does not exist.");
+        if (seat is null)
+            throw new InvalidOperationException($"Seat {seatId} does not exist.");
 
-            if (seat.Status != "available")
-                return new SeatLockResult(SeatLockOutcome.AlreadyTaken, seat.ReservedBy, seat.Version);
+        if (seat.Status != "available")
+            return new SeatLockResult(SeatLockOutcome.AlreadyTaken, seat.ReservedBy, seat.Version);
 
-            // Compare-and-swap: the update only lands while the seat is still 'available'. Because the
-            // transition is one-way (available -> reserved), the status guard alone is enough — the loser's
-            // filter matches 0 docs once the winner flips it. (A version guard would additionally cover the
-            // ABA case where a seat bounces reserved -> available -> reserved between our read and write,
-            // which this flow never does.)
-            var filter = Builders<SeatDoc>.Filter.And(
-                Builders<SeatDoc>.Filter.Eq(s => s.Id, seatId),
-                Builders<SeatDoc>.Filter.Eq(s => s.Status, "available"));
+        // Compare-and-swap: the update only lands while the seat is still 'available'. Because the
+        // transition is one-way (available -> reserved), the status guard alone is enough - the loser's
+        // filter matches 0 docs once the winner flips it. (A version guard would additionally cover the
+        // ABA case where a seat bounces reserved -> available -> reserved between our read and write,
+        // which this flow never does.)
+        var filter = Builders<SeatDoc>.Filter.And(
+            Builders<SeatDoc>.Filter.Eq(s => s.Id, seatId),
+            Builders<SeatDoc>.Filter.Eq(s => s.Status, "available"));
 
-            var update = Builders<SeatDoc>.Update
-                .Set(s => s.Status, "reserved")
-                .Set(s => s.ReservedBy, customer)
-                .Inc(s => s.Version, 1);
+        var update = Builders<SeatDoc>.Update
+            .Set(s => s.Status, "reserved")
+            .Set(s => s.ReservedBy, customer)
+            .Inc(s => s.Version, 1);
 
-            var result = await _seats.UpdateOneAsync(filter, update, cancellationToken: ct);
+        var result = await _seats.UpdateOneAsync(filter, update, cancellationToken: ct);
 
-            if (result.ModifiedCount == 1)
-                return new SeatLockResult(SeatLockOutcome.Reserved, customer, seat.Version + 1);
+        if (result.ModifiedCount == 1)
+            return new SeatLockResult(SeatLockOutcome.Reserved, customer, seat.Version + 1);
 
-            // ModifiedCount == 0 -> someone else won the CAS; loop, re-read, try again.
-        }
-
-        return new SeatLockResult(SeatLockOutcome.Conflict, null, -1);
+        // ModifiedCount == 0 -> someone else won the CAS. Re-read to report the winner.
+        var winner = await _seats.Find(s => s.Id == seatId).FirstOrDefaultAsync(ct);
+        return new SeatLockResult(
+            SeatLockOutcome.AlreadyTaken, winner?.ReservedBy, winner?.Version ?? seat.Version + 1);
     }
 ```
-
-
 
 
 
@@ -670,8 +682,6 @@ Avoid straightforward `read-modify-write` (RMW) cycles that have the “modify�
 Instead “understand” whether the seat is reserved (“read” step) by trying to write to storage and check the result of that write (essentially do read-modify-write but all three in storage, which can handle it).
 
 Another approach is to leverage the storage’s native concurrency approaches (pessimistic / optimistic) like pessimistic locking (SELECT FOR UPDATE in postgres), single threaded (LUA or SET NX in Redis) or Optimistic CAS (update with correct filter criteria in Mongo).
-
-
 
 
 <br>
@@ -715,3 +725,8 @@ The repository with examples: [https://github.com/andreyka26-git/andreyka26-dist
 
 [10] [Mongo checks “doc still matches” before the update](https://github.com/mongodb/mongo/blob/3a871fc6471335817b6ac1b913a47a504b3743b0/src/mongo/db/exec/classic/update_stage.cpp#L229)
 
+<br>
+
+## **Technical Reviewers**
+
+* Bohdan Bilokon, [LinkedIn](https://www.linkedin.com/in/bohdan-bilokon/)
